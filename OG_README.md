@@ -27,9 +27,9 @@ Package [`com.example.jetnews.ui`][1]
 
 [`JetnewsNavGraph.kt`][3] configures the navigation routes and actions in the app. 
 
-[1]: app/src/main/java/com/example/jetnews/ui
-[2]: app/src/main/java/com/example/jetnews/ui/JetnewsApp.kt
-[3]: app/src/main/java/com/example/jetnews/ui/JetnewsNavGraph.kt
+[1]: app/src/main/java/com/example/grub/ui
+[2]: app/src/main/java/com/example/grub/ui/JetnewsApp.kt
+[3]: app/src/main/java/com/example/grub/ui/JetnewsNavGraph.kt
 
 ### Main article list
 
@@ -45,7 +45,7 @@ See how to:
 * Use Material's `Typography` and `ColorScheme` to style the text
 * Use tonal elevation to make the `Card`s stand out from the background
 
-[4]: app/src/main/java/com/example/jetnews/ui/home
+[4]: app/src/main/java/com/example/grub/ui/home
 
 ### Article detail
 
@@ -54,8 +54,8 @@ Package [`com.example.jetnews.ui.article`][5]
 This screen dives into the Text API, showing how to use different fonts than the ones defined in
 [`Typography`][6]. It also adds a bottom app bar, with custom actions.
 
-[5]: app/src/main/java/com/example/jetnews/ui/article
-[6]: app/src/main/java/com/example/jetnews/ui/theme/Type.kt
+[5]: app/src/main/java/com/example/grub/ui/article
+[6]: app/src/main/java/com/example/grub/ui/theme/Type.kt
 
 ### Interests screen
 
@@ -68,8 +68,8 @@ the on/off behaviour and semantics, while drawing a custom UI. The UI of the but
 drawn with low-level primitives and partly overlaying images. See also how to visualize
 on and off, light and dark version in the Android Studio Preview.
 
-[7]: app/src/main/java/com/example/jetnews/ui/interests
-[8]: app/src/main/java/com/example/jetnews/ui/interests/SelectTopicButton.kt
+[7]: app/src/main/java/com/example/grub/ui/interests
+[8]: app/src/main/java/com/example/grub/ui/interests/SelectTopicButton.kt
 
 ### AppWidget powered by Glance
 
@@ -86,7 +86,7 @@ and use dynamic colors when supported
 * Tint `Image`s to match the color scheme
 * Launch an activity on click using `actionStartActivity`
 
-[9]: app/src/main/java/com/example/jetnews/glance
+[9]: app/src/main/java/com/example/grub/glance
 
 ### Data
 

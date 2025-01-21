@@ -22,10 +22,10 @@ plugins {
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
-    namespace = "com.example.jetnews"
+    namespace = "com.example.grub"
 
     defaultConfig {
-        applicationId = "com.example.jetnews"
+        applicationId = "com.example.grub"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
@@ -82,6 +82,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.androidx.navigation.ui.ktx)
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)

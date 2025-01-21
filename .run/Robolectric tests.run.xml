@@ -4,7 +4,7 @@
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$/app" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="--tests &quot;com.example.jetnews.*&quot;" />
+      <option name="scriptParameters" value="--tests &quot;com.example.grub.*&quot;" />
       <option name="taskDescriptions">
         <list />
       </option>
@@ -19,6 +19,7 @@
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>true</RunAsTest>
     <method v="2" />
   </configuration>
 </component>
