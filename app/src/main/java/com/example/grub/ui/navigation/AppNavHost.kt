@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.grub.ui
+package com.example.grub.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,7 +31,10 @@ import com.example.grub.ui.home.HomeViewModel
 import com.example.grub.ui.interests.InterestsRoute
 import com.example.grub.ui.interests.InterestsViewModel
 
-const val POST_ID = "postId"
+object Destinations {
+    const val HOME_ROUTE = "home"
+    const val INTERESTS_ROUTE = "interests"
+}
 
 @Composable
 fun AppNavHost(
@@ -48,17 +51,10 @@ fun AppNavHost(
     ) {
         composable(
             route = Destinations.HOME_ROUTE,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        "$JETNEWS_APP_URI/${Destinations.HOME_ROUTE}?$POST_ID={$POST_ID}"
-                }
-            )
-        ) { navBackStackEntry ->
+        ) { _ ->
             val homeViewModel: HomeViewModel = viewModel(
                 factory = HomeViewModel.provideFactory(
                     postsRepository = appContainer.postsRepository,
-                    preSelectedPostId = navBackStackEntry.arguments?.getString(POST_ID)
                 )
             )
             HomeRoute(

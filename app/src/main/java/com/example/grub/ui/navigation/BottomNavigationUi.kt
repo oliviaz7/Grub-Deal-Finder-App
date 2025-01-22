@@ -1,3 +1,5 @@
+package com.example.grub.ui.navigation
+
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -10,7 +12,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.grub.R
-import com.example.grub.ui.Destinations
 
 @Composable
 fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier) {

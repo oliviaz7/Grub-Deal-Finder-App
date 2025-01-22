@@ -16,13 +16,14 @@
 
 package com.example.grub.ui
 
-import BottomNavigation
+import com.example.grub.ui.navigation.BottomNavigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
+import com.example.grub.ui.navigation.AppNavHost
 import com.example.grub.ui.theme.ThemeProvider
 
 @Composable
