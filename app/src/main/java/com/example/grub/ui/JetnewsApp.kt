@@ -16,16 +16,20 @@
 
 package com.example.grub.ui
 
+import BottomNavigation
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
@@ -53,34 +57,39 @@ fun JetnewsApp(
         val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
         val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
-        ModalNavigationDrawer(
-            drawerContent = {
-                AppDrawer(
-                    drawerState = sizeAwareDrawerState,
-                    currentRoute = currentRoute,
-                    navigateToHome = navigationActions.navigateToHome,
-                    navigateToInterests = navigationActions.navigateToInterests,
-                    closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } }
-                )
-            },
-            drawerState = sizeAwareDrawerState,
-            // Only enable opening the drawer via gestures if the screen is not expanded
-            gesturesEnabled = !isExpandedScreen
-        ) {
-            Row {
-                if (isExpandedScreen) {
-                    AppNavRail(
+        Scaffold(
+            bottomBar = { BottomNavigation() },
+        ) { padding ->
+            ModalNavigationDrawer(
+                drawerContent = {
+                    AppDrawer(
+                        modifier = Modifier.padding(padding),
+                        drawerState = sizeAwareDrawerState,
                         currentRoute = currentRoute,
                         navigateToHome = navigationActions.navigateToHome,
                         navigateToInterests = navigationActions.navigateToInterests,
+                        closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } }
+                    )
+                },
+                drawerState = sizeAwareDrawerState,
+                // Only enable opening the drawer via gestures if the screen is not expanded
+                gesturesEnabled = !isExpandedScreen
+            ) {
+                Row {
+                    if (isExpandedScreen) {
+                        AppNavRail(
+                            currentRoute = currentRoute,
+                            navigateToHome = navigationActions.navigateToHome,
+                            navigateToInterests = navigationActions.navigateToInterests,
+                        )
+                    }
+                    JetnewsNavGraph(
+                        appContainer = appContainer,
+                        isExpandedScreen = isExpandedScreen,
+                        navController = navController,
+                        openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
                     )
                 }
-                JetnewsNavGraph(
-                    appContainer = appContainer,
-                    isExpandedScreen = isExpandedScreen,
-                    navController = navController,
-                    openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
-                )
             }
         }
     }
