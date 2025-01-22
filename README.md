@@ -14,4 +14,4 @@
 2. Open repo in Android Studio, wait for the gradle sync to complete
 3. You might be missing Java 17, (see what running `java -version` gives you in the terminal) if so install it: https://stackoverflow.com/questions/69875335/macos-how-to-install-java-17
 4. Add the `MAPS_API_KEY` in local.properties file in the root directory (search for MAPS_API_KEY in the discord)
-5. Try pressing the green run button next to app at the top right of the window (if the module is not found, run `./gradlew assembleDebug` in the terminal, then `./gradlew install` in the terminal in the root directory)
+5. Try pressing the green run button next to app at the top right of the window (if the module is not found, run `./gradlew assembleDebug` in the terminal, then `./gradlew installDebug` in the terminal in the root directory)
