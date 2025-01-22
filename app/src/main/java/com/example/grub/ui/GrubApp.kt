@@ -18,11 +18,7 @@ package com.example.grub.ui
 
 import BottomNavigation
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +28,6 @@ import com.example.grub.ui.theme.ThemeProvider
 @Composable
 fun GrubApp(
     appContainer: AppContainer,
-    widthSizeClass: WindowWidthSizeClass,
 ) {
     ThemeProvider {
         val navController = rememberNavController()
