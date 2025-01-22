@@ -43,7 +43,7 @@ import com.example.grub.ui.home.HomeScreenType.FeedWithArticleDetails
 @Composable
 fun HomeRoute(
     homeViewModel: HomeViewModel,
-    isExpandedScreen: Boolean,
+    isExpandedScreen: Boolean = false,
     openDrawer: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
@@ -85,7 +85,7 @@ fun HomeRoute(
 @Composable
 fun HomeRoute(
     uiState: HomeUiState,
-    isExpandedScreen: Boolean,
+    isExpandedScreen: Boolean = false,
     onToggleFavorite: (String) -> Unit,
     onSelectPost: (String) -> Unit,
     onRefreshPosts: () -> Unit,

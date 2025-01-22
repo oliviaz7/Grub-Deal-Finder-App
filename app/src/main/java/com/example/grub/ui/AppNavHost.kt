@@ -34,9 +34,8 @@ import com.example.grub.ui.interests.InterestsViewModel
 const val POST_ID = "postId"
 
 @Composable
-fun AppNavGraph(
+fun AppNavHost(
     appContainer: AppContainer,
-    isExpandedScreen: Boolean,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     openDrawer: () -> Unit = {},
@@ -64,7 +63,6 @@ fun AppNavGraph(
             )
             HomeRoute(
                 homeViewModel = homeViewModel,
-                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
             )
         }
@@ -74,7 +72,6 @@ fun AppNavGraph(
             )
             InterestsRoute(
                 interestsViewModel = interestsViewModel,
-                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer
             )
         }

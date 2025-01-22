@@ -33,7 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 @Composable
 fun InterestsRoute(
     interestsViewModel: InterestsViewModel,
-    isExpandedScreen: Boolean,
+    isExpandedScreen: Boolean = false,
     openDrawer: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {

@@ -7,12 +7,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.grub.R
-
-// https://medium.com/design-bootcamp/navigation-bar-with-jetpack-compose-32b052824b7d
+import com.example.grub.ui.Destinations
 
 @Composable
-fun BottomNavigation(modifier: Modifier = Modifier) {
+fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier) {
 
     val items = listOf(
         BottomNavItem.Map,
@@ -22,7 +23,8 @@ fun BottomNavigation(modifier: Modifier = Modifier) {
     NavigationBar(modifier = modifier) {
         items.forEach { item ->
             AddItem(
-                screen = item
+                screen = item,
+                navController = navController,
             )
         }
     }
@@ -30,24 +32,28 @@ fun BottomNavigation(modifier: Modifier = Modifier) {
 
 sealed class BottomNavItem(
     var title: String,
-    var icon: Int
+    var icon: Int,
+    val route: String,
 ) {
     data object Map :
         BottomNavItem(
             "Map",
-            R.drawable.ic_jetnews_bookmark // replace
+            R.drawable.ic_jetnews_bookmark, // replace
+            Destinations.HOME_ROUTE,
         )
 
     data object Discover :
         BottomNavItem(
             "Discover",
-            R.drawable.ic_jetnews_logo // replace
+            R.drawable.ic_jetnews_logo, // replace
+            Destinations.INTERESTS_ROUTE,
         )
 }
 
 @Composable
 fun RowScope.AddItem(
-    screen: BottomNavItem
+    screen: BottomNavItem,
+    navController: NavController
 ) {
     NavigationBarItem(
         label = {
@@ -61,7 +67,21 @@ fun RowScope.AddItem(
         },
         selected = false,
         alwaysShowLabel = true,
-        onClick = { /*TODO*/ },
+        onClick = {
+            navController.navigate(screen.route) {
+                // Pop up to the start destination of the graph to
+                // avoid building up a large stack of destinations
+                // on the back stack as users select items
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                // Avoid multiple copies of the same destination when
+                // re-selecting the same item
+                launchSingleTop = true
+                // Restore state when re-selecting a previously selected item
+                restoreState = true
+            }
+        },
         colors = NavigationBarItemDefaults.colors()
     )
 }
