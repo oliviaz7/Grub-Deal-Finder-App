@@ -108,7 +108,7 @@ import com.example.grub.ui.article.postContentItems
 import com.example.grub.ui.article.sharePost
 import com.example.grub.ui.components.JetnewsSnackbarHost
 import com.example.grub.ui.modifiers.interceptKey
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.ui.utils.BookmarkButton
 import com.example.grub.ui.utils.FavoriteButton
 import com.example.grub.ui.utils.ShareButton
@@ -743,7 +743,7 @@ fun PreviewHomeListDrawerScreen() {
     val postsFeed = runBlocking {
         (BlockingFakePostsRepository().getPostsFeed() as Result.Success).data
     }
-    JetnewsTheme {
+    ThemeProvider {
         HomeFeedScreen(
             uiState = HomeUiState.HasPosts(
                 postsFeed = postsFeed,
@@ -779,7 +779,7 @@ fun PreviewHomeListNavRailScreen() {
     val postsFeed = runBlocking {
         (BlockingFakePostsRepository().getPostsFeed() as Result.Success).data
     }
-    JetnewsTheme {
+    ThemeProvider {
         HomeFeedScreen(
             uiState = HomeUiState.HasPosts(
                 postsFeed = postsFeed,
@@ -811,7 +811,7 @@ fun PreviewHomeListDetailScreen() {
     val postsFeed = runBlocking {
         (BlockingFakePostsRepository().getPostsFeed() as Result.Success).data
     }
-    JetnewsTheme {
+    ThemeProvider {
         HomeFeedWithArticleDetailsScreen(
             uiState = HomeUiState.HasPosts(
                 postsFeed = postsFeed,

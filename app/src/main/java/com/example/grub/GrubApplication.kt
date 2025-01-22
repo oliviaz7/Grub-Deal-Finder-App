@@ -20,7 +20,7 @@ import android.app.Application
 import com.example.grub.data.AppContainer
 import com.example.grub.data.AppContainerImpl
 
-class JetnewsApplication : Application() {
+class GrubApplication : Application() {
     companion object {
         const val JETNEWS_APP_URI = "https://developer.android.com/jetnews"
     }

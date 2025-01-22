@@ -24,7 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import com.example.grub.JetnewsApplication.Companion.JETNEWS_APP_URI
+import com.example.grub.GrubApplication.Companion.JETNEWS_APP_URI
 import com.example.grub.data.AppContainer
 import com.example.grub.ui.home.HomeRoute
 import com.example.grub.ui.home.HomeViewModel
@@ -34,13 +34,13 @@ import com.example.grub.ui.interests.InterestsViewModel
 const val POST_ID = "postId"
 
 @Composable
-fun JetnewsNavGraph(
+fun AppNavGraph(
     appContainer: AppContainer,
     isExpandedScreen: Boolean,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     openDrawer: () -> Unit = {},
-    startDestination: String = JetnewsDestinations.HOME_ROUTE,
+    startDestination: String = Destinations.HOME_ROUTE,
 ) {
     NavHost(
         navController = navController,
@@ -48,11 +48,11 @@ fun JetnewsNavGraph(
         modifier = modifier
     ) {
         composable(
-            route = JetnewsDestinations.HOME_ROUTE,
+            route = Destinations.HOME_ROUTE,
             deepLinks = listOf(
                 navDeepLink {
                     uriPattern =
-                        "$JETNEWS_APP_URI/${JetnewsDestinations.HOME_ROUTE}?$POST_ID={$POST_ID}"
+                        "$JETNEWS_APP_URI/${Destinations.HOME_ROUTE}?$POST_ID={$POST_ID}"
                 }
             )
         ) { navBackStackEntry ->
@@ -68,7 +68,7 @@ fun JetnewsNavGraph(
                 openDrawer = openDrawer,
             )
         }
-        composable(JetnewsDestinations.INTERESTS_ROUTE) {
+        composable(Destinations.INTERESTS_ROUTE) {
             val interestsViewModel: InterestsViewModel = viewModel(
                 factory = InterestsViewModel.provideFactory(appContainer.interestsRepository)
             )

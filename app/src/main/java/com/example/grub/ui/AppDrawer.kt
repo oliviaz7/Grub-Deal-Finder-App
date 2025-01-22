@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.grub.R
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 
 @Composable
 fun AppDrawer(
@@ -61,14 +61,14 @@ fun AppDrawer(
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.home_title)) },
             icon = { Icon(Icons.Filled.Home, null) },
-            selected = currentRoute == JetnewsDestinations.HOME_ROUTE,
+            selected = currentRoute == Destinations.HOME_ROUTE,
             onClick = { navigateToHome(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.interests_title)) },
             icon = { Icon(Icons.Filled.ListAlt, null) },
-            selected = currentRoute == JetnewsDestinations.INTERESTS_ROUTE,
+            selected = currentRoute == Destinations.INTERESTS_ROUTE,
             onClick = { navigateToInterests(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
@@ -96,10 +96,10 @@ private fun JetNewsLogo(modifier: Modifier = Modifier) {
 @Preview("Drawer contents (dark)", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewAppDrawer() {
-    JetnewsTheme {
+    ThemeProvider {
         AppDrawer(
             drawerState = rememberDrawerState(initialValue = DrawerValue.Open),
-            currentRoute = JetnewsDestinations.HOME_ROUTE,
+            currentRoute = Destinations.HOME_ROUTE,
             navigateToHome = {},
             navigateToInterests = {},
             closeDrawer = { }

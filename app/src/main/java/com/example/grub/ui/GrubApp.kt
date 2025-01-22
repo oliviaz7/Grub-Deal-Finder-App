@@ -34,25 +34,25 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.ui.components.AppNavRail
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import kotlinx.coroutines.launch
 
 @Composable
-fun JetnewsApp(
+fun GrubApp(
     appContainer: AppContainer,
     widthSizeClass: WindowWidthSizeClass,
 ) {
-    JetnewsTheme {
+    ThemeProvider {
         val navController = rememberNavController()
         val navigationActions = remember(navController) {
-            JetnewsNavigationActions(navController)
+            NavigationActions(navController)
         }
 
         val coroutineScope = rememberCoroutineScope()
 
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute =
-            navBackStackEntry?.destination?.route ?: JetnewsDestinations.HOME_ROUTE
+            navBackStackEntry?.destination?.route ?: Destinations.HOME_ROUTE
 
         val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
         val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
@@ -83,7 +83,7 @@ fun JetnewsApp(
                             navigateToInterests = navigationActions.navigateToInterests,
                         )
                     }
-                    JetnewsNavGraph(
+                    AppNavGraph(
                         appContainer = appContainer,
                         isExpandedScreen = isExpandedScreen,
                         navController = navController,

@@ -43,7 +43,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.text.Text
-import com.example.grub.JetnewsApplication.Companion.JETNEWS_APP_URI
+import com.example.grub.GrubApplication.Companion.JETNEWS_APP_URI
 import com.example.grub.R
 import com.example.grub.glance.ui.theme.JetnewsGlanceTextStyles
 import com.example.grub.model.Post

@@ -76,7 +76,7 @@ import com.example.grub.model.Metadata
 import com.example.grub.model.Paragraph
 import com.example.grub.model.ParagraphType
 import com.example.grub.model.Post
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 
 private val defaultSpacerSize = 16.dp
 
@@ -347,7 +347,7 @@ private val ColorScheme.codeBlockBackground: Color
 @Preview("Post content (dark)", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewPost() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostContent(post = post3)
         }

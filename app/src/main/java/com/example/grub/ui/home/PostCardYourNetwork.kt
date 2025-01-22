@@ -47,7 +47,7 @@ import com.example.grub.data.posts.impl.post4
 import com.example.grub.data.posts.impl.post5
 import com.example.grub.model.Post
 import com.example.grub.model.PostAuthor
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +108,7 @@ fun PostCardPopular(
 fun PreviewPostCardPopular(
     @PreviewParameter(PostPreviewParameterProvider::class, limit = 1) post: Post
 ) {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardPopular(post, {})
         }
@@ -129,7 +129,7 @@ fun PreviewPostCardPopularLongText(
         facilisis eget magna quis, rhoncus volutpat mi. Phasellus vel sollicitudin quam, eu
         consectetur dolor. Proin lobortis venenatis sem, in vestibulum est. Duis ac nibh interdum,
         """.trimIndent()
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardPopular(
                 post.copy(

@@ -61,7 +61,7 @@ import com.example.grub.data.Result
 import com.example.grub.data.posts.impl.BlockingFakePostsRepository
 import com.example.grub.data.posts.impl.post3
 import com.example.grub.model.Post
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.ui.utils.BookmarkButton
 import com.example.grub.ui.utils.FavoriteButton
 import com.example.grub.ui.utils.ShareButton
@@ -244,7 +244,7 @@ fun sharePost(post: Post, context: Context) {
 @Preview("Article screen (big font)", fontScale = 1.5f)
 @Composable
 fun PreviewArticleDrawer() {
-    JetnewsTheme {
+    ThemeProvider {
         val post = runBlocking {
             (BlockingFakePostsRepository().getPost(post3.id) as Result.Success).data
         }
@@ -261,7 +261,7 @@ fun PreviewArticleDrawer() {
 @Preview("Article screen navrail (big font)", fontScale = 1.5f, device = Devices.PIXEL_C)
 @Composable
 fun PreviewArticleNavRail() {
-    JetnewsTheme {
+    ThemeProvider {
         val post = runBlocking {
             (BlockingFakePostsRepository().getPost(post3.id) as Result.Success).data
         }

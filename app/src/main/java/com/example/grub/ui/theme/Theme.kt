@@ -87,7 +87,7 @@ val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun JetnewsTheme(
+fun ThemeProvider(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -101,8 +101,8 @@ fun JetnewsTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        shapes = JetnewsShapes,
-        typography = JetnewsTypography,
+        shapes = Shapes,
+        typography = Typography,
         content = content
     )
 }

@@ -24,7 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.grub.ui.home.HomeFeedScreen
 import com.example.grub.ui.home.HomeUiState
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.utils.ErrorMessage
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -47,7 +47,7 @@ class HomeScreenTests {
     fun postsContainError_snackbarShown() {
         val snackbarHostState = SnackbarHostState()
         composeTestRule.setContent {
-            JetnewsTheme {
+            ThemeProvider {
 
                 // When the Home screen receives data with an error
                 HomeFeedScreen(

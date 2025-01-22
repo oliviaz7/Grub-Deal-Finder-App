@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.example.grub.R
 import com.example.grub.data.posts.impl.post3
 import com.example.grub.model.Post
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.ui.utils.BookmarkButton
 
 @Composable
@@ -203,7 +203,7 @@ fun PostCardHistory(post: Post, navigateToArticle: (String) -> Unit) {
 @Preview("Bookmark Button")
 @Composable
 fun BookmarkButtonPreview() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             BookmarkButton(isBookmarked = false, onClick = { })
         }
@@ -213,7 +213,7 @@ fun BookmarkButtonPreview() {
 @Preview("Bookmark Button Bookmarked")
 @Composable
 fun BookmarkButtonBookmarkedPreview() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             BookmarkButton(isBookmarked = true, onClick = { })
         }
@@ -224,7 +224,7 @@ fun BookmarkButtonBookmarkedPreview() {
 @Preview("Simple post card (dark)", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun SimplePostPreview() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardSimple(post3, {}, false, {})
         }
@@ -234,7 +234,7 @@ fun SimplePostPreview() {
 @Preview("Post History card")
 @Composable
 fun HistoryPostPreview() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardHistory(post3, {})
         }

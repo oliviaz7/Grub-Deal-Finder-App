@@ -34,8 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.grub.R
-import com.example.grub.ui.JetnewsDestinations
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.Destinations
+import com.example.grub.ui.theme.ThemeProvider
 
 @Composable
 fun AppNavRail(
@@ -57,14 +57,14 @@ fun AppNavRail(
     ) {
         Spacer(Modifier.weight(1f))
         NavigationRailItem(
-            selected = currentRoute == JetnewsDestinations.HOME_ROUTE,
+            selected = currentRoute == Destinations.HOME_ROUTE,
             onClick = navigateToHome,
             icon = { Icon(Icons.Filled.Home, stringResource(R.string.home_title)) },
             label = { Text(stringResource(R.string.home_title)) },
             alwaysShowLabel = false
         )
         NavigationRailItem(
-            selected = currentRoute == JetnewsDestinations.INTERESTS_ROUTE,
+            selected = currentRoute == Destinations.INTERESTS_ROUTE,
             onClick = navigateToInterests,
             icon = { Icon(Icons.Filled.ListAlt, stringResource(R.string.interests_title)) },
             label = { Text(stringResource(R.string.interests_title)) },
@@ -78,9 +78,9 @@ fun AppNavRail(
 @Preview("Drawer contents (dark)", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewAppNavRail() {
-    JetnewsTheme {
+    ThemeProvider {
         AppNavRail(
-            currentRoute = JetnewsDestinations.HOME_ROUTE,
+            currentRoute = Destinations.HOME_ROUTE,
             navigateToHome = {},
             navigateToInterests = {},
         )

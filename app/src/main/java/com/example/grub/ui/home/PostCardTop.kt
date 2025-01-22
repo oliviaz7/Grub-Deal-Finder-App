@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.example.grub.R
 import com.example.grub.data.posts.impl.posts
 import com.example.grub.model.Post
-import com.example.grub.ui.theme.JetnewsTheme
+import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.utils.CompletePreviews
 
 @Composable
@@ -93,7 +93,7 @@ fun PostCardTop(post: Post, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun PostCardTopPreview() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardTop(posts.highlightedPost)
         }
@@ -109,7 +109,7 @@ fun PostCardTopPreview() {
 @CompletePreviews
 @Composable
 fun PostCardTopPreviews() {
-    JetnewsTheme {
+    ThemeProvider {
         Surface {
             PostCardTop(posts.highlightedPost)
         }
