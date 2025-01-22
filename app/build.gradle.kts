@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose)
+    alias(libs.plugins.secrets)
 }
 
 android {
@@ -83,6 +84,8 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -99,6 +102,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.googlemaps.compose)
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
