@@ -23,11 +23,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
-import com.example.grub.GrubApplication.Companion.JETNEWS_APP_URI
 import com.example.grub.data.AppContainer
-import com.example.grub.ui.home.HomeRoute
-import com.example.grub.ui.home.HomeViewModel
+import com.example.grub.ui.map.MapRoute
+import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.interests.InterestsRoute
 import com.example.grub.ui.interests.InterestsViewModel
 
@@ -41,7 +39,6 @@ fun AppNavHost(
     appContainer: AppContainer,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    openDrawer: () -> Unit = {},
     startDestination: String = Destinations.HOME_ROUTE,
 ) {
     NavHost(
@@ -52,14 +49,14 @@ fun AppNavHost(
         composable(
             route = Destinations.HOME_ROUTE,
         ) { _ ->
-            val homeViewModel: HomeViewModel = viewModel(
-                factory = HomeViewModel.provideFactory(
+            val mapViewModel: MapViewModel = viewModel(
+                factory = MapViewModel.provideFactory(
+                    // TODO: change to a dealsRepository
                     postsRepository = appContainer.postsRepository,
                 )
             )
-            HomeRoute(
-                homeViewModel = homeViewModel,
-                openDrawer = openDrawer,
+            MapRoute(
+                mapViewModel = mapViewModel,
             )
         }
         composable(Destinations.INTERESTS_ROUTE) {
@@ -68,7 +65,6 @@ fun AppNavHost(
             )
             InterestsRoute(
                 interestsViewModel = interestsViewModel,
-                openDrawer = openDrawer
             )
         }
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.grub.ui.home
+package com.example.grub.ui.map
 
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -122,7 +122,7 @@ import kotlinx.coroutines.runBlocking
  */
 @Composable
 fun HomeFeedWithArticleDetailsScreen(
-    uiState: HomeUiState,
+    uiState: MapUiState,
     showTopAppBar: Boolean,
     onToggleFavorite: (String) -> Unit,
     onSelectPost: (String) -> Unit,
@@ -228,7 +228,7 @@ private fun Modifier.notifyInput(block: () -> Unit): Modifier =
  */
 @Composable
 fun HomeFeedScreen(
-    uiState: HomeUiState,
+    uiState: MapUiState,
     showTopAppBar: Boolean,
     onToggleFavorite: (String) -> Unit,
     onSelectPost: (String) -> Unit,
@@ -277,7 +277,7 @@ fun HomeFeedScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenWithList(
-    uiState: HomeUiState,
+    uiState: MapUiState,
     showTopAppBar: Boolean,
     onRefreshPosts: () -> Unit,
     onErrorDismiss: (Long) -> Unit,
@@ -285,7 +285,7 @@ private fun HomeScreenWithList(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     hasPostsContent: @Composable (
-        uiState: HomeUiState.HasPosts,
+        uiState: MapUiState.HasPosts,
         contentPadding: PaddingValues,
         modifier: Modifier
     ) -> Unit
@@ -309,18 +309,18 @@ private fun HomeScreenWithList(
         LoadingContent(
             modifier = Modifier.padding(innerPadding),
             empty = when (uiState) {
-                is HomeUiState.HasPosts -> false
-                is HomeUiState.NoPosts -> uiState.isLoading
+                is MapUiState.HasPosts -> false
+                is MapUiState.NoPosts -> uiState.isLoading
             },
             emptyContent = { FullScreenLoading() },
             loading = uiState.isLoading,
             onRefresh = onRefreshPosts,
             content = {
                 when (uiState) {
-                    is HomeUiState.HasPosts ->
+                    is MapUiState.HasPosts ->
                         hasPostsContent(uiState, innerPadding, contentModifier)
 
-                    is HomeUiState.NoPosts -> {
+                    is MapUiState.NoPosts -> {
                         if (uiState.errorMessages.isEmpty()) {
                             // if there are no posts, and no error, let the user refresh manually
                             TextButton(
@@ -745,7 +745,7 @@ fun PreviewHomeListDrawerScreen() {
     }
     ThemeProvider {
         HomeFeedScreen(
-            uiState = HomeUiState.HasPosts(
+            uiState = MapUiState.HasPosts(
                 postsFeed = postsFeed,
                 selectedPost = postsFeed.highlightedPost,
                 isArticleOpen = false,
@@ -781,7 +781,7 @@ fun PreviewHomeListNavRailScreen() {
     }
     ThemeProvider {
         HomeFeedScreen(
-            uiState = HomeUiState.HasPosts(
+            uiState = MapUiState.HasPosts(
                 postsFeed = postsFeed,
                 selectedPost = postsFeed.highlightedPost,
                 isArticleOpen = false,
@@ -813,7 +813,7 @@ fun PreviewHomeListDetailScreen() {
     }
     ThemeProvider {
         HomeFeedWithArticleDetailsScreen(
-            uiState = HomeUiState.HasPosts(
+            uiState = MapUiState.HasPosts(
                 postsFeed = postsFeed,
                 selectedPost = postsFeed.highlightedPost,
                 isArticleOpen = false,

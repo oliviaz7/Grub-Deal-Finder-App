@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.grub.ui.home
+package com.example.grub.ui.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -34,12 +34,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * UI state for the Home route.
+ * UI state for the Map route.
  *
- * This is derived from [HomeViewModelState], but split into two possible subclasses to more
+ * This is derived from [MapViewModelState], but split into two possible subclasses to more
  * precisely represent the state available to render the UI.
  */
-sealed interface HomeUiState {
+sealed interface MapUiState {
 
     val isLoading: Boolean
     val errorMessages: List<ErrorMessage>
@@ -55,7 +55,7 @@ sealed interface HomeUiState {
         override val isLoading: Boolean,
         override val errorMessages: List<ErrorMessage>,
         override val searchInput: String
-    ) : HomeUiState
+    ) : MapUiState
 
     /**
      * There are posts to render, as contained in [postsFeed].
@@ -70,13 +70,13 @@ sealed interface HomeUiState {
         override val isLoading: Boolean,
         override val errorMessages: List<ErrorMessage>,
         override val searchInput: String
-    ) : HomeUiState
+    ) : MapUiState
 }
 
 /**
  * An internal representation of the Home route state, in a raw form
  */
-private data class HomeViewModelState(
+private data class MapViewModelState(
     val postsFeed: PostsFeed? = null,
     val selectedPostId: String? = null, // TODO back selectedPostId in a SavedStateHandle
     val isArticleOpen: Boolean = false,
@@ -87,18 +87,18 @@ private data class HomeViewModelState(
 ) {
 
     /**
-     * Converts this [HomeViewModelState] into a more strongly typed [HomeUiState] for driving
+     * Converts this [MapViewModelState] into a more strongly typed [MapUiState] for driving
      * the ui.
      */
-    fun toUiState(): HomeUiState =
+    fun toUiState(): MapUiState =
         if (postsFeed == null) {
-            HomeUiState.NoPosts(
+            MapUiState.NoPosts(
                 isLoading = isLoading,
                 errorMessages = errorMessages,
                 searchInput = searchInput
             )
         } else {
-            HomeUiState.HasPosts(
+            MapUiState.HasPosts(
                 postsFeed = postsFeed,
                 // Determine the selected post. This will be the post the user last selected.
                 // If there is none (or that post isn't in the current feed), default to the
@@ -118,13 +118,13 @@ private data class HomeViewModelState(
 /**
  * ViewModel that handles the business logic of the Home screen
  */
-class HomeViewModel(
+class MapViewModel(
     private val postsRepository: PostsRepository,
     preSelectedPostId: String?
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
-        HomeViewModelState(
+        MapViewModelState(
             isLoading = true,
             selectedPostId = preSelectedPostId,
             isArticleOpen = preSelectedPostId != null
@@ -133,7 +133,7 @@ class HomeViewModel(
 
     // UI state exposed to the UI
     val uiState = viewModelState
-        .map(HomeViewModelState::toUiState)
+        .map(MapViewModelState::toUiState)
         .stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -242,7 +242,7 @@ class HomeViewModel(
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return HomeViewModel(postsRepository, preSelectedPostId) as T
+                return MapViewModel(postsRepository, preSelectedPostId) as T
             }
         }
     }

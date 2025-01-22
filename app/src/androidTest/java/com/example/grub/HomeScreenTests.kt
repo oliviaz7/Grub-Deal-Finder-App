@@ -22,8 +22,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.grub.ui.home.HomeFeedScreen
-import com.example.grub.ui.home.HomeUiState
+import com.example.grub.ui.map.HomeFeedScreen
+import com.example.grub.ui.map.MapUiState
 import com.example.grub.ui.theme.ThemeProvider
 import com.example.grub.utils.ErrorMessage
 import kotlinx.coroutines.flow.filterNotNull
@@ -51,7 +51,7 @@ class HomeScreenTests {
 
                 // When the Home screen receives data with an error
                 HomeFeedScreen(
-                    uiState = HomeUiState.NoPosts(
+                    uiState = MapUiState.NoPosts(
                         isLoading = false,
                         errorMessages = listOf(ErrorMessage(0L, R.string.load_error)),
                         searchInput = ""

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.grub.ui.home
+package com.example.grub.ui.map
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

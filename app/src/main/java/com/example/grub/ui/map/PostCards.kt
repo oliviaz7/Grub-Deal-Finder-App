@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.grub.ui.home
+package com.example.grub.ui.map
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image

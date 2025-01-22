@@ -34,7 +34,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 fun InterestsRoute(
     interestsViewModel: InterestsViewModel,
     isExpandedScreen: Boolean = false,
-    openDrawer: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val tabContent = rememberTabContent(interestsViewModel)
@@ -47,7 +46,6 @@ fun InterestsRoute(
         currentSection = currentSection,
         isExpandedScreen = isExpandedScreen,
         onTabChange = updateSection,
-        openDrawer = openDrawer,
         snackbarHostState = snackbarHostState
     )
 }

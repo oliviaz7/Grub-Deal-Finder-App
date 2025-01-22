@@ -117,7 +117,7 @@ fun InterestsScreen(
     currentSection: Sections,
     isExpandedScreen: Boolean,
     onTabChange: (Sections) -> Unit,
-    openDrawer: () -> Unit,
+    openDrawer: () -> Unit = {},
     snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current

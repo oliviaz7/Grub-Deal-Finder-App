@@ -45,7 +45,7 @@ See how to:
 * Use Material's `Typography` and `ColorScheme` to style the text
 * Use tonal elevation to make the `Card`s stand out from the background
 
-[4]: app/src/main/java/com/example/grub/ui/home
+[4]: app/src/main/java/com/example/grub/ui/map
 
 ### Article detail
 
