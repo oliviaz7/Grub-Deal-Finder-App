@@ -23,7 +23,6 @@ import androidx.activity.enableEdgeToEdge
 import com.example.grub.GrubApplication
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
