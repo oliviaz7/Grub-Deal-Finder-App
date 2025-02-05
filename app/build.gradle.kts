@@ -130,5 +130,7 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.compose.ui.test)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
 
