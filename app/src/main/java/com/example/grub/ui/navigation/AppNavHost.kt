@@ -51,8 +51,7 @@ fun AppNavHost(
         ) { _ ->
             val mapViewModel: MapViewModel = viewModel(
                 factory = MapViewModel.provideFactory(
-                    // TODO: change to a dealsRepository
-                    postsRepository = appContainer.postsRepository,
+                    dealsRepository = appContainer.dealsRepository,
                 )
             )
             MapRoute(

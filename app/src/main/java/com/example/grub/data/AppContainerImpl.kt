@@ -17,6 +17,8 @@
 package com.example.grub.data
 
 import android.content.Context
+import com.example.grub.data.deals.DealsRepository
+import com.example.grub.data.deals.impl.FakeDealsRepository
 import com.example.grub.data.interests.InterestsRepository
 import com.example.grub.data.interests.impl.FakeInterestsRepository
 import com.example.grub.data.posts.PostsRepository
@@ -26,6 +28,7 @@ import com.example.grub.data.posts.impl.FakePostsRepository
  * Dependency Injection container at the application level.
  */
 interface AppContainer {
+    val dealsRepository: DealsRepository
     val postsRepository: PostsRepository
     val interestsRepository: InterestsRepository
 }
@@ -36,6 +39,10 @@ interface AppContainer {
  * Variables are initialized lazily and the same instance is shared across the whole app.
  */
 class AppContainerImpl(private val applicationContext: Context) : AppContainer {
+
+    override val dealsRepository: DealsRepository by lazy {
+        FakeDealsRepository()
+    }
 
     override val postsRepository: PostsRepository by lazy {
         FakePostsRepository()

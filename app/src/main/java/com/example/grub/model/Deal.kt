@@ -1,6 +1,5 @@
 package com.example.grub.model
 
-import androidx.annotation.DrawableRes
 
 data class Deal(
     val id: String,
@@ -9,8 +8,8 @@ data class Deal(
     val type: DealType,
     val placeId: String, // TODO: is this actually a string?
     val restaurantName: String, // necessary?
-    val expiryDate: Metadata,
-    val datePosted: List<Paragraph> = emptyList(),
+//    val expiryDate: Date, // TOO LAZY TO FIGURE THIS OUT RN I'LL DO IT LATER
+//    val datePosted: List<Paragraph> = emptyList(),
     val userId: String,
     val restrictions: String, // TODO: make this not a string lol
 )

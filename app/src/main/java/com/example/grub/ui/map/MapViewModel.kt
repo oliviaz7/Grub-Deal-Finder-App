@@ -19,19 +19,16 @@ package com.example.grub.ui.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.grub.R
 import com.example.grub.data.Result
+import com.example.grub.data.deals.DealsRepository
 import com.example.grub.data.posts.PostsRepository
-import com.example.grub.model.Post
-import com.example.grub.model.PostsFeed
-import com.example.grub.utils.ErrorMessage
-import java.util.UUID
+import com.example.grub.model.Deal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * UI state for the Map route.
@@ -39,95 +36,35 @@ import kotlinx.coroutines.launch
  * This is derived from [MapViewModelState], but split into two possible subclasses to more
  * precisely represent the state available to render the UI.
  */
-sealed interface MapUiState {
-
-    val isLoading: Boolean
-    val errorMessages: List<ErrorMessage>
-    val searchInput: String
-
-    /**
-     * There are no posts to render.
-     *
-     * This could either be because they are still loading or they failed to load, and we are
-     * waiting to reload them.
-     */
-    data class NoPosts(
-        override val isLoading: Boolean,
-        override val errorMessages: List<ErrorMessage>,
-        override val searchInput: String
-    ) : MapUiState
-
-    /**
-     * There are posts to render, as contained in [postsFeed].
-     *
-     * There is guaranteed to be a [selectedPost], which is one of the posts from [postsFeed].
-     */
-    data class HasPosts(
-        val postsFeed: PostsFeed,
-        val selectedPost: Post,
-        val isArticleOpen: Boolean,
-        val favorites: Set<String>,
-        override val isLoading: Boolean,
-        override val errorMessages: List<ErrorMessage>,
-        override val searchInput: String
-    ) : MapUiState
-}
+data class MapUiState(
+    val deals: List<Deal>
+)
 
 /**
- * An internal representation of the Home route state, in a raw form
+ * An internal representation of the map route state, in a raw form
+ * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class MapViewModelState(
-    val postsFeed: PostsFeed? = null,
-    val selectedPostId: String? = null, // TODO back selectedPostId in a SavedStateHandle
-    val isArticleOpen: Boolean = false,
-    val favorites: Set<String> = emptySet(),
-    val isLoading: Boolean = false,
-    val errorMessages: List<ErrorMessage> = emptyList(),
-    val searchInput: String = "",
+    val deals: List<Deal>
 ) {
 
     /**
      * Converts this [MapViewModelState] into a more strongly typed [MapUiState] for driving
      * the ui.
      */
-    fun toUiState(): MapUiState =
-        if (postsFeed == null) {
-            MapUiState.NoPosts(
-                isLoading = isLoading,
-                errorMessages = errorMessages,
-                searchInput = searchInput
-            )
-        } else {
-            MapUiState.HasPosts(
-                postsFeed = postsFeed,
-                // Determine the selected post. This will be the post the user last selected.
-                // If there is none (or that post isn't in the current feed), default to the
-                // highlighted post
-                selectedPost = postsFeed.allPosts.find {
-                    it.id == selectedPostId
-                } ?: postsFeed.highlightedPost,
-                isArticleOpen = isArticleOpen,
-                favorites = favorites,
-                isLoading = isLoading,
-                errorMessages = errorMessages,
-                searchInput = searchInput
-            )
-        }
+    fun toUiState(): MapUiState = MapUiState(deals)
 }
 
 /**
  * ViewModel that handles the business logic of the Home screen
  */
 class MapViewModel(
-    private val postsRepository: PostsRepository,
-    preSelectedPostId: String?
+    private val dealsRepository: DealsRepository,
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
         MapViewModelState(
-            isLoading = true,
-            selectedPostId = preSelectedPostId,
-            isArticleOpen = preSelectedPostId != null
+            deals = emptyList()
         )
     )
 
@@ -141,94 +78,13 @@ class MapViewModel(
         )
 
     init {
-        refreshPosts()
-
-        // Observe for favorite changes in the repo layer
-        viewModelScope.launch {
-            postsRepository.observeFavorites().collect { favorites ->
-                viewModelState.update { it.copy(favorites = favorites) }
-            }
-        }
-    }
-
-    /**
-     * Refresh posts and update the UI state accordingly
-     */
-    fun refreshPosts() {
-        // Ui state is refreshing
-        viewModelState.update { it.copy(isLoading = true) }
-
-        viewModelScope.launch {
-            val result = postsRepository.getPostsFeed()
+        runBlocking {
             viewModelState.update {
-                when (result) {
-                    is Result.Success -> it.copy(postsFeed = result.data, isLoading = false)
-                    is Result.Error -> {
-                        val errorMessages = it.errorMessages + ErrorMessage(
-                            id = UUID.randomUUID().mostSignificantBits,
-                            messageId = R.string.load_error
-                        )
-                        it.copy(errorMessages = errorMessages, isLoading = false)
-                    }
-                }
+                it.copy(
+                    deals =
+                    (dealsRepository.getDeals() as Result.Success).data
+                )
             }
-        }
-    }
-
-    /**
-     * Toggle favorite of a post
-     */
-    fun toggleFavourite(postId: String) {
-        viewModelScope.launch {
-            postsRepository.toggleFavorite(postId)
-        }
-    }
-
-    /**
-     * Selects the given article to view more information about it.
-     */
-    fun selectArticle(postId: String) {
-        // Treat selecting a detail as simply interacting with it
-        interactedWithArticleDetails(postId)
-    }
-
-    /**
-     * Notify that an error was displayed on the screen
-     */
-    fun errorShown(errorId: Long) {
-        viewModelState.update { currentUiState ->
-            val errorMessages = currentUiState.errorMessages.filterNot { it.id == errorId }
-            currentUiState.copy(errorMessages = errorMessages)
-        }
-    }
-
-    /**
-     * Notify that the user interacted with the feed
-     */
-    fun interactedWithFeed() {
-        viewModelState.update {
-            it.copy(isArticleOpen = false)
-        }
-    }
-
-    /**
-     * Notify that the user interacted with the article details
-     */
-    fun interactedWithArticleDetails(postId: String) {
-        viewModelState.update {
-            it.copy(
-                selectedPostId = postId,
-                isArticleOpen = true
-            )
-        }
-    }
-
-    /**
-     * Notify that the user updated the search query
-     */
-    fun onSearchInputChanged(searchInput: String) {
-        viewModelState.update {
-            it.copy(searchInput = searchInput)
         }
     }
 
@@ -237,12 +93,11 @@ class MapViewModel(
      */
     companion object {
         fun provideFactory(
-            postsRepository: PostsRepository,
-            preSelectedPostId: String? = null
+            dealsRepository: DealsRepository,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(postsRepository, preSelectedPostId) as T
+                return MapViewModel(dealsRepository) as T
             }
         }
     }
