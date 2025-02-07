@@ -28,10 +28,13 @@ import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.interests.InterestsRoute
 import com.example.grub.ui.interests.InterestsViewModel
+import com.example.grub.ui.list.ListRoute
+import com.example.grub.ui.list.ListViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
     const val INTERESTS_ROUTE = "interests"
+    const val LIST_ROUTE = "list"
 }
 
 @Composable
@@ -64,6 +67,16 @@ fun AppNavHost(
             )
             InterestsRoute(
                 interestsViewModel = interestsViewModel,
+            )
+        }
+        composable(Destinations.LIST_ROUTE) {
+            val listViewModel: ListViewModel = viewModel(
+                factory = ListViewModel.provideFactory(
+                    dealsRepository = appContainer.dealsRepository
+                )
+            )
+            ListRoute(
+                listViewModel = listViewModel,
             )
         }
     }

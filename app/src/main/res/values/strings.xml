@@ -51,6 +51,10 @@
     <string name="interests_section_people">People</string>
     <string name="interests_section_publications">Publications</string>
 
+    <!-- List Screen -->
+    <string name="list_title">All Deals</string>
+    <string name="list_tab1_title">Deals Near You</string>
+
     <!-- Navigation actions -->
     <string name="cd_navigate_up">Navigate up</string>
     <string name="cd_navigate_home">Navigate to the home screen</string>
