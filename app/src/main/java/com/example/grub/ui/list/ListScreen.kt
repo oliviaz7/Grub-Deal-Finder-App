@@ -73,7 +73,7 @@ import kotlin.math.max
 import kotlinx.coroutines.runBlocking
 
 enum class Sections(@StringRes val titleResId: Int) {
-    AllDeals(R.string.list_tab1_title),
+    NearbyDeals(R.string.list_tab1_title),
 }
 
 /**
@@ -172,14 +172,14 @@ fun rememberTabContent(listViewModel: ListViewModel): List<TabContent> {
 
     // Describe the screen sections here since each section needs 2 states and 1 event.
     // Pass them to the stateless InterestsScreen using a tabContent.
-    val allDealsSection = TabContent(Sections.AllDeals) {
+    val nearbyDealsSection = TabContent(Sections.NearbyDeals) {
         TabWithNoSections(
             deals = uiState.deals
         )
     }
 
 
-    return listOf(allDealsSection)
+    return listOf(nearbyDealsSection)
 }
 
 /**
@@ -255,19 +255,10 @@ private fun TabWithNoSections(
 ) {
     Column(tabContainerModifier.verticalScroll(rememberScrollState())) {
         deals.forEach { deal ->
-            Text(
-                text = deal.id + deal.restaurantName,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .semantics { heading() },
-                style = MaterialTheme.typography.titleMedium
-            )
             ListAdaptiveContentLayout {
-                deals.forEach { deal ->
-                    TopicItem(
-                        deal = deal,
-                    )
-                }
+                TopicItem(
+                    deal = deal
+                )
             }
         }
     }
@@ -454,11 +445,11 @@ private fun ListAdaptiveContentLayout(
 
 private fun getFakeTabsContent(): List<TabContent> {
     val dealsRepository = FakeDealsRepository()
-    val allDealsSection = TabContent(Sections.AllDeals) {
+    val nearbyDealsSection = TabContent(Sections.NearbyDeals) {
         TabWithNoSections(
             runBlocking { (dealsRepository.getDeals() as Result.Success).data },
         )
     }
 
-    return listOf(allDealsSection)
+    return listOf(nearbyDealsSection)
 }
