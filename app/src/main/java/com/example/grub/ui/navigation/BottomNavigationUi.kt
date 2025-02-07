@@ -19,7 +19,8 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
     val items = listOf(
         BottomNavItem.Map,
         BottomNavItem.Discover,
-    )
+        BottomNavItem.List,
+        )
 
     NavigationBar(modifier = modifier) {
         items.forEach { item ->
@@ -42,12 +43,18 @@ sealed class BottomNavItem(
             R.drawable.ic_jetnews_bookmark, // replace
             Destinations.HOME_ROUTE,
         )
-
     data object Discover :
         BottomNavItem(
             "Discover",
             R.drawable.ic_jetnews_logo, // replace
             Destinations.INTERESTS_ROUTE,
+        )
+
+    data object List :
+        BottomNavItem(
+            "List",
+            R.drawable.ic_jetnews_logo, // replace
+            Destinations.LIST_ROUTE,
         )
 }
 

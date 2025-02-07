@@ -42,6 +42,7 @@ fun AppNavRail(
     currentRoute: String,
     navigateToHome: () -> Unit,
     navigateToInterests: () -> Unit,
+    navigateToList: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationRail(
@@ -70,6 +71,13 @@ fun AppNavRail(
             label = { Text(stringResource(R.string.interests_title)) },
             alwaysShowLabel = false
         )
+        NavigationRailItem(
+            selected = currentRoute == Destinations.LIST_ROUTE,
+            onClick = navigateToInterests,
+            icon = { Icon(Icons.Filled.ListAlt, stringResource(R.string.list_title)) },
+            label = { Text(stringResource(R.string.list_title)) },
+            alwaysShowLabel = false
+        )
         Spacer(Modifier.weight(1f))
     }
 }
@@ -83,6 +91,7 @@ fun PreviewAppNavRail() {
             currentRoute = Destinations.HOME_ROUTE,
             navigateToHome = {},
             navigateToInterests = {},
+            navigateToList = {},
         )
     }
 }
