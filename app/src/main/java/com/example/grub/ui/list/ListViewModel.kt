@@ -16,21 +16,19 @@
 
 package com.example.grub.ui.list
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.grub.data.Result
 import com.example.grub.data.deals.DealsRepository
-import com.example.grub.data.interests.InterestSection
-import com.example.grub.data.interests.InterestsRepository
-import com.example.grub.data.interests.TopicSelection
-import com.example.grub.data.successOr
 import com.example.grub.model.Deal
-import kotlinx.coroutines.async
+import com.example.grub.model.mappers.DealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -42,8 +40,10 @@ data class ListUiState(
     val loading: Boolean = false,
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 class ListViewModel(
-    private val dealsRepository: DealsRepository
+    private val dealsRepository: DealsRepository,
+    private val dealMapper: DealMapper,
 ) : ViewModel() {
 
     // UI state exposed to the UI
@@ -59,21 +59,24 @@ class ListViewModel(
     /**
      * Refresh topics, people, and publications
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun refreshAll() {
         _uiState.update { it.copy(loading = true) }
 
         viewModelScope.launch {
-            // Trigger repository requests in parallel
-            val dealsDeferred = async { dealsRepository.getDeals() }
-
-            // Wait for all requests to finish
-            val deals = dealsDeferred.await().successOr(emptyList())
-
-            _uiState.update {
-                it.copy(
-                    loading = false,
-                    deals = deals
-                )
+            dealsRepository.getDeals().let { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val deals = result.data.map(dealMapper::mapRawDealToDeal)
+                        _uiState.update {
+                            it.copy(
+                                loading = false,
+                                deals = deals
+                            )
+                        }
+                    }
+                    else -> Log.e("FetchingError", "ListViewModel, initial request failed")
+                }
             }
         }
     }
@@ -84,10 +87,11 @@ class ListViewModel(
     companion object {
         fun provideFactory(
             dealsRepository: DealsRepository,
+            dealMapper: DealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ListViewModel(dealsRepository) as T
+                return ListViewModel(dealsRepository, dealMapper) as T
             }
         }
     }
