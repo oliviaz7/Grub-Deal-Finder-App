@@ -16,6 +16,8 @@
 
 package com.example.grub.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
+import com.example.grub.model.mappers.DealMapper
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.interests.InterestsRoute
@@ -37,6 +40,7 @@ object Destinations {
     const val LIST_ROUTE = "list"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(
     appContainer: AppContainer,
@@ -55,6 +59,7 @@ fun AppNavHost(
             val mapViewModel: MapViewModel = viewModel(
                 factory = MapViewModel.provideFactory(
                     dealsRepository = appContainer.dealsRepository,
+                    dealMapper = DealMapper,
                 )
             )
             MapRoute(
@@ -72,7 +77,8 @@ fun AppNavHost(
         composable(Destinations.LIST_ROUTE) {
             val listViewModel: ListViewModel = viewModel(
                 factory = ListViewModel.provideFactory(
-                    dealsRepository = appContainer.dealsRepository
+                    dealsRepository = appContainer.dealsRepository,
+                    dealMapper = DealMapper,
                 )
             )
             ListRoute(

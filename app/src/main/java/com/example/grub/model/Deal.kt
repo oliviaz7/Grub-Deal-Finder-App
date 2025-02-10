@@ -1,17 +1,20 @@
 package com.example.grub.model
 
+import com.google.android.gms.maps.model.LatLng
+import java.time.ZonedDateTime
 
 data class Deal(
     val id: String,
     val item: String,
     val description: String? = null,
     val type: DealType,
-    val placeId: String, // TODO: is this actually a string?
-    val restaurantName: String, // necessary?
-//    val expiryDate: Date, // TOO LAZY TO FIGURE THIS OUT RN I'LL DO IT LATER
-//    val datePosted: List<Paragraph> = emptyList(),
+    val coordinates: LatLng,
+    val placeId: String,
+    val restaurantName: String,
+    val expiryDate: ZonedDateTime? = null,
+    val datePosted: ZonedDateTime,
     val userId: String,
-    val restrictions: String, // TODO: make this not a string lol
+    val restrictions: String, // TODO: figure out how we're handling
 )
 
 enum class DealType {

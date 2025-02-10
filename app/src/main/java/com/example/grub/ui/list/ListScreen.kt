@@ -443,13 +443,13 @@ private fun ListAdaptiveContentLayout(
 
 
 
-private fun getFakeTabsContent(): List<TabContent> {
-    val dealsRepository = FakeDealsRepository()
-    val nearbyDealsSection = TabContent(Sections.NearbyDeals) {
-        TabWithNoSections(
-            runBlocking { (dealsRepository.getDeals() as Result.Success).data },
-        )
-    }
-
-    return listOf(nearbyDealsSection)
-}
+//private fun getFakeTabsContent(): List<TabContent> {
+//    val dealsRepository = FakeDealsRepository()
+//    val nearbyDealsSection = TabContent(Sections.NearbyDeals) {
+//        TabWithNoSections(
+//            runBlocking { (dealsRepository.getDeals() as Result.Success).data },
+//        )
+//    }
+//
+//    return listOf(nearbyDealsSection)
+//}
