@@ -22,10 +22,12 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.ui.navigation.Destinations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -40,7 +42,8 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class MapUiState(
-    val restaurantDeals: List<RestaurantDeal>
+    val restaurantDeals: List<RestaurantDeal>,
+    val onClickedFab: () -> Unit
 )
 
 /**
@@ -48,14 +51,15 @@ data class MapUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class MapViewModelState(
-    val restaurantDeals: List<RestaurantDeal>
+    val restaurantDeals: List<RestaurantDeal>,
+    val onClickedFab: () -> Unit
 ) {
 
     /**
      * Converts this [MapViewModelState] into a more strongly typed [MapUiState] for driving
      * the ui.
      */
-    fun toUiState(): MapUiState = MapUiState(restaurantDeals)
+    fun toUiState(): MapUiState = MapUiState(restaurantDeals, onClickedFab)
 }
 
 /**
@@ -65,11 +69,18 @@ private data class MapViewModelState(
 class MapViewModel(
     private val restaurantDealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
+    private val navController: NavController,
 ) : ViewModel() {
+
+    private val onClickedFab: () -> Unit = {
+        // Handle FAB click
+        navController.navigate(Destinations.SELECT_RESTAURANT_ROUTE)
+    }
 
     private val viewModelState = MutableStateFlow(
         MapViewModelState(
-            restaurantDeals = emptyList()
+            restaurantDeals = emptyList(),
+            onClickedFab = onClickedFab
         )
     )
 
@@ -103,10 +114,11 @@ class MapViewModel(
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
+            navController: NavController,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(restaurantDealsRepository, dealMapper) as T
+                return MapViewModel(restaurantDealsRepository, dealMapper, navController) as T
             }
         }
     }

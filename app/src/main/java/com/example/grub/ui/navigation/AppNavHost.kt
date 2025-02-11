@@ -27,6 +27,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
+import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantRoute
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.interests.InterestsRoute
@@ -38,6 +40,7 @@ object Destinations {
     const val HOME_ROUTE = "home"
     const val INTERESTS_ROUTE = "interests"
     const val LIST_ROUTE = "list"
+    const val SELECT_RESTAURANT_ROUTE = "selectRestaurant"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -60,6 +63,7 @@ fun AppNavHost(
                 factory = MapViewModel.provideFactory(
                     restaurantDealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
+                    navController = navController,
                 )
             )
             MapRoute(
@@ -83,6 +87,17 @@ fun AppNavHost(
             )
             ListRoute(
                 listViewModel = listViewModel,
+            )
+        }
+        composable(Destinations.SELECT_RESTAURANT_ROUTE) {
+            val selectRestaurantViewModel: SelectRestaurantViewModel = viewModel(
+                factory = SelectRestaurantViewModel.provideFactory(
+                    dealsRepository = appContainer.restaurantDealsRepository,
+                    dealMapper = RestaurantDealMapper,
+                )
+            )
+            SelectRestaurantRoute(
+                selectRestaurantViewModel = selectRestaurantViewModel,
             )
         }
     }

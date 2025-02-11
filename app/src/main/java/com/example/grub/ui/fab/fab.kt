@@ -16,10 +16,10 @@ import androidx.compose.foundation.shape.CircleShape
 
 
 @Composable
-fun Fab(modifier: Modifier = Modifier) {
+fun Fab(modifier: Modifier = Modifier, onclick: () -> Unit) {
     // Add the FloatingActionButton
     FloatingActionButton(
-        onClick = { println("CLICKED BUTTON") },
+        onClick = onclick,
         modifier = modifier.padding(16.dp),
         shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.primary,

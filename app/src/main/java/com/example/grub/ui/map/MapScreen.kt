@@ -36,7 +36,8 @@ fun MapScreen(uiState: MapUiState, modifier: Modifier = Modifier) {
                 )
 
                 Fab(modifier = Modifier
-                        .align(Alignment.BottomEnd))
+                        .align(Alignment.BottomEnd),
+                    onclick = uiState.onClickedFab)
             }
 
 }

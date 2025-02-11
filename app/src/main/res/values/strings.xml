@@ -55,6 +55,10 @@
     <string name="list_title">All Deals</string>
     <string name="list_tab1_title">Deals Near You</string>
 
+    <!-- Add deal -->
+    <string name="addDealTooltip">Add a deal</string>
+
+
     <!-- Navigation actions -->
     <string name="cd_navigate_up">Navigate up</string>
     <string name="cd_navigate_home">Navigate to the home screen</string>
