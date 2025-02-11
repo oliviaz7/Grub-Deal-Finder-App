@@ -32,7 +32,6 @@ import com.example.grub.data.AppContainer
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
 import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantRoute
-import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
 import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.interests.InterestsRoute
 import com.example.grub.ui.interests.InterestsViewModel

@@ -7,9 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
-import com.example.grub.data.deals.DealsRepository
+import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.Deal
-import com.example.grub.model.mappers.DealMapper
+import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.mappers.RestaurantDealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -24,7 +25,7 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class SelectRestaurantUiState(
-    val deals: List<Deal>
+    val deals: List<RestaurantDeal>
 )
 
 /**
@@ -32,7 +33,7 @@ data class SelectRestaurantUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class SelectRestaurantViewModelState(
-    val deals: List<Deal>
+    val deals: List<RestaurantDeal>
 ) {
 
     /**
@@ -48,8 +49,8 @@ private data class SelectRestaurantViewModelState(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class SelectRestaurantViewModel(
-    private val dealsRepository: DealsRepository,
-    private val dealMapper: DealMapper,
+    private val dealsRepository: RestaurantDealsRepository,
+    private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
     private val viewModelState = MutableStateFlow(
         SelectRestaurantViewModelState(
@@ -68,10 +69,10 @@ class SelectRestaurantViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.getDeals().let { result ->
+            dealsRepository.getRestaurantDeals().let { result ->
                 when (result) {
                     is Result.Success -> {
-                        val deals = result.data.map(dealMapper::mapRawDealToDeal)
+                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
                         viewModelState.update { it.copy(deals = deals) }
                     }
                     else -> Log.e("FetchingError", "SelectRestaurantViewModel, initial request failed")
@@ -85,8 +86,8 @@ class SelectRestaurantViewModel(
      */
     companion object {
         fun provideFactory(
-            dealsRepository: DealsRepository,
-            dealMapper: DealMapper,
+            dealsRepository: RestaurantDealsRepository,
+            dealMapper: RestaurantDealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
