@@ -124,7 +124,7 @@ fun AppNavHost(
         ) { backStackEntry ->
             val deal = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<Deal>("deal") ?: error("Missing deal object")
+                ?.get<Deal>("deal") ?:null
 
             val dealDetailViewModel: DealDetailViewModel = viewModel(
                 factory = DealDetailViewModel.provideFactory(

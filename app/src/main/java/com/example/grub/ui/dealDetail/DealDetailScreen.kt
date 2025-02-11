@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.R
+import com.example.grub.ui.navigation.Destinations
 
 
 @OptIn(ExperimentalMaterial3Api::class)

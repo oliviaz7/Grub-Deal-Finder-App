@@ -59,7 +59,7 @@ private data class DealDetailViewModelState(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class DealDetailViewModel(
-    private val deal: Deal
+    private val deal: Deal?
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
@@ -89,7 +89,7 @@ class DealDetailViewModel(
      */
     companion object {
         fun provideFactory(
-            deal: Deal
+            deal: Deal?
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
