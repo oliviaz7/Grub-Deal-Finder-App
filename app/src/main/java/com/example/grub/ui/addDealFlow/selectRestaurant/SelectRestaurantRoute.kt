@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.grub.ui.map.MapUiState
+import androidx.navigation.NavController
 
 /**
  * Displays the SelectRestaurant route.
@@ -21,7 +22,8 @@ import com.example.grub.ui.map.MapUiState
 @Composable
 fun SelectRestaurantRoute(
     selectRestaurantViewModel: SelectRestaurantViewModel,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() } ,
+    navController: NavController,
 ) {
     // UiState of the HomeScreen
     val uiState by selectRestaurantViewModel.uiState.collectAsStateWithLifecycle()
@@ -29,6 +31,7 @@ fun SelectRestaurantRoute(
     SelectRestaurantRoute(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
+        navController = navController,
     )
 }
 
@@ -36,7 +39,8 @@ fun SelectRestaurantRoute(
 fun SelectRestaurantRoute(
     uiState: SelectRestaurantUiState,
     snackbarHostState: SnackbarHostState,
+    navController: NavController,
 ) {
-    SelectRestaurantScreen(uiState)
+    SelectRestaurantScreen(uiState, navController)
 }
 

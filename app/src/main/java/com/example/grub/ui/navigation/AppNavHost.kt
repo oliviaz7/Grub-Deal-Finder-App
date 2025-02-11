@@ -109,6 +109,7 @@ fun AppNavHost(
             ) {
                 SelectRestaurantRoute(
                     selectRestaurantViewModel = selectRestaurantViewModel,
+                    navController = navController,
                 )
             }
         }

@@ -87,7 +87,6 @@ fun RowScope.AddItem(
                 // re-selecting the same item
                 launchSingleTop = true
                 // Restore state when re-selecting a previously selected item
-                // Angela: set to false to exit out of add deal flow
                 restoreState = true
             }
         },
