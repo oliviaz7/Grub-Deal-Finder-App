@@ -23,9 +23,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
-import com.example.grub.data.deals.DealsRepository
-import com.example.grub.model.Deal
-import com.example.grub.model.mappers.DealMapper
+import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.mappers.RestaurantDealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -40,7 +40,8 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class ListUiState(
-    val deals: List<Deal>
+    val restaurantDeals: List<RestaurantDeal> = emptyList(),
+    val loading: Boolean = false,
 )
 
 /**
@@ -48,14 +49,14 @@ data class ListUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class ListViewModelState(
-    val deals: List<Deal>
+    val restaurantDeals: List<RestaurantDeal>
 ) {
 
     /**
      * Converts this [ListViewModelState] into a more strongly typed [ListUiState] for driving
      * the ui.
      */
-    fun toUiState(): ListUiState = ListUiState(deals)
+    fun toUiState(): ListUiState = ListUiState(restaurantDeals)
 }
 
 /**
@@ -63,13 +64,13 @@ private data class ListViewModelState(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class ListViewModel(
-    private val dealsRepository: DealsRepository,
-    private val dealMapper: DealMapper,
+    private val restaurantDealsRepository: RestaurantDealsRepository,
+    private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
         ListViewModelState(
-            deals = emptyList()
+            restaurantDeals = emptyList()
         )
     )
 
@@ -84,12 +85,13 @@ class ListViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.getDeals().let { result ->
+            restaurantDealsRepository.getRestaurantDeals().let { result ->
                 when (result) {
                     is Result.Success -> {
-                        val deals = result.data.map(dealMapper::mapRawDealToDeal)
-                        viewModelState.update { it.copy(deals = deals) }
+                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                        viewModelState.update { it.copy(restaurantDeals = deals) }
                     }
+
                     else -> Log.e("FetchingError", "ListViewModel, initial request failed")
                 }
             }
@@ -101,12 +103,12 @@ class ListViewModel(
      */
     companion object {
         fun provideFactory(
-            dealsRepository: DealsRepository,
-            dealMapper: DealMapper,
+            restaurantDealsRepository: RestaurantDealsRepository,
+            dealMapper: RestaurantDealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ListViewModel(dealsRepository, dealMapper) as T
+                return ListViewModel(restaurantDealsRepository, dealMapper) as T
             }
         }
     }

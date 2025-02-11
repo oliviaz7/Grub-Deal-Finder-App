@@ -21,7 +21,7 @@ fun MapScreen(uiState: MapUiState, modifier: Modifier = Modifier) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(singapore, 10f)
     }
-    println("MAP SCREEN ui state: ${uiState.deals}")
+    println("MAP SCREEN ui state: ${uiState.restaurantDeals}")
 
     Box(
         modifier = Modifier
