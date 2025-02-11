@@ -1,10 +1,7 @@
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.map.MapUiState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -34,9 +31,6 @@ fun MapScreen(uiState: MapUiState, modifier: Modifier = Modifier) {
                         zoomControlsEnabled = false
                     )
                 )
-
-                Fab(modifier = Modifier
-                        .align(Alignment.BottomEnd))
             }
 
 }

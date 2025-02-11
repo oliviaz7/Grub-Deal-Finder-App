@@ -17,6 +17,8 @@
 package com.example.grub.ui.map
 
 import MapScreen
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
  * @param mapViewModel ViewModel that handles the business logic of this screen
  * @param snackbarHostState (state) state for the [Scaffold] component on this screen
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MapRoute(
     mapViewModel: MapViewModel,

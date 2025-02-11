@@ -16,6 +16,8 @@
 
 package com.example.grub.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.grub.ui.navigation.BottomNavigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,9 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
+import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.navigation.AppNavHost
 import com.example.grub.ui.theme.ThemeProvider
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GrubApp(
     appContainer: AppContainer,
@@ -33,14 +37,9 @@ fun GrubApp(
     ThemeProvider {
         val navController = rememberNavController()
 
-        Scaffold(
-            bottomBar = { BottomNavigation(navController) },
-        ) { padding ->
-            AppNavHost(
-                modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
-                appContainer = appContainer,
-                navController = navController,
-            )
-        }
+        AppNavHost(
+            appContainer = appContainer,
+            navController = navController,
+        )
     }
 }
