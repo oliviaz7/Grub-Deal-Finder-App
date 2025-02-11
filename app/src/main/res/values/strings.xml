@@ -58,6 +58,8 @@
     <!-- Add deal -->
     <string name="addDealTooltip">Add a deal</string>
 
+    <!-- deal detail Screen -->
+    <string name="deal_detail_title">Deal Detail</string>
 
     <!-- Navigation actions -->
     <string name="cd_navigate_up">Navigate up</string>

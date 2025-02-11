@@ -1,6 +1,7 @@
 package com.example.grub.ui.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,11 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.grub.R
+import com.example.grub.ui.navigation.Destinations
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListScreen(uiState: ListUiState, modifier: Modifier = Modifier) {
+fun ListScreen(uiState: ListUiState, navController: NavController, modifier: Modifier = Modifier) {
 
     println("List SCREEN ui state: ${uiState.restaurantDeals}")
     Scaffold(
@@ -56,7 +59,15 @@ fun ListScreen(uiState: ListUiState, modifier: Modifier = Modifier) {
                 restaurant.deals.forEach { deal ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .clickable{
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            key = "deal",
+                                            value = deal
+                                        )
+                                        navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
+                                    }
                     ) {
                         val image = painterResource(R.drawable.placeholder_1_1)
                         Image(

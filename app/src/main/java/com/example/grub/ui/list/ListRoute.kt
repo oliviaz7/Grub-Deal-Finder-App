@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 
 /**
  * Displays the List route.
@@ -32,12 +33,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun ListRoute(
     listViewModel: ListViewModel,
+    navController: NavController
 ) {
     // UiState of the HomeScreen
     val uiState by listViewModel.uiState.collectAsStateWithLifecycle()
 
     ListRoute(
         uiState = uiState,
+        navController
     )
 }
 
@@ -52,6 +55,7 @@ fun ListRoute(
 @Composable
 fun ListRoute(
     uiState: ListUiState,
+    navController: NavController
 ) {
-    ListScreen(uiState)
+    ListScreen(uiState, navController)
 }
