@@ -1,33 +1,22 @@
 package com.example.grub.ui.list
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import com.example.grub.ui.fab.Fab
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,53 +27,54 @@ import com.example.grub.R
 @Composable
 fun ListScreen(uiState: ListUiState, modifier: Modifier = Modifier) {
 
-    println("List SCREEN ui state: ${uiState.deals}")
+    println("List SCREEN ui state: ${uiState.restaurantDeals}")
     Scaffold(
-        topBar = {CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = stringResource(R.string.list_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        )}
-    ){
-        innerPadding ->
-        val screenModifier = Modifier.padding(innerPadding)
-
-    Column(modifier = screenModifier) {
-
-        uiState.deals.forEach { deal ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                val image = painterResource(R.drawable.placeholder_1_1)
-                Image(
-                    painter = image,
-                    contentDescription = null, // decorative
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                )
-                Text(
-                    text = "${deal.id} ${deal.restaurantName}",
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .weight(1f), // Break line if the title is too long
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(Modifier.width(16.dp))
-            }
-
-            // Divider after each deal
-            HorizontalDivider(
-                modifier = modifier.padding(start = 72.dp, top = 8.dp, bottom = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.list_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             )
         }
-    }
+    ) { innerPadding ->
+        val screenModifier = Modifier.padding(innerPadding)
+
+        Column(modifier = screenModifier) {
+
+            uiState.restaurantDeals.forEach { deal ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    val image = painterResource(R.drawable.placeholder_1_1)
+                    Image(
+                        painter = image,
+                        contentDescription = null, // decorative
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                    Text(
+                        text = "${deal.id} ${deal.restaurantName}",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .weight(1f), // Break line if the title is too long
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(Modifier.width(16.dp))
+                }
+
+                // Divider after each deal
+                HorizontalDivider(
+                    modifier = modifier.padding(start = 72.dp, top = 8.dp, bottom = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                )
+            }
+        }
     }
 
 }
