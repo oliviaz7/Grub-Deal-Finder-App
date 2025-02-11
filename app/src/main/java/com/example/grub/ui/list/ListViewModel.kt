@@ -27,53 +27,68 @@ import com.example.grub.data.deals.DealsRepository
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.DealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * UI state for the Interests screen
+ * UI state for the Map route.
+ *
+ * This is derived from [ListViewModelState], but split into two possible subclasses to more
+ * precisely represent the state available to render the UI.
  */
 data class ListUiState(
-    val deals: List<Deal> = emptyList(),
-    val loading: Boolean = false,
+    val deals: List<Deal>
 )
 
+/**
+ * An internal representation of the map route state, in a raw form
+ * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
+ */
+private data class ListViewModelState(
+    val deals: List<Deal>
+) {
+
+    /**
+     * Converts this [ListViewModelState] into a more strongly typed [ListUiState] for driving
+     * the ui.
+     */
+    fun toUiState(): ListUiState = ListUiState(deals)
+}
+
+/**
+ * ViewModel that handles the business logic of the Home screen
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 class ListViewModel(
     private val dealsRepository: DealsRepository,
     private val dealMapper: DealMapper,
 ) : ViewModel() {
 
-    // UI state exposed to the UI
-    private val _uiState = MutableStateFlow(ListUiState(loading = true))
-    val uiState: StateFlow<ListUiState> = _uiState.asStateFlow()
+    private val viewModelState = MutableStateFlow(
+        ListViewModelState(
+            deals = emptyList()
+        )
+    )
 
+    // UI state exposed to the UI
+    val uiState = viewModelState
+        .map(ListViewModelState::toUiState)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            viewModelState.value.toUiState()
+        )
 
     init {
-        refreshAll()
-    }
-
-
-    /**
-     * Refresh topics, people, and publications
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun refreshAll() {
-        _uiState.update { it.copy(loading = true) }
-
         viewModelScope.launch {
             dealsRepository.getDeals().let { result ->
                 when (result) {
                     is Result.Success -> {
                         val deals = result.data.map(dealMapper::mapRawDealToDeal)
-                        _uiState.update {
-                            it.copy(
-                                loading = false,
-                                deals = deals
-                            )
-                        }
+                        viewModelState.update { it.copy(deals = deals) }
                     }
                     else -> Log.e("FetchingError", "ListViewModel, initial request failed")
                 }
@@ -82,7 +97,7 @@ class ListViewModel(
     }
 
     /**
-     * Factory for ListViewModel that takes PostsRepository as a dependency
+     * Factory for HomeViewModel that takes PostsRepository as a dependency
      */
     companion object {
         fun provideFactory(

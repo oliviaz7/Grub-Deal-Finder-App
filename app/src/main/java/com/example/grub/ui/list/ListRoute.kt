@@ -16,36 +16,42 @@
 
 package com.example.grub.ui.list
 
-import androidx.compose.material3.SnackbarHostState
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
- * Stateful composable that displays the Navigation route for the Interests screen.
+ * Displays the List route.
  *
- * @param ListViewModel ViewModel that handles the business logic of this screen
- * @param isExpandedScreen (state) true if the screen is expanded
- * @param openDrawer (event) request opening the app drawer
- * @param snackbarHostState (state) state for screen snackbar host
+ * @param listViewModel ViewModel that handles the business logic of this screen
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ListRoute(
     listViewModel: ListViewModel,
-    isExpandedScreen: Boolean = false,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
-    val tabContent = rememberTabContent(listViewModel)
-    val (currentSection, updateSection) = rememberSaveable {
-        mutableStateOf(tabContent.first().section)
-    }
+    // UiState of the HomeScreen
+    val uiState by listViewModel.uiState.collectAsStateWithLifecycle()
 
-    ListScreen(
-        tabContent = tabContent,
-        currentSection = currentSection,
-        isExpandedScreen = isExpandedScreen,
-        onTabChange = updateSection,
-        snackbarHostState = snackbarHostState
+    ListRoute(
+        uiState = uiState,
     )
+}
+
+/**
+ * Displays the Home route.
+ *
+ * This composable is not coupled to any specific state management.
+ *
+ * @param uiState (state) the data to show on the screen
+ * @param snackbarHostState (state) state for the [Scaffold] component on this screen
+ */
+@Composable
+fun ListRoute(
+    uiState: ListUiState,
+) {
+    ListScreen(uiState)
 }
