@@ -5,12 +5,12 @@ import com.example.grub.model.DealType
 import com.google.android.gms.maps.model.LatLng
 
 // Mirrors what we expect to receive from the server, unprocessed
-data class RestaurantDealResponse(
+data class RestaurantDealsResponse(
     val id: String,
     val placeId: String,
     val coordinates: LatLng,
     val restaurantName: String,
-    val rawDeal: List<RawDeal>,
+    val rawDeals: List<RawDeal>,
 )
 
 // RawDeal is the domain model. It mirrors the raw object returned by the server.
@@ -38,5 +38,5 @@ interface RestaurantDealsRepository {
     suspend fun getRestaurantDeals(
         coordinates: LatLng? = null,
         radius: Double = 3.0
-    ): Result<List<RestaurantDealResponse>>
+    ): Result<List<RestaurantDealsResponse>>
 }

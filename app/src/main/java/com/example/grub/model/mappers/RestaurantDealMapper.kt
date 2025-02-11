@@ -2,7 +2,7 @@ package com.example.grub.model.mappers
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.grub.data.deals.RestaurantDealResponse
+import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
 import java.time.Instant
@@ -12,10 +12,10 @@ import java.time.ZonedDateTime
 object RestaurantDealMapper {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun mapResponseToRestaurantDeals(response: RestaurantDealResponse): RestaurantDeal {
+    fun mapResponseToRestaurantDeals(response: RestaurantDealsResponse): RestaurantDeal {
         val zoneId = ZoneId.of("EST") // hardcoded time zone for now
 
-        val deals = response.rawDeal.map { rawDeal ->
+        val deals = response.rawDeals.map { rawDeal ->
             Deal(
                 id = rawDeal.id,
                 item = rawDeal.item,

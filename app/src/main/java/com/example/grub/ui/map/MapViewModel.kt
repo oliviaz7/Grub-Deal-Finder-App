@@ -23,9 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
-import com.example.grub.data.deals.RestaurantDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
-import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
