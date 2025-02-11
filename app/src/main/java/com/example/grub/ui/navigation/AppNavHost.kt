@@ -18,6 +18,9 @@ package com.example.grub.ui.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,12 +32,14 @@ import com.example.grub.data.AppContainer
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
 import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantRoute
-import com.example.grub.ui.map.MapRoute
-import com.example.grub.ui.map.MapViewModel
+import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
+import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.interests.InterestsRoute
 import com.example.grub.ui.interests.InterestsViewModel
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
+import com.example.grub.ui.map.MapRoute
+import com.example.grub.ui.map.MapViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -63,20 +68,21 @@ fun AppNavHost(
                 factory = MapViewModel.provideFactory(
                     restaurantDealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
-                    navController = navController,
                 )
             )
-            MapRoute(
-                mapViewModel = mapViewModel,
-            )
+            ScreenWithScaffold(navController) {
+                MapRoute(mapViewModel = mapViewModel)
+            }
         }
         composable(Destinations.INTERESTS_ROUTE) {
             val interestsViewModel: InterestsViewModel = viewModel(
                 factory = InterestsViewModel.provideFactory(appContainer.interestsRepository)
             )
-            InterestsRoute(
-                interestsViewModel = interestsViewModel,
-            )
+            ScreenWithScaffold(navController) {
+                InterestsRoute(
+                    interestsViewModel = interestsViewModel,
+                )
+            }
         }
         composable(Destinations.LIST_ROUTE) {
             val listViewModel: ListViewModel = viewModel(
@@ -85,9 +91,9 @@ fun AppNavHost(
                     dealMapper = RestaurantDealMapper,
                 )
             )
-            ListRoute(
-                listViewModel = listViewModel,
-            )
+            ScreenWithScaffold(navController) {
+                ListRoute(listViewModel = listViewModel)
+            }
         }
         composable(Destinations.SELECT_RESTAURANT_ROUTE) {
             val selectRestaurantViewModel: SelectRestaurantViewModel = viewModel(
@@ -96,9 +102,40 @@ fun AppNavHost(
                     dealMapper = RestaurantDealMapper,
                 )
             )
-            SelectRestaurantRoute(
-                selectRestaurantViewModel = selectRestaurantViewModel,
-            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = false,
+                showFloatingActionButton = false
+            ) {
+                SelectRestaurantRoute(
+                    selectRestaurantViewModel = selectRestaurantViewModel,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScreenWithScaffold(
+    navController: NavHostController,
+    showBottomNavItem: Boolean = true,
+    showFloatingActionButton: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    Scaffold(
+        floatingActionButton = {
+            if (showFloatingActionButton) {
+                Fab(onclick = { navController.navigate(Destinations.SELECT_RESTAURANT_ROUTE) })
+            }
+        },
+        bottomBar = {
+            if (showBottomNavItem) {
+                BottomNavigation(navController)
+            }
+        }
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            content()
         }
     }
 }

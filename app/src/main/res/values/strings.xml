@@ -63,6 +63,5 @@
     <string name="cd_navigate_up">Navigate up</string>
     <string name="cd_navigate_home">Navigate to the home screen</string>
     <string name="cd_navigate_interests">Navigate to the interests screen</string>
-    <string name="addDealTooltip">add deal tooltip</string>
 
 </resources>

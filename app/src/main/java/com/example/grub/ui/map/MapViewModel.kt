@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
  */
 data class MapUiState(
     val restaurantDeals: List<RestaurantDeal>,
-    val onClickedFab: () -> Unit
 )
 
 /**
@@ -52,14 +51,13 @@ data class MapUiState(
  */
 private data class MapViewModelState(
     val restaurantDeals: List<RestaurantDeal>,
-    val onClickedFab: () -> Unit
 ) {
 
     /**
      * Converts this [MapViewModelState] into a more strongly typed [MapUiState] for driving
      * the ui.
      */
-    fun toUiState(): MapUiState = MapUiState(restaurantDeals, onClickedFab)
+    fun toUiState(): MapUiState = MapUiState(restaurantDeals)
 }
 
 /**
@@ -69,18 +67,11 @@ private data class MapViewModelState(
 class MapViewModel(
     private val restaurantDealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
-    private val navController: NavController,
 ) : ViewModel() {
-
-    private val onClickedFab: () -> Unit = {
-        // Handle FAB click
-        navController.navigate(Destinations.SELECT_RESTAURANT_ROUTE)
-    }
 
     private val viewModelState = MutableStateFlow(
         MapViewModelState(
             restaurantDeals = emptyList(),
-            onClickedFab = onClickedFab
         )
     )
 
@@ -114,11 +105,10 @@ class MapViewModel(
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
-            navController: NavController,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(restaurantDealsRepository, dealMapper, navController) as T
+                return MapViewModel(restaurantDealsRepository, dealMapper) as T
             }
         }
     }
