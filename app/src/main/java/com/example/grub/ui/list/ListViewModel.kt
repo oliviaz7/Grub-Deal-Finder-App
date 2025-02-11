@@ -16,78 +16,97 @@
 
 package com.example.grub.ui.list
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.grub.data.Result
 import com.example.grub.data.deals.DealsRepository
-import com.example.grub.data.interests.InterestSection
-import com.example.grub.data.interests.InterestsRepository
-import com.example.grub.data.interests.TopicSelection
-import com.example.grub.data.successOr
 import com.example.grub.model.Deal
-import kotlinx.coroutines.async
+import com.example.grub.model.mappers.DealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * UI state for the Interests screen
+ * UI state for the Map route.
+ *
+ * This is derived from [ListViewModelState], but split into two possible subclasses to more
+ * precisely represent the state available to render the UI.
  */
 data class ListUiState(
-    val deals: List<Deal> = emptyList(),
-    val loading: Boolean = false,
+    val deals: List<Deal>
 )
 
-class ListViewModel(
-    private val dealsRepository: DealsRepository
-) : ViewModel() {
-
-    // UI state exposed to the UI
-    private val _uiState = MutableStateFlow(ListUiState(loading = true))
-    val uiState: StateFlow<ListUiState> = _uiState.asStateFlow()
-
-
-    init {
-        refreshAll()
-    }
-
+/**
+ * An internal representation of the map route state, in a raw form
+ * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
+ */
+private data class ListViewModelState(
+    val deals: List<Deal>
+) {
 
     /**
-     * Refresh topics, people, and publications
+     * Converts this [ListViewModelState] into a more strongly typed [ListUiState] for driving
+     * the ui.
      */
-    private fun refreshAll() {
-        _uiState.update { it.copy(loading = true) }
+    fun toUiState(): ListUiState = ListUiState(deals)
+}
 
+/**
+ * ViewModel that handles the business logic of the Home screen
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+class ListViewModel(
+    private val dealsRepository: DealsRepository,
+    private val dealMapper: DealMapper,
+) : ViewModel() {
+
+    private val viewModelState = MutableStateFlow(
+        ListViewModelState(
+            deals = emptyList()
+        )
+    )
+
+    // UI state exposed to the UI
+    val uiState = viewModelState
+        .map(ListViewModelState::toUiState)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            viewModelState.value.toUiState()
+        )
+
+    init {
         viewModelScope.launch {
-            // Trigger repository requests in parallel
-            val dealsDeferred = async { dealsRepository.getDeals() }
-
-            // Wait for all requests to finish
-            val deals = dealsDeferred.await().successOr(emptyList())
-
-            _uiState.update {
-                it.copy(
-                    loading = false,
-                    deals = deals
-                )
+            dealsRepository.getDeals().let { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val deals = result.data.map(dealMapper::mapRawDealToDeal)
+                        viewModelState.update { it.copy(deals = deals) }
+                    }
+                    else -> Log.e("FetchingError", "ListViewModel, initial request failed")
+                }
             }
         }
     }
 
     /**
-     * Factory for ListViewModel that takes PostsRepository as a dependency
+     * Factory for HomeViewModel that takes PostsRepository as a dependency
      */
     companion object {
         fun provideFactory(
             dealsRepository: DealsRepository,
+            dealMapper: DealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ListViewModel(dealsRepository) as T
+                return ListViewModel(dealsRepository, dealMapper) as T
             }
         }
     }
