@@ -23,9 +23,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
-import com.example.grub.data.deals.DealsRepository
+import com.example.grub.data.deals.RestaurantDealResponse
+import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.Deal
-import com.example.grub.model.mappers.DealMapper
+import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.mappers.RestaurantDealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -40,7 +42,7 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class MapUiState(
-    val deals: List<Deal>
+    val restaurantDeals: List<RestaurantDeal>
 )
 
 /**
@@ -48,14 +50,14 @@ data class MapUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class MapViewModelState(
-    val deals: List<Deal>
+    val restaurantDeals: List<RestaurantDeal>
 ) {
 
     /**
      * Converts this [MapViewModelState] into a more strongly typed [MapUiState] for driving
      * the ui.
      */
-    fun toUiState(): MapUiState = MapUiState(deals)
+    fun toUiState(): MapUiState = MapUiState(restaurantDeals)
 }
 
 /**
@@ -63,13 +65,13 @@ private data class MapViewModelState(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class MapViewModel(
-    private val dealsRepository: DealsRepository,
-    private val dealMapper: DealMapper,
+    private val restaurantDealsRepository: RestaurantDealsRepository,
+    private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
         MapViewModelState(
-            deals = emptyList()
+            restaurantDeals = emptyList()
         )
     )
 
@@ -84,11 +86,11 @@ class MapViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.getDeals().let { result ->
+            restaurantDealsRepository.getRestaurantDeals().let { result ->
                 when (result) {
                     is Result.Success -> {
-                        val deals = result.data.map(dealMapper::mapRawDealToDeal)
-                        viewModelState.update { it.copy(deals = deals) }
+                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                        viewModelState.update { it.copy(restaurantDeals = deals) }
                     }
                     else -> Log.e("FetchingError", "MapViewModel, initial request failed")
                 }
@@ -101,12 +103,12 @@ class MapViewModel(
      */
     companion object {
         fun provideFactory(
-            dealsRepository: DealsRepository,
-            dealMapper: DealMapper,
+            restaurantDealsRepository: RestaurantDealsRepository,
+            dealMapper: RestaurantDealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(dealsRepository, dealMapper) as T
+                return MapViewModel(restaurantDealsRepository, dealMapper) as T
             }
         }
     }
