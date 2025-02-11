@@ -41,18 +41,5 @@ fun GrubApp(
             appContainer = appContainer,
             navController = navController,
         )
-
-//        Scaffold(
-//            floatingActionButton = { Fab(onclick = { println("CLICKED BUTTON") }) },
-//            bottomBar = { BottomNavigation(navController) },
-//
-//
-//        ) { padding ->
-//            AppNavHost(
-//                modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
-//                appContainer = appContainer,
-//                navController = navController,
-//            )
-//        }
     }
 }
