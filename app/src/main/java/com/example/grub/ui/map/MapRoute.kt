@@ -44,6 +44,7 @@ fun MapRoute(
     MapRoute(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
+        onPermissionsChanged = { mapViewModel.onPermissionsChanged(it) },
     )
 }
 
@@ -59,6 +60,10 @@ fun MapRoute(
 fun MapRoute(
     uiState: MapUiState,
     snackbarHostState: SnackbarHostState,
+    onPermissionsChanged: (Boolean) -> Unit,
 ) {
-    MapScreen(uiState)
+    MapScreen(
+        uiState = uiState,
+        onPermissionsChanged = onPermissionsChanged,
+    )
 }
