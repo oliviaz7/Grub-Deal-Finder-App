@@ -1,5 +1,6 @@
 package com.example.grub.ui.addDealFlow.selectRestaurant
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -7,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
+import com.example.grub.data.StorageService
 import com.example.grub.data.deals.RestaurantDealsRepository
-import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +52,7 @@ private data class SelectRestaurantViewModelState(
 class SelectRestaurantViewModel(
     private val dealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
+    private val storageService: StorageService,
 ) : ViewModel() {
     private val viewModelState = MutableStateFlow(
         SelectRestaurantViewModelState(
@@ -66,6 +68,15 @@ class SelectRestaurantViewModel(
             SharingStarted.Eagerly,
             viewModelState.value.toUiState()
         )
+
+    val uploadImage = { androidUri: Uri ->
+        storageService.uploadDealImage(
+            dealId = "deal_" + System.currentTimeMillis(), // TODO: come up with a better ID
+            fileUri = androidUri,
+            onSuccess = { uploadedUrl: String -> println("UPLOAD SUCCESS: $uploadedUrl") },
+            onFailure = { println("UPLOAD FAILED") },
+        )
+    }
 
     init {
         viewModelScope.launch {
@@ -88,10 +99,11 @@ class SelectRestaurantViewModel(
         fun provideFactory(
             dealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
+            storageService: StorageService,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SelectRestaurantViewModel(dealsRepository, dealMapper) as T
+                return SelectRestaurantViewModel(dealsRepository, dealMapper, storageService,) as T
             }
         }
     }
