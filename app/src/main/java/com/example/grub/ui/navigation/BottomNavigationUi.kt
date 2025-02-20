@@ -1,6 +1,11 @@
 package com.example.grub.ui.navigation
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -8,19 +13,19 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.example.grub.R
 
 @Composable
 fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier) {
 
     val items = listOf(
-        BottomNavItem.Map,
-        BottomNavItem.Discover,
         BottomNavItem.List,
-        )
+        BottomNavItem.Map,
+        BottomNavItem.Profile,
+    )
 
     NavigationBar(modifier = modifier) {
         items.forEach { item ->
@@ -34,27 +39,28 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
 
 sealed class BottomNavItem(
     var title: String,
-    var icon: Int,
+    var icon: ImageVector,
     val route: String,
 ) {
     data object Map :
         BottomNavItem(
             "Map",
-            R.drawable.ic_jetnews_bookmark, // replace
+            Icons.Filled.Map, // replace
             Destinations.HOME_ROUTE,
-        )
-    data object Discover :
-        BottomNavItem(
-            "Discover",
-            R.drawable.ic_jetnews_logo, // replace
-            Destinations.INTERESTS_ROUTE,
         )
 
     data object List :
         BottomNavItem(
             "List",
-            R.drawable.ic_jetnews_logo, // replace
+            Icons.Filled.ListAlt, // replace
             Destinations.LIST_ROUTE,
+        )
+
+    data object Profile :
+        BottomNavItem(
+            "Profile",
+            Icons.Filled.Person,
+            Destinations.PROFILE_ROUTE,
         )
 }
 
@@ -69,8 +75,9 @@ fun RowScope.AddItem(
         },
         icon = {
             Icon(
-                painterResource(id = screen.icon),
-                contentDescription = screen.title
+                screen.icon,
+                contentDescription = screen.title,
+                modifier = Modifier.size(32.dp)
             )
         },
         selected = false,

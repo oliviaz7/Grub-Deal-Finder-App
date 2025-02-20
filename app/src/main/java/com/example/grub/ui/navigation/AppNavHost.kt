@@ -25,16 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
 import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantRoute
+import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.fab.Fab
@@ -51,6 +49,7 @@ object Destinations {
     const val LIST_ROUTE = "list"
     const val SELECT_RESTAURANT_ROUTE = "selectRestaurant"
     const val DEAL_DETAIL_ROUTE = "deal"
+    const val PROFILE_ROUTE = "profile"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -98,6 +97,16 @@ fun AppNavHost(
             )
             ScreenWithScaffold(navController) {
                 ListRoute(listViewModel = listViewModel, navController)
+            }
+        }
+        composable(Destinations.PROFILE_ROUTE) {
+
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = true
+            ) {
+                //to be implemented
             }
         }
         composable(Destinations.SELECT_RESTAURANT_ROUTE) {

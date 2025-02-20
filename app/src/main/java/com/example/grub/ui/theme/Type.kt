@@ -32,9 +32,14 @@ private val Montserrat = FontFamily(
     Font(R.font.montserrat_medium, FontWeight.W500)
 )
 
+private val Poppins = FontFamily(
+    Font(R.font.poppins_regular),
+    Font(R.font.poppins_medium, FontWeight.W500)
+)
+
 @Suppress("DEPRECATION")
 val defaultTextStyle = TextStyle(
-    fontFamily = Montserrat,
+    fontFamily = Poppins,
     platformStyle = PlatformTextStyle(
         includeFontPadding = false
     ),
