@@ -9,7 +9,6 @@ The server exposes endpoints for the Android app to access and retrieve data fro
 
 - Python 3.x
 - `pip` (Python package installer)
-- Supabase account (for accessing the Supabase URL and Key)
 
 ### Step 1: Navigate to the Flask Server Directory
 
@@ -31,3 +30,14 @@ Copy the `.env.example` file to a new file named `.env` with `cp .env.example .e
 
 ### Step 5: Run the Flask Server
 To start the Flask server, run: `python server.py`
+
+
+## Post Setup Instructions
+After completing the setup, the Flask backend server can be run anytime by:
+
+# Activate the virtual environment:
+    On macOS/Linux: `source venv/bin/activate`
+    On Windows: `.\venv\Scripts\activate`
+
+### Step 5: Run the Flask Server
+    `python server.py`
