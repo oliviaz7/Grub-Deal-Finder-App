@@ -2,10 +2,11 @@ package com.example.grub.ui.navigation
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ListAlt
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PersonPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -13,6 +14,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -45,21 +47,21 @@ sealed class BottomNavItem(
     data object Map :
         BottomNavItem(
             "Map",
-            Icons.Filled.Map, // replace
+            Icons.Outlined.Map,
             Destinations.HOME_ROUTE,
         )
 
     data object List :
         BottomNavItem(
             "List",
-            Icons.Filled.ListAlt, // replace
+            Icons.Outlined.ListAlt,
             Destinations.LIST_ROUTE,
         )
 
     data object Profile :
         BottomNavItem(
             "Profile",
-            Icons.Filled.Person,
+            Icons.Outlined.PersonPin,
             Destinations.PROFILE_ROUTE,
         )
 }
@@ -77,7 +79,9 @@ fun RowScope.AddItem(
             Icon(
                 screen.icon,
                 contentDescription = screen.title,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(24.dp))
             )
         },
         selected = false,
