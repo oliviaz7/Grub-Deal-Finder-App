@@ -19,6 +19,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose)
     alias(libs.plugins.secrets)
+    alias(libs.plugins.google.services)
     id("kotlin-parcelize")
 }
 
@@ -123,6 +124,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.window)
+    implementation(platform(libs.firebase.bom))
+
+    val firebaseBom = platform(libs.firebase.bom)
+    implementation(firebaseBom)
+    androidTestImplementation(firebaseBom)
+    implementation(libs.firebase.storage)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)

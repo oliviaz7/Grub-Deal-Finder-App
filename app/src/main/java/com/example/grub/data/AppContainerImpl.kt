@@ -31,6 +31,7 @@ interface AppContainer {
     val restaurantDealsRepository: RestaurantDealsRepository
     val postsRepository: PostsRepository
     val interestsRepository: InterestsRepository
+    val storageService: StorageService
 }
 
 /**
@@ -50,5 +51,9 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val interestsRepository: InterestsRepository by lazy {
         FakeInterestsRepository()
+    }
+
+    override val storageService: StorageService by lazy {
+        FirebaseStorageService()
     }
 }

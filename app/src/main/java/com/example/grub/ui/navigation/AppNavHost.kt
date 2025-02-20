@@ -105,6 +105,7 @@ fun AppNavHost(
                 factory = SelectRestaurantViewModel.provideFactory(
                     dealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
+                    storageService = appContainer.storageService,
                 )
             )
             ScreenWithScaffold(
