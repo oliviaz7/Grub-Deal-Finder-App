@@ -8,9 +8,9 @@ import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PersonPin
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,11 +29,14 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
         BottomNavItem.Profile,
     )
 
+    val currentRoute = navController.currentDestination?.route
+
     NavigationBar(modifier = modifier) {
         items.forEach { item ->
             AddItem(
                 screen = item,
                 navController = navController,
+                selected = currentRoute == item.route
             )
         }
     }
@@ -69,7 +72,8 @@ sealed class BottomNavItem(
 @Composable
 fun RowScope.AddItem(
     screen: BottomNavItem,
-    navController: NavController
+    navController: NavController,
+    selected: Boolean
 ) {
     NavigationBarItem(
         label = {
@@ -79,8 +83,11 @@ fun RowScope.AddItem(
             Icon(
                 screen.icon,
                 contentDescription = screen.title,
+                tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary.copy(
+                    alpha = 0.8f
+                ),
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(36.dp)
                     .clip(RoundedCornerShape(24.dp))
             )
         },
@@ -101,6 +108,5 @@ fun RowScope.AddItem(
                 restoreState = true
             }
         },
-        colors = NavigationBarItemDefaults.colors()
     )
 }
