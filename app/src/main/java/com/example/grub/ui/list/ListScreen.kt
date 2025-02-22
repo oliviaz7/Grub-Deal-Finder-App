@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.grub.R
 import com.example.grub.ui.navigation.Destinations
 
@@ -60,23 +61,16 @@ fun ListScreen(uiState: ListUiState, navController: NavController, modifier: Mod
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .clickable{
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            key = "deal",
-                                            value = deal
-                                        )
-                                        navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
-                                    }
+                            .padding(horizontal = 16.dp)
+                            .clickable {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = "deal",
+                                    value = deal
+                                )
+                                navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
+                            }
                     ) {
-                        val image = painterResource(R.drawable.placeholder_1_1)
-                        Image(
-                            painter = image,
-                            contentDescription = null, // Decorative
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                        )
+                        DealImage(deal.imageUrl)
                         Text(
                             text = "${deal.id} ${deal.type}",
                             modifier = Modifier
@@ -97,4 +91,25 @@ fun ListScreen(uiState: ListUiState, navController: NavController, modifier: Mod
         }
     }
 
+}
+
+@Composable
+fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
+    imageUrl?.let { url ->
+        AsyncImage(
+            model = url,
+            contentDescription = "Deal Image",
+            // TODO: replace with a better loading placeholder
+            placeholder = painterResource(R.drawable.placeholder_4_3),
+            modifier = modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
+    } ?: Image(
+        painter = painterResource(R.drawable.placeholder_1_1),
+        contentDescription = null,
+        modifier = modifier
+            .size(56.dp)
+            .clip(RoundedCornerShape(4.dp))
+    )
 }

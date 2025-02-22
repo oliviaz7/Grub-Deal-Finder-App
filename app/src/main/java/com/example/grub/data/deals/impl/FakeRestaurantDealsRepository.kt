@@ -25,7 +25,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only"
+                        restrictions = "Students only",
+                        imageId = "deal_17400.jpg"
                     )
                 )
             ),
@@ -43,7 +44,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only"
+                        restrictions = "Students only",
+                        imageId = "deal_17400123.jpg"
                     ),
                     RawDeal(
                         id = "dealId_456",
@@ -53,7 +55,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "anhela",
-                        restrictions = "Students only"
+                        restrictions = "Students only",
+                        imageId = "deal_1740033.jpg"
                     )
                 )
             ),
@@ -71,7 +74,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only"
+                        restrictions = "Students only",
+                        imageId = null,
                     )
                 )
             )
