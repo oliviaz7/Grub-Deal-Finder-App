@@ -12,6 +12,7 @@ import com.example.grub.data.StorageService
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -80,7 +81,7 @@ class SelectRestaurantViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.getRestaurantDeals().let { result ->
+            dealsRepository.getRestaurantDeals(LatLng(0.0, 0.0)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
                 when (result) {
                     is Result.Success -> {
                         val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
