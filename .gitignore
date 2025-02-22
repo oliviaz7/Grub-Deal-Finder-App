@@ -11,3 +11,4 @@ local.properties
 .kotlin/
 .env
 .idea/misc.xml
+flask_server/venv

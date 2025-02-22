@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
+import com.example.grub.utils.ImageUrlHelper
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -26,7 +27,8 @@ object RestaurantDealMapper {
                 },
                 datePosted = ZonedDateTime.ofInstant(Instant.ofEpochMilli(rawDeal.datePosted), zoneId),
                 userId = rawDeal.userId,
-                restrictions = rawDeal.restrictions
+                restrictions = rawDeal.restrictions,
+                imageUrl = ImageUrlHelper.getFullUrl(rawDeal.imageId),
             )
         }
 

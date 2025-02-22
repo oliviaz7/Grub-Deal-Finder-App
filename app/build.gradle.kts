@@ -130,6 +130,7 @@ dependencies {
     implementation(firebaseBom)
     androidTestImplementation(firebaseBom)
     implementation(libs.firebase.storage)
+    implementation(libs.coil.kt.compose)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)

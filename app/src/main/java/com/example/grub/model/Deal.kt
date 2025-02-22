@@ -14,6 +14,7 @@ data class Deal(
     val datePosted: ZonedDateTime,
     val userId: String,
     val restrictions: String, // TODO: figure out how we're handling
+    val imageUrl: String?,
 ) : Parcelable
 
 enum class DealType {

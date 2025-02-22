@@ -24,6 +24,7 @@ data class RawDeal(
     val datePosted: Long,
     val userId: String,
     val restrictions: String, // TODO: figure out how we're handling
+    val imageId: String?,
 )
 
 /**
