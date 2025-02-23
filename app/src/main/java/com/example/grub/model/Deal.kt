@@ -21,5 +21,8 @@ enum class DealType {
     BOGO,
     DISCOUNT,
     FREE,
-    // TODO: add more
+    OTHER;
+    // TODO: add more.
+    // NOTE: whenever you add a DealType, please add the enum in supabase as well.
+    //       Go to Database > DATABASE MANAGEMENT > Enumerated Types > Update type (for DealType) > add value for new enum
 }

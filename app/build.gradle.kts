@@ -132,6 +132,9 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.coil.kt.compose)
 
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
@@ -141,7 +144,5 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.compose.ui.test)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
 

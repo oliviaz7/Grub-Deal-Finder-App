@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * UI state for the Map route.
@@ -85,7 +86,7 @@ class ListViewModel(
 
     init {
         viewModelScope.launch {
-            restaurantDealsRepository.getRestaurantDeals().let { result ->
+            restaurantDealsRepository.getRestaurantDeals(LatLng(43.5315 ,-79.6131)).let { result -> // TODO: REPLACE LATLNG WITH VALID CURR LOCATION VALUES
                 when (result) {
                     is Result.Success -> {
                         val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
