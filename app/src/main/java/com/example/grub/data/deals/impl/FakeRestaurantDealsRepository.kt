@@ -85,4 +85,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
     override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<List<RestaurantDealsResponse>> {
         return Result.Success(fakeDeals)
     }
+
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit> {
+        return Result.Success(Unit)
+    }
 }

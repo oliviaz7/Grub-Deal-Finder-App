@@ -22,4 +22,17 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             Result.Error(e)
         }
     }
+
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit> {
+        return try {
+            val response = apiService.addRestaurantDeal(deal)
+            if (response.isSuccessful) {
+                Result.Success(Unit)
+            } else {
+                Result.Error(Exception("Failed to add deal: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
 }

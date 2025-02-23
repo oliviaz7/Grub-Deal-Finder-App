@@ -25,7 +25,7 @@ data class RawDeal(
     @SerializedName("date_posted") val datePosted: Long,
     @SerializedName("user_id") val userId: String,
     @SerializedName("restrictions") val restrictions: String, // TODO: figure out how we're handling
-    val imageId: String?,
+     @SerializedName("image_id") val imageId: String?,
 )
 
 /**
@@ -41,4 +41,6 @@ interface RestaurantDealsRepository {
         coordinates: LatLng,
         radius: Double = 1000.0
     ): Result<List<RestaurantDealsResponse>>
+
+    suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit>
 }
