@@ -67,8 +67,8 @@ def get_deals():
 def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
 	try:
-		data = request.json
-		restaurant_place_id = data.get("place_id")
+		restaurant = request.json
+		restaurant_place_id = restaurant.get("place_id")
 
 		# Check if restaurant already exists
 		existing_restaurant = supabase.from_('Restaurant').select('place_id').eq('place_id', restaurant_place_id).execute()
@@ -76,20 +76,20 @@ def add_restaurant_deal():
 		# Insert restaurant if it doesnt exist
 		if not existing_restaurant.data:
 			restaurant_data = {
-				"id": data.get("id"),
-				"place_id": data.get("place_id"),
-				"restaurant_name": data.get("restaurant_name"),
-				"latitude": data["coordinates"]["latitude"],
-				"longitude": data["coordinates"]["longitude"]
+				"id": restaurant.get("id"),
+				"place_id": restaurant.get("place_id"),
+				"restaurant_name": restaurant.get("restaurant_name"),
+				"latitude": restaurant["coordinates"]["latitude"],
+				"longitude": restaurant["coordinates"]["longitude"]
 			}
 			supabase.from_('Restaurant').insert([restaurant_data]).execute()
 
 		# Insert deal
-		deal = data.get("Deal", [None])[0] if data.get("Deal") else None
+		deal = restaurant.get("Deal", [None])[0] if restaurant.get("Deal") else None
 		if deal:
 			deal_item = {
 				"id": deal["id"],
-				"restaurant_id": data.get("id"),
+				"restaurant_id": restaurant.get("id"),
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal["type"],
