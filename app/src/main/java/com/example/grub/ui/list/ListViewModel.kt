@@ -19,49 +19,43 @@ package com.example.grub.ui.list
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.utils.addOrRemove
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
 
 /**
- * UI state for the Map route.
- *
- * This is derived from [ListViewModelState], but split into two possible subclasses to more
- * precisely represent the state available to render the UI.
+ * UI state for the List route.
  */
 data class ListUiState(
     val restaurantDeals: List<RestaurantDeal> = emptyList(),
+    val filteredDeals: List<RestaurantDeal> = emptyList(),
     val loading: Boolean = false,
+    val selectedFilter: String = "All",
+    val showFilterDialog: Boolean = false,
+    val selectedCustomFilter: CustomFilters = CustomFilters()
 )
 
-/**
- * An internal representation of the map route state, in a raw form
- * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
- */
-private data class ListViewModelState(
-    val restaurantDeals: List<RestaurantDeal>
-) {
+data class CustomFilters(
+    val type: Set<String> = emptySet()
+)
 
-    /**
-     * Converts this [ListViewModelState] into a more strongly typed [ListUiState] for driving
-     * the ui.
-     */
-    fun toUiState(): ListUiState = ListUiState(restaurantDeals)
-}
 
 /**
- * ViewModel that handles the business logic of the Home screen
+ * ViewModel that handles the business logic of the List screen
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class ListViewModel(
@@ -69,20 +63,10 @@ class ListViewModel(
     private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
 
-    private val viewModelState = MutableStateFlow(
-        ListViewModelState(
-            restaurantDeals = emptyList()
-        )
-    )
+    private val viewModelState = MutableStateFlow(ListUiState())
 
     // UI state exposed to the UI
-    val uiState = viewModelState
-        .map(ListViewModelState::toUiState)
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            viewModelState.value.toUiState()
-        )
+    var uiState: StateFlow<ListUiState> = viewModelState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -90,13 +74,91 @@ class ListViewModel(
                 when (result) {
                     is Result.Success -> {
                         val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
-                        viewModelState.update { it.copy(restaurantDeals = deals) }
+                        viewModelState.update {
+                            it.copy(
+                                restaurantDeals = deals,
+                                filteredDeals = deals
+                            )
+                        }
                     }
 
                     else -> Log.e("FetchingError", "ListViewModel, initial request failed")
                 }
             }
         }
+    }
+
+    fun onFilterSelected(filter: String) {
+        viewModelState.update { it.copy(selectedFilter = filter) }
+        viewModelState.update {
+            it.copy(
+                filteredDeals = filterDeals(
+                    viewModelState.value.restaurantDeals,
+                    filter
+                )
+            )
+        }
+    }
+
+    fun onSelectCustomFilter(category: String, filter: String) {
+        viewModelState.update { currentState ->
+            val updatedFilters = when (category) {
+                "type" -> {
+                    val currentTypeSet = currentState.selectedCustomFilter.type
+                    val newTypeSet = if (filter.uppercase() in currentTypeSet) {
+                        currentTypeSet - filter.uppercase() // Remove filter if it already exists
+                    } else {
+                        currentTypeSet + filter.uppercase() // Add filter if it doesn't exist
+                    }
+                    currentState.selectedCustomFilter.copy(type = newTypeSet)
+                }
+
+                else -> currentState.selectedCustomFilter
+            }
+
+            currentState.copy(selectedCustomFilter = updatedFilters)
+        }
+    }
+
+    fun onSubmitCustomFilter() {
+        viewModelState.update { it.copy(selectedFilter = "Custom") }
+        viewModelState.update {
+            it.copy(
+                filteredDeals = filterCustomDeals(
+                    viewModelState.value.restaurantDeals
+                )
+            )
+        }
+        onShowFilterDialog(false)
+    }
+
+    private fun filterCustomDeals(deals: List<RestaurantDeal>): List<RestaurantDeal> {
+        println(viewModelState.value.selectedCustomFilter.type)
+        return deals.map { restaurantDeal ->
+            val filteredDeals = restaurantDeal.deals.filter { deal ->
+                viewModelState.value.selectedCustomFilter.type.isEmpty() ||
+                        deal.type.name in viewModelState.value.selectedCustomFilter.type
+            }
+            restaurantDeal.copy(deals = filteredDeals)
+        }.filter { it.deals.isNotEmpty() }
+    }
+
+    private fun filterDeals(deals: List<RestaurantDeal>, filter: String): List<RestaurantDeal> {
+        return deals.map { restaurantDeal ->
+            val filteredDeals = when (filter) {
+                "All" -> restaurantDeal.deals
+                "BOGO" -> restaurantDeal.deals.filter { it.type == DealType.BOGO }
+                "Discount" -> restaurantDeal.deals.filter { it.type == DealType.DISCOUNT }
+                "Free" -> restaurantDeal.deals.filter { it.type == DealType.FREE }
+                else -> restaurantDeal.deals
+            }
+            restaurantDeal.copy(deals = filteredDeals)
+        }.filter { it.deals.isNotEmpty() }
+    }
+
+
+    fun onShowFilterDialog(bool: Boolean) {
+        viewModelState.update { it.copy(showFilterDialog = bool) }
     }
 
     /**

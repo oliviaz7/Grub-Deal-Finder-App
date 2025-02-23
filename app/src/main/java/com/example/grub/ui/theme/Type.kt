@@ -34,7 +34,8 @@ private val Montserrat = FontFamily(
 
 private val Poppins = FontFamily(
     Font(R.font.poppins_regular),
-    Font(R.font.poppins_medium, FontWeight.W500)
+    Font(R.font.poppins_medium, FontWeight.W500),
+    Font(R.font.poppins_bold, FontWeight.W700)
 )
 
 @Suppress("DEPRECATION")
@@ -75,7 +76,7 @@ val Typography = Typography(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Bold,
         lineBreak = LineBreak.Heading
     ),
     titleSmall = defaultTextStyle.copy(
