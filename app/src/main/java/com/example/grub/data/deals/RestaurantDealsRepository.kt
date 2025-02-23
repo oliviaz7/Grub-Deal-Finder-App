@@ -25,7 +25,7 @@ data class RawDeal(
     @SerializedName("date_posted") val datePosted: Long,
     @SerializedName("user_id") val userId: String,
     @SerializedName("restrictions") val restrictions: String, // TODO: figure out how we're handling
-     @SerializedName("image_id") val imageId: String?,
+    @SerializedName("image_id") val imageId: String?,
 )
 
 /**

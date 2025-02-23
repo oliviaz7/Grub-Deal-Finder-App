@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from google_maps import get_place_ids
+import math
 
 load_dotenv()
 url = os.getenv("SUPABASE_URL")
@@ -16,48 +16,77 @@ app = Flask(__name__)
 
 CORS(app)
 
+def haversine(lat1, lon1, lat2, lon2):
+	R = 6371000  # Radius of the Earth in meters
+
+	# Convert latitude and longitude from degrees to radians
+	lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+
+	# Differences in coordinates
+	dlat = lat2 - lat1
+	dlon = lon2 - lon1
+
+	# Haversine formula
+	a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+	c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+	# Distance in meters
+	distance = R * c
+	return distance
+
 def iso_to_unix(iso_date):
 	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
 
-@app.route('/all_restaurant_deals', methods=["GET"])
-def get_all_deals():
+def get_all_restaurant_deals():
 	result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
-	result_data = result.data
-	return jsonify(result_data)
+	restaurant_deals = result.data
+	return restaurant_deals
 
-# TODO: connect to Google Maps API to get a list of place ids given coordinates and radius. Currently gets all restaurant deals.
+def get_restaurants_given_filters(user_lat, user_long, radius):
+	"""Filter restaurants that are within the given radius."""
+	restaurant_deals = get_all_restaurant_deals()
+	filtered_restaurants = []
+
+	for restaurant in restaurant_deals:
+		res_lat = restaurant["latitude"]
+		res_long = restaurant["longitude"]
+
+		# check if restaurant distance is within user location
+		if haversine(res_lat, res_long, user_lat, user_long) <= radius:
+			filtered_restaurants.append(restaurant)
+
+	return filtered_restaurants
+
+def format_restaurant_data(restaurants):
+	"""Clean up and format restaurant data before sending to the Android app."""
+	for restaurant in restaurants:
+		restaurant['coordinates'] = {
+			"latitude": restaurant["latitude"],
+			"longitude": restaurant["longitude"]
+		}
+
+		for deal in restaurant["Deal"]:
+			deal['date_posted'] = iso_to_unix(deal['date_posted'])
+			if deal.get('expiry_date'):
+				deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
+
+	return restaurants
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	try:
 		"""Gets restaurant deals from Supabase given a latitude, longitude and radius."""
-		latitude = request.args.get('latitude')
-		longitude = request.args.get('longitude')
-		radius = request.args.get('radius')
+		latitude = float(request.args.get('latitude'))
+		longitude = float(request.args.get('longitude'))
+		radius = float(request.args.get('radius'))
 
-		# google maps api call to get place id
-		place_ids = get_place_ids(latitude, longitude, radius)
+		# Filter restaurants based on coords and radius
+		filtered_restaurants = get_restaurants_given_filters(latitude, longitude, radius)
 
-		# TODO: FIGURE OUT BEHAVIOUR FOR FRONT END SIDE
-		if not place_ids:
-			return jsonify({"error": "Failed to retrieve places from Google Maps API"}), 500
+		# Format the restaurant data
+		formatted_restaurants = format_restaurant_data(filtered_restaurants)
 
-		# Supabase query to get fatty restaurant deals
-		result = supabase.from_('Restaurant').select('*, Deal(*)').in_('place_id', place_ids).execute()
-		result_data = result.data
-
-		# clean up data to send to android app
-		for restaurant in result_data:
-			restaurant['coordinates'] = {
-				"latitude": restaurant['latitude'],
-				"longitude": restaurant['longitude']
-			}
-
-			for deal in restaurant["Deal"]:
-				deal['date_posted'] = iso_to_unix(deal['date_posted'])
-				if deal['expiry_date']:
-					deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
-
-		return jsonify(result_data)
+		return jsonify(formatted_restaurants)
 
 	except Exception as e:
 		print(f"Error occurred: {str(e)}")
@@ -85,10 +114,10 @@ def add_restaurant_deal():
 			supabase.from_('Restaurant').insert([restaurant_data]).execute()
 
 		# Insert deal
-		deal = restaurant.get("Deal", [None])[0] if restaurant.get("Deal") else None
+		deal = restaurant.get("Deal", [None])[0]
 		if deal:
 			deal_item = {
-				"id": deal["id"],
+				"id": deal["id"], # TODO: SERVER HANDLES THIS
 				"restaurant_id": restaurant.get("id"),
 				"item": deal["item"],
 				"description": deal.get("description"),
