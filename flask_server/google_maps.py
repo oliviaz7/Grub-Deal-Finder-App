@@ -4,6 +4,7 @@ import os
 MAPS_API_KEY = os.getenv("MAPS_API_KEY")
 NEARBY_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
 
+# TODO: REMOVE THIS AND ADD LAT LONG FORMULA
 def get_place_ids(latitude, longitude, radius):
     # Prepare the parameters for the API request
     params = {
