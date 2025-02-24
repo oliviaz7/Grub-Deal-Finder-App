@@ -18,10 +18,9 @@ package com.example.grub.ui.list
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 
 /**
@@ -35,27 +34,18 @@ fun ListRoute(
     listViewModel: ListViewModel,
     navController: NavController
 ) {
-    // UiState of the HomeScreen
-    val uiState by listViewModel.uiState.collectAsStateWithLifecycle()
-
-    ListRoute(
-        uiState = uiState,
-        navController
+    val uiState by listViewModel.uiState.collectAsState()
+    ListScreen(
+        navController,
+        uiState,
+        onSelectCustomFilter = { type: String, filter: String ->
+            listViewModel.onSelectCustomFilter(
+                type,
+                filter
+            )
+        },
+        onSubmitCustomFilter = { -> listViewModel.onSubmitCustomFilter() },
+        onShowFilterDialog = { bool: Boolean -> listViewModel.onShowFilterDialog(bool) },
+        onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) },
     )
-}
-
-/**
- * Displays the Home route.
- *
- * This composable is not coupled to any specific state management.
- *
- * @param uiState (state) the data to show on the screen
- * @param snackbarHostState (state) state for the [Scaffold] component on this screen
- */
-@Composable
-fun ListRoute(
-    uiState: ListUiState,
-    navController: NavController
-) {
-    ListScreen(uiState, navController)
 }

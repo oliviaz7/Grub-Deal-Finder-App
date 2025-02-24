@@ -73,3 +73,7 @@ val md_theme_dark_inverseOnSurface = Color(0xFF201A1A)
 val md_theme_dark_inverseSurface = Color(0xFFECE0DF)
 val md_theme_dark_inversePrimary = Color(0xFFBF0031)
 val md_theme_dark_surfaceTint = Color(0xFFFFB3B4)
+
+val grub_background = Color(0xFFFFF3E0)
+val grub_primary = Color(0xFFFF6B00)
+val grub_secondary = Color(0x00000000)

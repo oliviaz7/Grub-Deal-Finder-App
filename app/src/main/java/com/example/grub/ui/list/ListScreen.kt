@@ -1,37 +1,58 @@
 package com.example.grub.ui.list
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import CustomFilterDialog
+import RestaurantItem
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.grub.R
-import com.example.grub.ui.navigation.Destinations
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListScreen(uiState: ListUiState, navController: NavController, modifier: Modifier = Modifier) {
-
-    println("List SCREEN ui state: ${uiState.restaurantDeals}")
+fun ListScreen(
+    navController: NavController,
+    uiState: ListUiState,
+    onFilterSelected: (String) -> Unit,
+    onSelectCustomFilter: (String, String) -> Unit,
+    onSubmitCustomFilter: () -> Unit,
+    onShowFilterDialog: (Boolean) -> Unit,
+) {
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -39,77 +60,193 @@ fun ListScreen(uiState: ListUiState, navController: NavController, modifier: Mod
                     Text(
                         text = stringResource(R.string.list_title),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
                     )
-                }
+                },
+                colors = topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                )
             )
-        }
+        },
+        containerColor = Color.White,
     ) { innerPadding ->
-        val screenModifier = Modifier.padding(innerPadding)
-
-        Column(modifier = screenModifier) {
-            // Iterate through each restaurant
-            uiState.restaurantDeals.forEach { restaurant ->
-                Text(
-                    text = restaurant.restaurantName,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(16.dp)
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxHeight()
+                .background(Color.White)
+                .padding(horizontal = 20.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp)
+                    .verticalScroll(scrollState) // Scrollable content
+            ) {
+                ListFilterButtons(
+                    uiState,
+                    Modifier
+                        .padding(vertical = 4.dp)
+                        .defaultMinSize(minWidth = 48.dp, minHeight = 1.dp),
+                    onFilterSelected = onFilterSelected,
+                    onSelectCustomFilter = onSelectCustomFilter,
+                    onSubmitCustomFilter = onSubmitCustomFilter,
+                    onShowFilterDialog = onShowFilterDialog,
                 )
 
-                // Iterate through each deal of the current restaurant
-                restaurant.deals.forEach { deal ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clickable {
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    key = "deal",
-                                    value = deal
-                                )
-                                navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
-                            }
-                    ) {
-                        DealImage(deal.imageUrl)
-                        Text(
-                            text = "${deal.id} ${deal.type}",
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .weight(1f), // Break line if the title is too long
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(Modifier.width(16.dp))
-                    }
-
-                    // Divider after each deal
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 72.dp, top = 8.dp, bottom = 8.dp),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                uiState.filteredDeals.forEach { restaurant ->
+                    RestaurantItem(
+                        restaurant = restaurant,
+                        navController = navController,
                     )
                 }
             }
         }
     }
+}
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ListFilterButtons(
+    uiState: ListUiState,
+    modifier: Modifier,
+    onFilterSelected: (String) -> Unit,
+    onSelectCustomFilter: (String, String) -> Unit,
+    onSubmitCustomFilter: () -> Unit,
+    onShowFilterDialog: (Boolean) -> Unit,
+) {
+    val selectedFilter = uiState.selectedFilter
+    val showFilterDialog = uiState.showFilterDialog
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween // Space buttons evenly
+    ) {
+        // All button
+        FilterButton(
+            selectedFilter,
+            "All",
+            onFilterSelected,
+            modifier
+        )
+        FilterButton(
+            selectedFilter,
+            "BOGO",
+            onFilterSelected,
+            modifier
+        )
+        FilterButton(
+            selectedFilter,
+            "Discount",
+            onFilterSelected,
+            modifier
+        )
+        FilterButton(
+            selectedFilter,
+            "Free",
+            onFilterSelected,
+            modifier
+        )
+        Button(
+            onClick = { onShowFilterDialog(true) },
+            colors = if (selectedFilter == "Custom") ButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White,
+                disabledContainerColor = MaterialTheme.colorScheme.primary,
+                disabledContentColor = Color.White,
+            ) else ButtonColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = MaterialTheme.colorScheme.background,
+                disabledContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            modifier = modifier.drawBehind {
+                drawRoundRect(
+                    color = if (selectedFilter == "Custom")
+                        Color.Black.copy(alpha = 0.4f)
+                    else
+                        Color.Black.copy(alpha = 0.1f),
+                    size = size.copy(
+                        height = size.height - 12.dp.toPx(),
+                        width = size.width,
+                    ),
+                    topLeft = Offset(8f, 24f),
+                    cornerRadius = CornerRadius(x = 24f, y = 24f)
+                )
+            },
+            shape = MaterialTheme.shapes.medium,
+            contentPadding = PaddingValues(8.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Filter icon",
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .size(16.dp)
+                )
+                Text(text = "Filter")
+            }
+        }
+        if (showFilterDialog)
+            CustomFilterDialog(
+                uiState.selectedCustomFilter,
+                onSelectCustomFilter = { type: String, filter: String ->
+                    onSelectCustomFilter(
+                        type,
+                        filter
+                    )
+                },
+                onSubmitCustomFilter = onSubmitCustomFilter,
+                onShowFilterDialog = onShowFilterDialog
+            )
+    }
 }
 
 @Composable
-fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
-    imageUrl?.let { url ->
-        AsyncImage(
-            model = url,
-            contentDescription = "Deal Image",
-            // TODO: replace with a better loading placeholder
-            placeholder = painterResource(R.drawable.placeholder_4_3),
-            modifier = modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(4.dp))
-        )
-    } ?: Image(
-        painter = painterResource(R.drawable.placeholder_1_1),
-        contentDescription = null,
-        modifier = modifier
-            .size(56.dp)
-            .clip(RoundedCornerShape(4.dp))
-    )
+fun FilterButton(
+    selectedFilter: String,
+    label: String,
+    onFilterSelected: (String) -> Unit,
+    modifier: Modifier
+) {
+    Button(
+        onClick = { onFilterSelected(label) },
+
+        colors = if (selectedFilter == label) ButtonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White,
+            disabledContainerColor = MaterialTheme.colorScheme.primary,
+            disabledContentColor = Color.White,
+        ) else ButtonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.primary,
+            disabledContainerColor = MaterialTheme.colorScheme.background,
+            disabledContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        modifier = modifier.drawBehind {
+            drawRoundRect(
+                color = if (selectedFilter == label)
+                    Color.Black.copy(alpha = 0.4f)
+                else
+                    Color.Black.copy(alpha = 0.1f),
+                size = size.copy(
+                    height = size.height - 12.dp.toPx(),
+                    width = size.width,
+                ),
+                topLeft = Offset(8f, 24f),
+                cornerRadius = CornerRadius(x = 24f, y = 24f)
+            )
+        },
+        shape = MaterialTheme.shapes.medium,
+        contentPadding = PaddingValues(8.dp),
+    ) {
+        Text(text = label)
+    }
+
 }
+
+
+
