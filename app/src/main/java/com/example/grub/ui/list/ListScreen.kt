@@ -30,8 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -40,15 +38,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.grub.R
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListScreen(navController: NavController, listViewModel: ListViewModel = viewModel()) {
-    val uiState by listViewModel.uiState.collectAsState()
+fun ListScreen(
+    navController: NavController,
+    uiState: ListUiState,
+    onFilterSelected: (String) -> Unit,
+    onSelectCustomFilter: (String, String) -> Unit,
+    onSubmitCustomFilter: () -> Unit,
+    onShowFilterDialog: (Boolean) -> Unit,
+) {
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -66,10 +70,9 @@ fun ListScreen(navController: NavController, listViewModel: ListViewModel = view
         },
         containerColor = Color.White,
     ) { innerPadding ->
-        val screenModifier = Modifier.padding(innerPadding)
-
         Box(
-            modifier = screenModifier
+            modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
@@ -78,14 +81,17 @@ fun ListScreen(navController: NavController, listViewModel: ListViewModel = view
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 8.dp)
-                    .verticalScroll(rememberScrollState()) // Scrollable content
+                    .verticalScroll(scrollState) // Scrollable content
             ) {
                 ListFilterButtons(
                     uiState,
                     Modifier
                         .padding(vertical = 4.dp)
                         .defaultMinSize(minWidth = 48.dp, minHeight = 1.dp),
-                    listViewModel,
+                    onFilterSelected = onFilterSelected,
+                    onSelectCustomFilter = onSelectCustomFilter,
+                    onSubmitCustomFilter = onSubmitCustomFilter,
+                    onShowFilterDialog = onShowFilterDialog,
                 )
 
                 uiState.filteredDeals.forEach { restaurant ->
@@ -104,7 +110,10 @@ fun ListScreen(navController: NavController, listViewModel: ListViewModel = view
 fun ListFilterButtons(
     uiState: ListUiState,
     modifier: Modifier,
-    listViewModel: ListViewModel
+    onFilterSelected: (String) -> Unit,
+    onSelectCustomFilter: (String, String) -> Unit,
+    onSubmitCustomFilter: () -> Unit,
+    onShowFilterDialog: (Boolean) -> Unit,
 ) {
     val selectedFilter = uiState.selectedFilter
     val showFilterDialog = uiState.showFilterDialog
@@ -113,7 +122,6 @@ fun ListFilterButtons(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween // Space buttons evenly
     ) {
-        val onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) }
         // All button
         FilterButton(
             selectedFilter,
@@ -140,7 +148,7 @@ fun ListFilterButtons(
             modifier
         )
         Button(
-            onClick = { listViewModel.onShowFilterDialog(true) },
+            onClick = { onShowFilterDialog(true) },
             colors = if (selectedFilter == "Custom") ButtonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
@@ -185,9 +193,14 @@ fun ListFilterButtons(
         if (showFilterDialog)
             CustomFilterDialog(
                 uiState.selectedCustomFilter,
-                onSelectCustomFilter = { type:String, filter: String -> listViewModel.onSelectCustomFilter(type, filter) },
-                onSubmitCustomFilter = {  -> listViewModel.onSubmitCustomFilter() },
-                onShowFilterDialog = { bool:Boolean -> listViewModel.onShowFilterDialog(bool) }
+                onSelectCustomFilter = { type: String, filter: String ->
+                    onSelectCustomFilter(
+                        type,
+                        filter
+                    )
+                },
+                onSubmitCustomFilter = onSubmitCustomFilter,
+                onShowFilterDialog = onShowFilterDialog
             )
     }
 }
