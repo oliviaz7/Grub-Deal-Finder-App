@@ -4,13 +4,11 @@ import android.app.DatePickerDialog
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -32,9 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -69,6 +64,8 @@ fun AddDealScreen(
     var expanded by remember { mutableStateOf(false) }
     var selectedDealType by remember { mutableStateOf(DealType.OTHER) }
     val dealTypes = DealType.values().toList()
+    var placeId by remember { mutableStateOf("") }
+    var coordinates by remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
@@ -90,20 +87,31 @@ fun AddDealScreen(
         ).show()
     }
 
-    fun checkMandatoryFields(): Boolean {
+    fun isSubmitButtonEnabled(): Boolean {
         return restaurantName.isNotEmpty()
                 && itemName.isNotEmpty()
                 && description.isNotEmpty()
+                && restaurantName.isNotEmpty()
+                && placeId.isNotEmpty()
+                && !(coordinates.latitude == 0.0 && coordinates.longitude == 0.0)
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Red)
+//            .background(Color.Red)
             .padding(16.dp),
     ) {
         // x button
-        Row(modifier = Modifier.align(Alignment.End)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            if (currentStep == Step.StepOne) {
+                Text(text = "Select a Restaurant")
+            } else {
+                Text(text = "Add Details")
+            }
             IconButton(
                 onClick = { navController.popBackStack() },
             ) {
@@ -115,13 +123,17 @@ fun AddDealScreen(
         }
         when(currentStep) {
             is Step.StepOne -> { // Step one: pick the restaurant
-                // next button
-                Button(
-                    onClick = { currentStep = Step.StepTwo },
+                SelectRestaurantScreen(
+                    navController = navController,
+                    onNextClick = { currentStep = Step.StepTwo },
+                    restaurantName = restaurantName,
+                    onRestaurantNameChange = { restaurantName = it },
+                    placeId = placeId,
+                    onPlaceIdChange = { placeId = it },
+                    coordinates = coordinates,
+                    onCoordinatesChange = { coordinates = it },
                     modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Next")
-                }
+                )
             }
             is Step.StepTwo -> { // step two: add deal details
                 Text(text = restaurantName)
@@ -130,7 +142,6 @@ fun AddDealScreen(
                 ) {
                     Text("Open image picker")
                 }
-
 
                 TextField(
                     value = itemName,
@@ -215,30 +226,30 @@ fun AddDealScreen(
                     }
                     // submit button
                     Button(
+                        enabled = isSubmitButtonEnabled(),
                         onClick = {
-                            if (checkMandatoryFields()) {
-                                addNewRestaurantDeal(
-                                    RestaurantDealsResponse(
-                                        id = "default_id",
-                                        placeId = "default_place_id",
-                                        coordinates = LatLng(0.0, 0.0),
-                                        restaurantName = restaurantName,
-                                        rawDeals = listOf(
-                                            RawDeal(
-                                                id = "default_deal_id",
-                                                item = itemName,
-                                                description = description,
-                                                type = selectedDealType,
-                                                expiryDate = getExpiryTimestamp(expirySelectedDate),
-                                                datePosted = System.currentTimeMillis(),
-                                                userId = "default_user_id",
-                                                restrictions = "None",
-                                                imageId = imageUri?.path, // idk if this is right
-                                            )
+                            addNewRestaurantDeal(
+                                RestaurantDealsResponse(
+                                    id = "default_id",
+                                    placeId = placeId,
+                                    coordinates = coordinates,
+                                    restaurantName = restaurantName,
+                                    rawDeals = listOf(
+                                        RawDeal(
+                                            id = "default_deal_id",
+                                            item = itemName,
+                                            description = description,
+                                            type = selectedDealType,
+                                            expiryDate = getExpiryTimestamp(expirySelectedDate),
+                                            datePosted = System.currentTimeMillis(),
+                                            userId = "default_user_id",
+                                            restrictions = "None",
+                                            imageId = imageUri?.path, // idk if this is right
                                         )
                                     )
                                 )
-                                navController.popBackStack() }
+                            )
+                            navController.popBackStack()
                             },
                         modifier = Modifier.weight(1f)
                     ) {

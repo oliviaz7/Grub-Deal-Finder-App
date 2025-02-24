@@ -128,6 +128,30 @@ fun AppNavHost(
                 )
             }
         }
+
+        composable(
+            Destinations.DEAL_DETAIL_ROUTE
+        ) { backStackEntry ->
+            val deal = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<Deal>("deal") ?:null
+
+            val dealDetailViewModel: DealDetailViewModel = viewModel(
+                factory = DealDetailViewModel.provideFactory(
+                    deal = deal
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                DealDetailRoute(
+                    dealDetailViewModel = dealDetailViewModel,
+                    navController
+                )
+            }
+        }
     }
 }
 
