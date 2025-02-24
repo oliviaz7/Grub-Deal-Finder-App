@@ -1,4 +1,4 @@
-package com.example.grub.ui.addDealFlow.selectRestaurant
+package com.example.grub.ui.addDealFlow
 
 import android.net.Uri
 import android.os.Build
@@ -11,31 +11,31 @@ import androidx.navigation.NavController
 /**
  * Displays the SelectRestaurant route.
  *
- * @param selectRestaurantViewModel ViewModel that handles the business logic of this screen
+ * @param addDealViewModel ViewModel that handles the business logic of this screen
  */
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SelectRestaurantRoute(
-    selectRestaurantViewModel: SelectRestaurantViewModel,
+fun AddDealRoute(
+    addDealViewModel: AddDealViewModel,
     navController: NavController,
 ) {
     // UiState of the HomeScreen
-    val uiState by selectRestaurantViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by addDealViewModel.uiState.collectAsStateWithLifecycle()
 
-    SelectRestaurantRoute(
+    AddDealRoute(
         uiState = uiState,
         navController = navController,
-        uploadTest = selectRestaurantViewModel.uploadImage,
+        uploadTest = addDealViewModel.uploadImage,
     )
 }
 
 @Composable
-fun SelectRestaurantRoute(
-    uiState: SelectRestaurantUiState,
+fun AddDealRoute(
+    uiState: AddDealUiState,
     navController: NavController,
     uploadTest: (imageUri: Uri) -> Unit,
 ) {
-    SelectRestaurantScreen(uiState, navController, uploadTest)
+    AddDealScreen(uiState, navController, uploadTest)
 }
 

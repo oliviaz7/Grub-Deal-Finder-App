@@ -1,4 +1,4 @@
-package com.example.grub.ui.addDealFlow.selectRestaurant
+package com.example.grub.ui.addDealFlow
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,14 +24,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 
 @Composable
-fun SelectRestaurantScreen(
-    uiState: SelectRestaurantUiState,
+fun AddDealScreen(
+    uiState: AddDealUiState,
     navController: NavController,
     uploadImage: (imageUri: Uri) -> Unit,
     modifier: Modifier = Modifier
 ) {
     println("Select restaurant: ${uiState.deals}")
 
+    var currentStep by remember { mutableStateOf<Step>(Step.StepOne) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         imageUri = uri
@@ -42,6 +43,7 @@ fun SelectRestaurantScreen(
             .fillMaxSize()
             .background(Color.Red),
     ) {
+        // x button
         Row(modifier = Modifier.align(Alignment.End)) {
             IconButton(
                 onClick = { navController.popBackStack() },
@@ -52,18 +54,50 @@ fun SelectRestaurantScreen(
                 )
             }
         }
+        when(currentStep) {
+            is Step.StepOne -> {
+                Button(
+                    onClick = { launcher.launch("image/*") }
+                ) {
+                    Text("Open image picker")
+                }
 
-        Button(
-            onClick = { launcher.launch("image/*") }
-        ) {
-            Text("Open image picker")
-        }
+                imageUri?.let { uri ->
+                    Button(
+                        onClick = { uploadImage(uri) }
+                    ) {
+                        Text("Upload Image Test")
+                    }
+                }
 
-        imageUri?.let { uri ->
-            Button(
-                onClick = { uploadImage(uri) }
-            ) {
-                Text("Upload Image Test")
+                // next button
+                Button(
+                    onClick = { currentStep = Step.StepTwo },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Next")
+                }
+            }
+            is Step.StepTwo -> {
+                Text(text = "Step Two Content")
+                Row(
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    // previous button
+                    Button(
+                        onClick = { currentStep = Step.StepOne },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Previous")
+                    }
+                    // submit button
+                    Button(
+                        onClick = { /* Handle submit action */ },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Submit")
+                    }
+                }
             }
         }
     }
