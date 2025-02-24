@@ -1,4 +1,4 @@
-package com.example.grub.ui.addDealFlow.selectRestaurant
+package com.example.grub.ui.addDealFlow
 
 import android.net.Uri
 import android.os.Build
@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.google.android.gms.maps.model.LatLng
@@ -23,10 +24,10 @@ import kotlinx.coroutines.launch
 /**
  * UI state for the SelectRestaurant route.
  *
- * This is derived from [SelectRestaurantViewModelState], but split into two possible subclasses to more
+ * This is derived from [AddDealViewModelState], but split into two possible subclasses to more
  * precisely represent the state available to render the UI.
  */
-data class SelectRestaurantUiState(
+data class AddDealUiState(
     val deals: List<RestaurantDeal>
 )
 
@@ -34,15 +35,15 @@ data class SelectRestaurantUiState(
  * An internal representation of the map route state, in a raw form
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
-private data class SelectRestaurantViewModelState(
+private data class AddDealViewModelState(
     val deals: List<RestaurantDeal>
 ) {
 
     /**
-     * Converts this [SelectRestaurantViewModelState] into a more strongly typed [SelectRestaurantUiState] for driving
+     * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): SelectRestaurantUiState = SelectRestaurantUiState(deals)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals)
 }
 
 
@@ -50,20 +51,20 @@ private data class SelectRestaurantViewModelState(
  * ViewModel that handles the business logic of the Home screen
  */
 @RequiresApi(Build.VERSION_CODES.O)
-class SelectRestaurantViewModel(
+class AddDealViewModel(
     private val dealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
     private val storageService: StorageService,
 ) : ViewModel() {
     private val viewModelState = MutableStateFlow(
-        SelectRestaurantViewModelState(
+        AddDealViewModelState(
             deals = emptyList()
         )
     )
 
     // UI state exposed to the UI
     val uiState = viewModelState
-        .map(SelectRestaurantViewModelState::toUiState)
+        .map(AddDealViewModelState::toUiState)
         .stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -93,6 +94,21 @@ class SelectRestaurantViewModel(
         }
     }
 
+    fun addNewRestaurantDeal(deal: RestaurantDealsResponse) {
+        viewModelScope.launch {
+            when (val result = dealsRepository.addRestaurantDeal(deal)) {
+                is Result.Success -> {
+                    // Handle success, e.g., update UI state or notify user
+                    Log.d("AddDeal", "Deal added successfully")
+                }
+                is Result.Error -> {
+                    // Handle error, e.g., show error message
+                    Log.e("AddDeal", "Error adding deal: ${result.exception}")
+                }
+            }
+        }
+    }
+
     /**
      * Factory for HomeViewModel that takes PostsRepository as a dependency
      */
@@ -104,7 +120,7 @@ class SelectRestaurantViewModel(
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SelectRestaurantViewModel(dealsRepository, dealMapper, storageService,) as T
+                return AddDealViewModel(dealsRepository, dealMapper, storageService,) as T
             }
         }
     }

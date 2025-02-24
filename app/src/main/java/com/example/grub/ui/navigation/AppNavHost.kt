@@ -31,8 +31,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantRoute
-import com.example.grub.ui.addDealFlow.selectRestaurant.SelectRestaurantViewModel
+import com.example.grub.ui.addDealFlow.AddDealRoute
+import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.fab.Fab
@@ -47,7 +47,7 @@ object Destinations {
     const val HOME_ROUTE = "home"
     const val INTERESTS_ROUTE = "interests"
     const val LIST_ROUTE = "list"
-    const val SELECT_RESTAURANT_ROUTE = "selectRestaurant"
+    const val ADD_DEAL_ROUTE = "selectRestaurant"
     const val DEAL_DETAIL_ROUTE = "deal"
     const val PROFILE_ROUTE = "profile"
 }
@@ -109,9 +109,9 @@ fun AppNavHost(
                 //to be implemented
             }
         }
-        composable(Destinations.SELECT_RESTAURANT_ROUTE) {
-            val selectRestaurantViewModel: SelectRestaurantViewModel = viewModel(
-                factory = SelectRestaurantViewModel.provideFactory(
+        composable(Destinations.ADD_DEAL_ROUTE) {
+            val addDealViewModel: AddDealViewModel = viewModel(
+                factory = AddDealViewModel.provideFactory(
                     dealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
                     storageService = appContainer.storageService,
@@ -122,8 +122,8 @@ fun AppNavHost(
                 showBottomNavItem = false,
                 showFloatingActionButton = false
             ) {
-                SelectRestaurantRoute(
-                    selectRestaurantViewModel = selectRestaurantViewModel,
+                AddDealRoute(
+                    addDealViewModel = addDealViewModel,
                     navController = navController,
                 )
             }
@@ -165,7 +165,7 @@ fun ScreenWithScaffold(
     Scaffold(
         floatingActionButton = {
             if (showFloatingActionButton) {
-                Fab(onclick = { navController.navigate(Destinations.SELECT_RESTAURANT_ROUTE) })
+                Fab(onclick = { navController.navigate(Destinations.ADD_DEAL_ROUTE) })
             }
         },
         bottomBar = {

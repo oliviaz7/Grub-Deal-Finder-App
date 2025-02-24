@@ -1,0 +1,271 @@
+package com.example.grub.ui.addDealFlow
+
+import android.app.DatePickerDialog
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.grub.data.deals.RawDeal
+import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.DealType
+import com.google.android.gms.maps.model.LatLng
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddDealScreen(
+    uiState: AddDealUiState,
+    navController: NavController,
+    uploadImage: (imageUri: Uri) -> Unit,
+    addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    println("Select restaurant: ${uiState.deals}")
+
+    var currentStep by remember { mutableStateOf<Step>(Step.StepOne) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        imageUri = uri
+    }
+
+    var restaurantName by remember { mutableStateOf("Mcdonalds") }
+    var itemName by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("")}
+    var expanded by remember { mutableStateOf(false) }
+    var selectedDealType by remember { mutableStateOf(DealType.OTHER) }
+    val dealTypes = DealType.values().toList()
+    var placeId by remember { mutableStateOf("") }
+    var coordinates by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+
+    // State variables for Date Picker and selected date
+    val expiryCalendar = Calendar.getInstance()
+    var expirySelectedDate by remember { mutableStateOf("") } // expiry date is empty string or DD/MM/YYYY
+    var expiryIsDialogOpen by remember { mutableStateOf(false) }
+
+    // Trigger to show DatePickerDialog
+    if (expiryIsDialogOpen) {
+        DatePickerDialog(
+            LocalContext.current,
+            { _, year, month, dayOfMonth ->
+                // Format selected date
+                expirySelectedDate = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year) // tell Joyce the new date format
+                expiryIsDialogOpen = false
+            },
+            expiryCalendar.get(Calendar.YEAR),
+            expiryCalendar.get(Calendar.MONTH),
+            expiryCalendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    fun isSubmitButtonEnabled(): Boolean {
+        return restaurantName.isNotEmpty()
+                && itemName.isNotEmpty()
+                && description.isNotEmpty()
+                && restaurantName.isNotEmpty()
+                && placeId.isNotEmpty()
+                && !(coordinates.latitude == 0.0 && coordinates.longitude == 0.0)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+//            .background(Color.Red)
+            .padding(16.dp),
+    ) {
+        // x button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            if (currentStep == Step.StepOne) {
+                Text(text = "Select a Restaurant")
+            } else {
+                Text(text = "Add Details")
+            }
+            IconButton(
+                onClick = { navController.popBackStack() },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                )
+            }
+        }
+        when(currentStep) {
+            is Step.StepOne -> { // Step one: pick the restaurant
+                SelectRestaurantScreen(
+                    navController = navController,
+                    onNextClick = { currentStep = Step.StepTwo },
+                    restaurantName = restaurantName,
+                    onRestaurantNameChange = { restaurantName = it },
+                    placeId = placeId,
+                    onPlaceIdChange = { placeId = it },
+                    coordinates = coordinates,
+                    onCoordinatesChange = { coordinates = it },
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+            is Step.StepTwo -> { // step two: add deal details
+                Text(text = restaurantName)
+                Button(
+                    onClick = { launcher.launch("image/*") }
+                ) {
+                    Text("Open image picker")
+                }
+
+                TextField(
+                    value = itemName,
+                    onValueChange = { itemName = it },
+                    label = { Text("Item Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                )
+
+                TextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp),
+                    maxLines = 5 // Allows for a longer text input
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded},
+                ) {
+                    TextField(
+                        value = selectedDealType.toString(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Deal Type") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(), // Make TextField clickable,
+                        maxLines = 1,
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        dealTypes.forEach { dealType ->
+                            DropdownMenuItem(
+                                text = { Text(dealType.name) },
+                                onClick = {
+                                    selectedDealType = dealType
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                // TextField for displaying selected date
+                TextField(
+                    value = expirySelectedDate,
+                    onValueChange = {},
+                    label = { Text("Expiry Date (optional)") },
+                    readOnly = true,
+                    trailingIcon = {
+                        IconButton(onClick = { expiryIsDialogOpen = true }) {
+                            Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                imageUri?.let { uri ->
+                    Button(
+                        onClick = { uploadImage(uri) }
+                    ) {
+                        Text("Upload Image Test")
+                    }
+                }
+                Row(
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    // previous button
+                    Button(
+                        onClick = { currentStep = Step.StepOne },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Previous")
+                    }
+                    // submit button
+                    Button(
+                        enabled = isSubmitButtonEnabled(),
+                        onClick = {
+                            addNewRestaurantDeal(
+                                RestaurantDealsResponse(
+                                    id = "default_id",
+                                    placeId = placeId,
+                                    coordinates = coordinates,
+                                    restaurantName = restaurantName,
+                                    rawDeals = listOf(
+                                        RawDeal(
+                                            id = "default_deal_id",
+                                            item = itemName,
+                                            description = description,
+                                            type = selectedDealType,
+                                            expiryDate = getExpiryTimestamp(expirySelectedDate),
+                                            datePosted = System.currentTimeMillis(),
+                                            userId = "default_user_id",
+                                            restrictions = "None",
+                                            imageId = imageUri?.path, // idk if this is right
+                                        )
+                                    )
+                                )
+                            )
+                            navController.popBackStack()
+                            },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Submit")
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun getExpiryTimestamp(expirySelectedDate: String): Long? {
+    try {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return dateFormat.parse(expirySelectedDate)?.time
+    } catch (e : Exception) {
+        return null
+    }
+}
