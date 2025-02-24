@@ -42,5 +42,8 @@ interface RestaurantDealsRepository {
         radius: Double = 1000.0
     ): Result<List<RestaurantDealsResponse>>
 
+    /**
+     * Add a new restaurant deal
+     */
     suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit>
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.google.android.gms.maps.model.LatLng
@@ -88,6 +89,21 @@ class AddDealViewModel(
                         viewModelState.update { it.copy(deals = deals) }
                     }
                     else -> Log.e("FetchingError", "SelectRestaurantViewModel, initial request failed")
+                }
+            }
+        }
+    }
+
+    fun addNewRestaurantDeal(deal: RestaurantDealsResponse) {
+        viewModelScope.launch {
+            when (val result = dealsRepository.addRestaurantDeal(deal)) {
+                is Result.Success -> {
+                    // Handle success, e.g., update UI state or notify user
+                    Log.d("AddDeal", "Deal added successfully")
+                }
+                is Result.Error -> {
+                    // Handle error, e.g., show error message
+                    Log.e("AddDeal", "Error adding deal: ${result.exception}")
                 }
             }
         }
