@@ -16,10 +16,10 @@
 
 package com.example.grub.ui.list
 
+import CustomFilter
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -28,11 +28,9 @@ import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.example.grub.utils.addOrRemove
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
@@ -46,13 +44,8 @@ data class ListUiState(
     val loading: Boolean = false,
     val selectedFilter: String = "All",
     val showFilterDialog: Boolean = false,
-    val selectedCustomFilter: CustomFilters = CustomFilters()
+    val selectedCustomFilter: CustomFilter = CustomFilter()
 )
-
-data class CustomFilters(
-    val type: Set<String> = emptySet()
-)
-
 
 /**
  * ViewModel that handles the business logic of the List screen
