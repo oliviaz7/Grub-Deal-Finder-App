@@ -78,7 +78,68 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = null,
                     )
                 )
-            )
+            ),
+            // for grace testing
+            RestaurantDealsResponse(
+                id = "1",
+                placeId = "placeId_1",
+                coordinates = LatLng(37.4228983, -122.084),
+                restaurantName = "Google Top Chicken",
+                rawDeals = listOf(
+                    RawDeal(
+                        id = "dealId_123",
+                        item = "Fries",
+                        description = "meow",
+                        type = DealType.BOGO,
+                        expiryDate = null,
+                        datePosted = System.currentTimeMillis(),
+                        userId = "beetroot",
+                        restrictions = "Students only",
+                        imageId = "deal_17400.jpg"
+                    )
+                )
+            ),
+
+            RestaurantDealsResponse(
+                id = "2",
+                placeId = "placeId_2",
+                coordinates = LatLng(37.4210983, -122.084),
+                restaurantName = "Google Popeyes",
+                rawDeals = listOf(
+                    RawDeal(
+                        id = "dealId_123",
+                        item = "Fries",
+                        description = "meow",
+                        type = DealType.BOGO,
+                        expiryDate = null,
+                        datePosted = System.currentTimeMillis(),
+                        userId = "beetroot",
+                        restrictions = "Students only",
+                        imageId = "deal_17400.jpg"
+                    )
+                )
+            ),
+
+            RestaurantDealsResponse(
+                id = "3",
+                placeId = "placeId_3",
+                coordinates = LatLng(37.4219983, -122.08286),
+                restaurantName = "Google Gols",
+                rawDeals = listOf(
+                    RawDeal(
+                        id = "dealId_123",
+                        item = "Fries",
+                        description = "meow",
+                        type = DealType.BOGO,
+                        expiryDate = null,
+                        datePosted = System.currentTimeMillis(),
+                        userId = "beetroot",
+                        restrictions = "Students only",
+                        imageId = "deal_17400.jpg"
+                    )
+                )
+            ),
+
         )
     }
 

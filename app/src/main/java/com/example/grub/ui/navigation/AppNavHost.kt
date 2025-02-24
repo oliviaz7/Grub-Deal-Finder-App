@@ -72,6 +72,7 @@ fun AppNavHost(
                 factory = MapViewModel.provideFactory(
                     restaurantDealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
+                    fusedLocationProviderClient = appContainer.fusedLocationProviderClient
                 )
             )
             ScreenWithScaffold(navController) {

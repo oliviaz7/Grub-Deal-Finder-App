@@ -24,6 +24,9 @@ import com.example.grub.data.interests.impl.FakeInterestsRepository
 import com.example.grub.data.posts.PostsRepository
 import com.example.grub.data.posts.impl.FakePostsRepository
 
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+
 /**
  * Dependency Injection container at the application level.
  */
@@ -32,6 +35,7 @@ interface AppContainer {
     val postsRepository: PostsRepository
     val interestsRepository: InterestsRepository
     val storageService: StorageService
+    val fusedLocationProviderClient: FusedLocationProviderClient
 }
 
 /**
@@ -55,5 +59,9 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val storageService: StorageService by lazy {
         FirebaseStorageService()
+    }
+
+    override val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(applicationContext)
     }
 }
