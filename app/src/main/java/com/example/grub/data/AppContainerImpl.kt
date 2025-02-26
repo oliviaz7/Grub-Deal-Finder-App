@@ -19,6 +19,7 @@ package com.example.grub.data
 import android.content.Context
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.impl.FakeRestaurantDealsRepository
+import com.example.grub.data.deals.impl.RestaurantDealsRepositoryImpl
 import com.example.grub.data.interests.InterestsRepository
 import com.example.grub.data.interests.impl.FakeInterestsRepository
 import com.example.grub.data.posts.PostsRepository
@@ -46,7 +47,8 @@ interface AppContainer {
 class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val restaurantDealsRepository: RestaurantDealsRepository by lazy {
-        FakeRestaurantDealsRepository()
+//        FakeRestaurantDealsRepository()
+        RestaurantDealsRepositoryImpl()
     }
 
     override val postsRepository: PostsRepository by lazy {

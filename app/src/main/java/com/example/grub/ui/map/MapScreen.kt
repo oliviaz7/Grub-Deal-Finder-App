@@ -1,26 +1,22 @@
 //import android.graphics.Color
-import androidx.compose.ui.graphics.Color
+
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.example.grub.ui.map.MapUiState
 import com.example.grub.ui.permissions.RequestLocationPermission
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Circle
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.android.gms.location.FusedLocationProviderClient
-
 import com.google.maps.android.compose.rememberMarkerState
-
-import androidx.compose.runtime.LaunchedEffect
-import com.google.android.gms.maps.CameraUpdateFactory
 
 @Composable
 fun MapScreen(
@@ -35,12 +31,6 @@ fun MapScreen(
 
     Log.d("user-location", "right before we assign the camera, we have: ${uiState.userLocation}")
 
-//    val cameraPositionState = rememberCameraPositionState {
-//        position = CameraPosition.fromLatLngZoom(
-//            uiState.userLocation, 20f
-//        )
-//    }
-
     val zoomIn = 18f
 
     val cameraPositionState = rememberCameraPositionState {
@@ -50,7 +40,7 @@ fun MapScreen(
     }
 
     // keep a reference to the underlying GoogleMap object
-//    val googleMapRef = remember { mutableStateOf<GoogleMap?>(null) }
+    // val googleMapRef = remember { mutableStateOf<GoogleMap?>(null) }
 
     // Animate the camera only when we get a non-null userLocation.
     LaunchedEffect(uiState.userLocation) {
@@ -61,13 +51,19 @@ fun MapScreen(
         }
     }
 
-
-    // Animate the camera when the user location in the UI state changes.
+//    var initialCameraAnimated by remember { mutableStateOf(false) }
+//
 //    LaunchedEffect(uiState.userLocation) {
-//        cameraPositionState.animate(
-//            update = CameraUpdateFactory.newLatLngZoom(uiState.userLocation, 20f)
-//        )
+//        uiState.userLocation?.let { location ->
+//            if (!initialCameraAnimated) {
+//                cameraPositionState.animate(
+//                    update = CameraUpdateFactory.newLatLngZoom(location, zoomIn)
+//                )
+//                initialCameraAnimated = true
+//            }
+//        }
 //    }
+
 
     println("MAP SCREEN ui state: ${uiState.restaurantDeals}")
 
