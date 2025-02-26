@@ -18,3 +18,8 @@
 5. Run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android` in the terminal and add your SHA1 to the meowmeow project on the Google developers (sent invites to everyone)
 6. On the right side bar, click on `Device Manager`. Connect to a device emulator.
 7. Try pressing the green run button next to app at the top right of the window (if the module is not found, run `./gradlew assembleDebug` in the terminal, then `./gradlew installDebug` in the terminal in the root directory)
+
+## Meeting minutes
+Feb 25:
+Deliverables for Tuesday March 4
+https://www.notion.so/Product-Meeting-1a471a5515b880e8b919c114853c8d83?pvs=4
