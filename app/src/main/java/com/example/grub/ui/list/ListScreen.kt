@@ -17,18 +17,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,10 +38,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.R
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,20 +53,50 @@ fun ListScreen(
     onShowFilterDialog: (Boolean) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val textFieldState = rememberTextFieldState()
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.list_title),
-                        style = MaterialTheme.typography.titleLarge,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 20.dp, start = 20.dp, end = 20.dp)
+            ) {
+                SearchBar(
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            state = textFieldState,
+                            onSearch = { },
+                            expanded = false,
+                            onExpandedChange = { },
+                            placeholder = { Text("Search Deals...") },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        )
+                    },
+                    modifier = Modifier.size(width = 310.dp, height = 48.dp),
+                    expanded = false,
+                    onExpandedChange = { },
+                ) {}
+
+                Button(
+                    onClick = {},
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 16.dp)
+                        .fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small,
+                    contentPadding = PaddingValues(8.dp),
+                    colors = ButtonColors(
+                        containerColor = Color.White,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = Color.White,
                     )
-                },
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                )
-            )
+                ) {
+                    Text("Sort")
+                }
+            }
+
+
         },
         containerColor = Color.White,
     ) { innerPadding ->
