@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -33,27 +32,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,10 +56,17 @@ fun ListScreen(
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
-    onSearchTextChange: (String) -> Unit
+    onSearchTextChange: (String) -> Unit,
+    onFilter: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    var interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(uiState.searchText) {
+        delay(500)
+        onFilter()
+    }
+
     Scaffold(
         topBar = {
             Row(
@@ -101,14 +99,16 @@ fun ListScreen(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search Icon",
                             tint = Color.Gray,
-                            modifier = Modifier.size(20.dp).padding(start = 4.dp)
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(start = 4.dp)
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
 
                         // Text Field with Placeholder
                         Box(
-                            modifier = Modifier.weight(1f), // Ensures text takes up remaining space
+                            modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             if (uiState.searchText.isEmpty()) {
@@ -122,27 +122,9 @@ fun ListScreen(
                     }
 
                 }
-//
 
-
-//                TextField(
-//                    value = text,
-//                    onValueChange = { newText ->
-//                        text = newText },
-//                    colors = TextFieldDefaults.colors(
-//                        MaterialTheme.colorScheme.primary,
-//                        focusedContainerColor = Color.White,
-//                        unfocusedContainerColor = Color.White,
-//                        focusedIndicatorColor = Color.Transparent, // Hide underline
-//                        unfocusedIndicatorColor = Color.Transparent
-//                    ),
-//                    leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "") },
-//                    placeholder = { Text(text = "Search") },
-//                    modifier = Modifier,
-//                    shape = MaterialTheme.shapes.large,
-////                    contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp),
-//                )
-
+                //not sure what i need to do for sorting???
+                //what sort i need, etc
                 Button(
                     onClick = {},
                     modifier = Modifier

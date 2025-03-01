@@ -47,6 +47,7 @@ fun ListRoute(
         onSubmitCustomFilter = { -> listViewModel.onSubmitCustomFilter() },
         onShowFilterDialog = { bool: Boolean -> listViewModel.onShowFilterDialog(bool) },
         onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) },
-        onSearchTextChange = {searchText: String -> listViewModel.onSearchTextChange(searchText)}
+        onSearchTextChange = { searchText: String -> listViewModel.onSearchTextChange(searchText) },
+        onFilter = { -> listViewModel.onFilter() }
     )
 }

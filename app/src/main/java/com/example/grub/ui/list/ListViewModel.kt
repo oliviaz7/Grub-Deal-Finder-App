@@ -20,7 +20,6 @@ import CustomFilter
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -29,12 +28,12 @@ import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.google.android.gms.maps.model.LatLng
 
 /**
  * UI state for the List route.
@@ -65,21 +64,22 @@ class ListViewModel(
 
     init {
         viewModelScope.launch {
-            restaurantDealsRepository.getRestaurantDeals(LatLng(43.5315 ,-79.6131)).let { result -> // TODO: REPLACE LATLNG WITH VALID CURR LOCATION VALUES
-                when (result) {
-                    is Result.Success -> {
-                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
-                        viewModelState.update {
-                            it.copy(
-                                restaurantDeals = deals,
-                                filteredDeals = deals
-                            )
+            restaurantDealsRepository.getRestaurantDeals(LatLng(43.5315, -79.6131))
+                .let { result -> // TODO: REPLACE LATLNG WITH VALID CURR LOCATION VALUES
+                    when (result) {
+                        is Result.Success -> {
+                            val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                            viewModelState.update {
+                                it.copy(
+                                    restaurantDeals = deals,
+                                    filteredDeals = deals
+                                )
+                            }
                         }
-                    }
 
-                    else -> Log.e("FetchingError", "ListViewModel, initial request failed")
+                        else -> Log.e("FetchingError", "ListViewModel, initial request failed")
+                    }
                 }
-            }
         }
     }
 
@@ -89,16 +89,34 @@ class ListViewModel(
         }
     }
 
+    fun onFilter() {
+        val query = uiState.value.searchText.trim()
+        val searchFilteredList = if (query.isBlank()) {
+            uiState.value.restaurantDeals
+        } else {
+            uiState.value.restaurantDeals.map { restaurantDeal ->
+                val matchingDeals = restaurantDeal.deals.filter { deal ->
+                    restaurantDeal.restaurantName.contains(query, ignoreCase = true) ||
+                            deal.item.contains(query, ignoreCase = true)
+                }
+                restaurantDeal.copy(deals = matchingDeals)
+            }.filter { it.deals.isNotEmpty() }
+        }
+
+        // Apply deal type filtering on search results
+        val finalFilteredList = if (uiState.value.selectedFilter == "Custom")
+            filterCustomDeals(searchFilteredList)
+        else filterDeals(searchFilteredList, uiState.value.selectedFilter)
+
+        // Update state with intersection of search and filter results
+        viewModelState.update { currentState ->
+            currentState.copy(filteredDeals = finalFilteredList)
+        }
+    }
+
     fun onFilterSelected(filter: String) {
         viewModelState.update { it.copy(selectedFilter = filter) }
-        viewModelState.update {
-            it.copy(
-                filteredDeals = filterDeals(
-                    viewModelState.value.restaurantDeals,
-                    filter
-                )
-            )
-        }
+        onFilter()
     }
 
     fun onSelectCustomFilter(category: String, filter: String) {
@@ -123,13 +141,7 @@ class ListViewModel(
 
     fun onSubmitCustomFilter() {
         viewModelState.update { it.copy(selectedFilter = "Custom") }
-        viewModelState.update {
-            it.copy(
-                filteredDeals = filterCustomDeals(
-                    viewModelState.value.restaurantDeals
-                )
-            )
-        }
+        onFilter()
         onShowFilterDialog(false)
     }
 
