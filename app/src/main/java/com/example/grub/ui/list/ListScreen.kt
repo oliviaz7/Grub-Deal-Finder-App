@@ -5,6 +5,7 @@ import RestaurantItem
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,27 +23,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.R
+import com.example.grub.ui.searchBar.CustomSearchBar
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     navController: NavController,
@@ -51,22 +49,54 @@ fun ListScreen(
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onSearchTextChange: (String) -> Unit,
+    onFilter: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val interactionSource = remember { MutableInteractionSource() }
+
+
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.list_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 12.dp, start = 20.dp, end = 20.dp, top = 4.dp)
+            ) {
+                CustomSearchBar(
+                    Modifier
+                        .background(
+                            color = Color.White,
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .size(300.dp, 40.dp),
+                    uiState.searchText,
+                    onSearchTextChange,
+                    onFilter,
+                    interactionSource
                 )
-            )
+
+                //not sure what i need to do for sorting???
+                //what sort i need, etc
+                Button(
+                    onClick = {},
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .fillMaxWidth()
+                        .size(width = 60.dp, height = 40.dp),
+                    shape = MaterialTheme.shapes.small,
+                    contentPadding = PaddingValues(8.dp),
+                    colors = ButtonColors(
+                        containerColor = Color.White,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = Color.White,
+                    )
+                ) {
+                    Text("Sort")
+                }
+            }
         },
         containerColor = Color.White,
     ) { innerPadding ->
@@ -94,11 +124,26 @@ fun ListScreen(
                     onShowFilterDialog = onShowFilterDialog,
                 )
 
-                uiState.filteredDeals.forEach { restaurant ->
-                    RestaurantItem(
-                        restaurant = restaurant,
-                        navController = navController,
-                    )
+                if (uiState.filteredDeals.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No matching deals found",
+                            color = Color.Gray,
+                        )
+                    }
+                } else {
+                    // Display the list of filtered restaurant deals
+                    uiState.filteredDeals.forEach { restaurant ->
+                        RestaurantItem(
+                            restaurant = restaurant,
+                            navController = navController,
+                        )
+                    }
                 }
             }
         }
