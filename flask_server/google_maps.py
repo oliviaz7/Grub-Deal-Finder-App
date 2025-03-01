@@ -19,6 +19,35 @@ def get_restaurant_website(place_id):
 
     return data.get("result", {}).get("website", None)
 
+def search_nearby_restaurants(keyword, latitude, longitude, radius):
+    params = {
+        "keyword": keyword,
+        "location": f"{latitude},{longitude}",
+        "radius": radius,
+        "key": MAPS_API_KEY,
+        "type": "restaurant",
+    }
+
+    # Make the request to the Google Places API
+    response = requests.get(NEARBY_SEARCH_URL, params=params)
+
+    places = response.json()
+
+    nearby_restaurants = []
+    for place in places.get("results", []):
+        place_info = {
+            "place_id": place["place_id"],
+            "restaurant_name": place["name"],
+            "coordinates": {
+                "latitude": place["location"]["lat"],
+                "longitude": place["location"]["lng"]
+            }
+        }
+
+        nearby_restaurants.append(place_info)
+
+    return nearby_restaurants
+
 # TODO: NOT USED ANYMORE
 def get_place_ids(latitude, longitude, radius):
     # Prepare the parameters for the API request

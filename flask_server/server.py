@@ -18,6 +18,7 @@ app = Flask(__name__)
 
 CORS(app)
 
+######### HELPER FUNCTIONS ##############
 def haversine(lat1, lon1, lat2, lon2):
 	R = 6371000  # Radius of the Earth in meters
 
@@ -107,6 +108,8 @@ def get_restaurant_image_url(place_id):
 	return favicon_url
 
 
+######### ROUTES ##############
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	try:
@@ -126,6 +129,7 @@ def get_deals():
 	except Exception as e:
 		print(f"Error occurred: {str(e)}")
 		return jsonify({"error": str(e)}), 500
+
 
 @app.route('/add_restaurant_deal', methods=["POST"])
 def add_restaurant_deal():
@@ -178,6 +182,18 @@ def add_restaurant_deal():
 		error_message = str(e)
 		print(f"Error occurred: {error_message}")
 		return jsonify({"error": str(e)}), 500
+
+
+@app.route('/search_nearby_restaurants')
+def nearby_search():
+	keyword = float(request.args.get('keyword'))
+	latitude = float(request.args.get('latitude'))
+	longitude = float(request.args.get('longitude'))
+	radius = float(request.args.get('radius'))
+
+	nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
+
+	return jsonify(nearby_restaurants)
 
 
 @app.route('/')
