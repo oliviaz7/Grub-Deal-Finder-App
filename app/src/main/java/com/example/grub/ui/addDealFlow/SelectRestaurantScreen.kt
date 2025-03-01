@@ -3,15 +3,11 @@ package com.example.grub.ui.addDealFlow
 import RestaurantItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -29,13 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.data.deals.Restaurant
-import com.example.grub.model.RestaurantDeal
+import com.example.grub.data.deals.SimpleRestaurant
 import com.google.android.gms.maps.model.LatLng
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,12 +38,12 @@ fun SelectRestaurantScreen (
     uiState: AddDealUiState,
     navController: NavController,
     searchNearbyRestaurants: (String, LatLng, Double) -> Unit,
-    updateRestaurant: (Restaurant) -> Unit,
+    updateRestaurant: (SimpleRestaurant) -> Unit,
     nextStep : () -> Unit,
     modifier: Modifier = Modifier
 ) {
     fun isNextButtonEnabled(): Boolean {
-        return uiState.restaurant.restaurantName.isNotEmpty() && uiState.restaurant.placeId.isNotEmpty()
+        return uiState.selectedRestaurant.restaurantName.isNotEmpty() && uiState.selectedRestaurant.placeId.isNotEmpty()
     }
 
     var keyword by remember { mutableStateOf("") }
@@ -112,7 +106,7 @@ fun SelectRestaurantScreen (
                     modifier = Modifier
                         .clickable(onClick = {
                             updateRestaurant(
-                                Restaurant(
+                                SimpleRestaurant(
                                     restaurant.placeId,
                                     restaurant.coordinates,
                                     restaurant.restaurantName

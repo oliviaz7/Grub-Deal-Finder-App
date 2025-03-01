@@ -2,7 +2,7 @@ package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
 import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.Restaurant
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
@@ -83,19 +83,19 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         )
     }
 
-    private val fakeRestaurants by lazy {
+    private val fakeSimpleRestaurants by lazy {
         listOf(
-            Restaurant(
+            SimpleRestaurant(
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
                 restaurantName = "MCD"
             ),
-            Restaurant(
+            SimpleRestaurant(
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
                 restaurantName = "Chef Signature"
             ),
-            Restaurant(
+            SimpleRestaurant(
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
                 restaurantName = "Mozy's Shawarma"
@@ -111,7 +111,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         return Result.Success(Unit)
     }
 
-    override suspend fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double): Result<List<Restaurant>> {
-        return Result.Success(fakeRestaurants)
+    override suspend fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double): Result<List<SimpleRestaurant>> {
+        return Result.Success(fakeSimpleRestaurants)
     }
 }

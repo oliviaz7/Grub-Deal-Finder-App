@@ -28,7 +28,7 @@ data class RawDeal(
     @SerializedName("image_id") val imageId: String?,
 )
 
-data class Restaurant(
+data class SimpleRestaurant(
     @SerializedName("place_id") val placeId: String,
     @SerializedName("coordinates") val coordinates: LatLng,
     @SerializedName("restaurant_name") val restaurantName: String,
@@ -60,5 +60,5 @@ interface RestaurantDealsRepository {
         keyword: String,
         coordinates: LatLng,
         radius: Double = 1000.0
-    ): Result<List<Restaurant>>
+    ): Result<List<SimpleRestaurant>>
 }

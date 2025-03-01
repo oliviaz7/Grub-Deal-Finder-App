@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.grub.R
-import com.example.grub.data.deals.Restaurant
 import com.example.grub.model.Deal
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal

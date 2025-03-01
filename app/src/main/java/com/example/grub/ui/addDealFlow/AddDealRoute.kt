@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.grub.data.deals.Restaurant
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.google.android.gms.maps.model.LatLng
 
@@ -45,7 +45,7 @@ fun AddDealRoute(
     uploadTest: (imageUri: Uri) -> Unit,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
     searchNearbyRestaurants: (String, LatLng, Double) -> Unit,
-    updateRestaurant: (Restaurant) -> Unit,
+    updateRestaurant: (SimpleRestaurant) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
 ) {

@@ -1,6 +1,6 @@
 package com.example.grub.service
 
-import com.example.grub.data.deals.Restaurant
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -25,6 +25,6 @@ interface ApiService {
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("radius") radius: Double
-    ): List<Restaurant>
+    ): List<SimpleRestaurant>
 }
 

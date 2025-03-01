@@ -5,11 +5,9 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -38,12 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.R
 import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.Restaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
 import com.google.android.gms.maps.model.LatLng
@@ -102,10 +97,10 @@ fun AddDealScreen(
     }
 
     fun isSubmitButtonEnabled(): Boolean {
-        return uiState.restaurant.restaurantName.isNotEmpty()
+        return uiState.selectedRestaurant.restaurantName.isNotEmpty()
                 && itemName.isNotEmpty()
                 && description.isNotEmpty()
-                && uiState.restaurant.placeId.isNotEmpty()
+                && uiState.selectedRestaurant.placeId.isNotEmpty()
     }
 
     Scaffold(
@@ -139,7 +134,7 @@ fun AddDealScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
         ) {
-            Text(text = uiState.restaurant.restaurantName)
+            Text(text = uiState.selectedRestaurant.restaurantName)
             Button(
                 onClick = { launcher.launch("image/*") }
             ) {
@@ -234,9 +229,9 @@ fun AddDealScreen(
                         addNewRestaurantDeal(
                             RestaurantDealsResponse(
                                 id = "default_id",
-                                placeId = uiState.restaurant.placeId,
-                                coordinates = uiState.restaurant.coordinates,
-                                restaurantName = uiState.restaurant.restaurantName,
+                                placeId = uiState.selectedRestaurant.placeId,
+                                coordinates = uiState.selectedRestaurant.coordinates,
+                                restaurantName = uiState.selectedRestaurant.restaurantName,
                                 rawDeals = listOf(
                                     RawDeal(
                                         id = "default_deal_id",

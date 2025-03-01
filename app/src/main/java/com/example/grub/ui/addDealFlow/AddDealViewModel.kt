@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
-import com.example.grub.data.deals.Restaurant
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.RestaurantDeal
@@ -32,7 +32,7 @@ data class AddDealUiState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>,
     val step: Step,
-    val restaurant: Restaurant,
+    val selectedRestaurant: SimpleRestaurant,
     val coordinates: LatLng = LatLng(0.0, 0.0),
 )
 
@@ -44,14 +44,14 @@ private data class AddDealViewModelState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>,
     val step: Step = Step.StepOne,
-    val restaurant: Restaurant = Restaurant("", LatLng(0.0, 0.0), "")
+    val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), "")
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, restaurant)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant)
 }
 
 
@@ -145,8 +145,8 @@ class AddDealViewModel(
         }
     }
 
-    fun updateRestaurant(restaurant: Restaurant) {
-        viewModelState.update { it.copy(restaurant = restaurant) }
+    fun updateRestaurant(simpleRestaurant: SimpleRestaurant) {
+        viewModelState.update { it.copy(selectedRestaurant = simpleRestaurant) }
     }
 
     /**

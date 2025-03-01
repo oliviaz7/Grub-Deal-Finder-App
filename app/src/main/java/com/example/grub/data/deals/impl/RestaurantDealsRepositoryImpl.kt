@@ -1,7 +1,7 @@
 package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
-import com.example.grub.data.deals.Restaurant
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.service.RetrofitClient.apiService
@@ -41,7 +41,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         keyword: String,
         coordinates: LatLng,
         radius: Double
-    ): Result<List<Restaurant>> {
+    ): Result<List<SimpleRestaurant>> {
         return try {
             val latitude = coordinates.latitude
             val longitude = coordinates.longitude
