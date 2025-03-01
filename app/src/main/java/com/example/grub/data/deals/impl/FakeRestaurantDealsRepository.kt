@@ -18,6 +18,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
                 restaurantName = "MCD",
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -37,6 +38,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
                 restaurantName = "Chef Signature",
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_456",
@@ -66,6 +68,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 id = "789",
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 restaurantName = "Mozy's Shawarma",
                 rawDeals = listOf(
                     RawDeal(

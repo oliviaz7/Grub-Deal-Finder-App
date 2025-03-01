@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
+import google_maps
 import math
 import uuid
 
@@ -38,7 +39,16 @@ def haversine(lat1, lon1, lat2, lon2):
 def iso_to_unix(iso_date):
 	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
 
-def generate_unique_deal_uuid():
+def generate_restaurant_uuid():
+	while True:
+		new_uuid = str(uuid.uuid4())
+
+		# Query Supabase to check if the UUID exists
+		response = supabase.from_('Restaurant').select('id').eq('id', new_uuid).execute()
+		if not response.data:  # If no deal exists with this UUID, return it
+			return new_uuid
+
+def generate_deal_uuid():
 	while True:
 		new_uuid = str(uuid.uuid4())
 
@@ -82,6 +92,21 @@ def format_restaurant_data(restaurants):
 
 	return restaurants
 
+def get_restaurant_image_url(place_id):
+	website = google_maps.get_restaurant_website(place_id)
+
+	if website is None:
+		return None
+
+	# Extract domain from the website URL
+	domain = website.replace("https://", "").replace("http://", "").split("/")[0]
+
+	# Google Favicon API URL
+	favicon_url = f"https://www.google.com/s2/favicons?sz=64&domain={domain}"
+
+	return favicon_url
+
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	try:
@@ -108,29 +133,34 @@ def add_restaurant_deal():
 	try:
 		restaurant = request.json
 		restaurant_place_id = restaurant.get("place_id")
+		restaurant_uuid = restaurant.get("id")
+		image_url = get_restaurant_image_url(restaurant_place_id)
 
 		# Check if restaurant already exists
 		existing_restaurant = supabase.from_('Restaurant').select('place_id').eq('place_id', restaurant_place_id).execute()
 
 		# Insert restaurant if it doesnt exist
 		if not existing_restaurant.data:
+			restaurant_uuid = generate_restaurant_uuid()
 			restaurant_data = {
-				"id": restaurant.get("id"),
+				"id": restaurant_uuid,
 				"place_id": restaurant.get("place_id"),
 				"restaurant_name": restaurant.get("restaurant_name"),
+				"display_address": restaurant.get("display_address"),
 				"latitude": restaurant["coordinates"]["latitude"],
-				"longitude": restaurant["coordinates"]["longitude"]
+				"longitude": restaurant["coordinates"]["longitude"],
+				"image_url": image_url,
 			}
 			supabase.from_('Restaurant').insert([restaurant_data]).execute()
 
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			deal_uuid = generate_unique_deal_uuid()
+			deal_uuid = generate_deal_uuid()
 
 			deal_item = {
 				"id": deal_uuid,
-				"restaurant_id": restaurant.get("id"),
+				"restaurant_id": restaurant_uuid,
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal["type"],

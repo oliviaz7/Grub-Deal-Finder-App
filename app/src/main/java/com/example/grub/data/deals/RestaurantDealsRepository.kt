@@ -11,7 +11,9 @@ data class RestaurantDealsResponse(
     @SerializedName("place_id") val placeId: String,
     @SerializedName("coordinates") val coordinates: LatLng,
     @SerializedName("restaurant_name") val restaurantName: String,
+    @SerializedName("display_address") val displayAddress: String,
     @SerializedName("Deal") val rawDeals: List<RawDeal>,
+    @SerializedName("image_url") val imageUrl : String? = null,
 )
 
 // RawDeal is the domain model. It mirrors the raw object returned by the server.

@@ -3,6 +3,21 @@ import os
 
 MAPS_API_KEY = os.getenv("MAPS_API_KEY")
 NEARBY_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+WEBSITE_URL = "https://maps.googleapis.com/maps/api/place/details/json"
+
+def get_restaurant_website(place_id):
+    params = {
+        "place_id": place_id,
+        "fields": "name,website",
+        "key": MAPS_API_KEY
+    }
+    response = requests.get(WEBSITE_URL, params=params)
+    data = response.json()
+
+    if response.status_code != 200:
+        return None
+
+    return data.get("result", {}).get("website", None)
 
 # TODO: NOT USED ANYMORE
 def get_place_ids(latitude, longitude, radius):
