@@ -36,8 +36,6 @@ import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.fab.Fab
-import com.example.grub.ui.interests.InterestsRoute
-import com.example.grub.ui.interests.InterestsViewModel
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
 import com.example.grub.ui.map.MapRoute
@@ -45,7 +43,6 @@ import com.example.grub.ui.map.MapViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
-    const val INTERESTS_ROUTE = "interests"
     const val LIST_ROUTE = "list"
     const val ADD_DEAL_ROUTE = "selectRestaurant"
     const val DEAL_DETAIL_ROUTE = "deal"
@@ -77,16 +74,6 @@ fun AppNavHost(
             )
             ScreenWithScaffold(navController) {
                 MapRoute(mapViewModel = mapViewModel)
-            }
-        }
-        composable(Destinations.INTERESTS_ROUTE) {
-            val interestsViewModel: InterestsViewModel = viewModel(
-                factory = InterestsViewModel.provideFactory(appContainer.interestsRepository)
-            )
-            ScreenWithScaffold(navController) {
-                InterestsRoute(
-                    interestsViewModel = interestsViewModel,
-                )
             }
         }
         composable(Destinations.LIST_ROUTE) {
