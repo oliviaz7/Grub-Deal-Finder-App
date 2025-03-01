@@ -58,7 +58,7 @@ fun AppNavHost(
     appContainer: AppContainer,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Destinations.HOME_ROUTE,
+    startDestination: String = Destinations.LIST_ROUTE,
 ) {
     NavHost(
         navController = navController,

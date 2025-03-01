@@ -145,6 +145,5 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
-    implementation("androidx.compose.material3:material3:1.4.0-alpha07")
 }
 

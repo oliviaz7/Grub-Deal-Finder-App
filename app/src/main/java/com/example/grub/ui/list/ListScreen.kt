@@ -5,18 +5,22 @@ import RestaurantItem
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,18 +30,28 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -51,38 +65,90 @@ fun ListScreen(
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onSearchTextChange: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val textFieldState = rememberTextFieldState()
+    var interactionSource = remember { MutableInteractionSource() }
     Scaffold(
         topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(bottom = 20.dp, start = 20.dp, end = 20.dp)
+                    .padding(bottom = 12.dp, start = 20.dp, end = 20.dp, top = 4.dp)
             ) {
-                SearchBar(
-                    inputField = {
-                        SearchBarDefaults.InputField(
-                            state = textFieldState,
-                            onSearch = { },
-                            expanded = false,
-                            onExpandedChange = { },
-                            placeholder = { Text("Search Deals...") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                BasicTextField(
+                    value = uiState.searchText,
+                    onValueChange = onSearchTextChange,
+                    textStyle = LocalTextStyle.current,
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = MaterialTheme.shapes.small
                         )
-                    },
-                    modifier = Modifier.size(width = 310.dp, height = 48.dp),
-                    expanded = false,
-                    onExpandedChange = { },
-                ) {}
+                        .size(300.dp, 40.dp),
+                    interactionSource = interactionSource,
+                    enabled = true,
+                    singleLine = true,
+                ) { innerTextField ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(20.dp).padding(start = 4.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        // Text Field with Placeholder
+                        Box(
+                            modifier = Modifier.weight(1f), // Ensures text takes up remaining space
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (uiState.searchText.isEmpty()) {
+                                Text(
+                                    text = "Search",
+                                    color = Color.Gray,
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
+
+                }
+//
+
+
+//                TextField(
+//                    value = text,
+//                    onValueChange = { newText ->
+//                        text = newText },
+//                    colors = TextFieldDefaults.colors(
+//                        MaterialTheme.colorScheme.primary,
+//                        focusedContainerColor = Color.White,
+//                        unfocusedContainerColor = Color.White,
+//                        focusedIndicatorColor = Color.Transparent, // Hide underline
+//                        unfocusedIndicatorColor = Color.Transparent
+//                    ),
+//                    leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "") },
+//                    placeholder = { Text(text = "Search") },
+//                    modifier = Modifier,
+//                    shape = MaterialTheme.shapes.large,
+////                    contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp),
+//                )
 
                 Button(
                     onClick = {},
                     modifier = Modifier
-                        .padding(start = 8.dp, top = 16.dp)
-                        .fillMaxWidth(),
+                        .padding(start = 12.dp)
+                        .fillMaxWidth()
+                        .size(width = 60.dp, height = 40.dp),
                     shape = MaterialTheme.shapes.small,
                     contentPadding = PaddingValues(8.dp),
                     colors = ButtonColors(

@@ -20,6 +20,7 @@ import CustomFilter
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -44,7 +45,8 @@ data class ListUiState(
     val loading: Boolean = false,
     val selectedFilter: String = "All",
     val showFilterDialog: Boolean = false,
-    val selectedCustomFilter: CustomFilter = CustomFilter()
+    val selectedCustomFilter: CustomFilter = CustomFilter(),
+    val searchText: String = ""
 )
 
 /**
@@ -78,6 +80,12 @@ class ListViewModel(
                     else -> Log.e("FetchingError", "ListViewModel, initial request failed")
                 }
             }
+        }
+    }
+
+    fun onSearchTextChange(newText: String) {
+        viewModelState.update { currentState ->
+            currentState.copy(searchText = newText)
         }
     }
 
