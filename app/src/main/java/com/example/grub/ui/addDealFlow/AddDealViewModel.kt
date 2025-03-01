@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
+import com.example.grub.data.deals.Restaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.RestaurantDeal
@@ -28,7 +29,11 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class AddDealUiState(
-    val deals: List<RestaurantDeal>
+    val deals: List<RestaurantDeal>,
+    val restaurants: List<RestaurantDeal>,
+    val step: Step,
+    val restaurant: Restaurant,
+    val coordinates: LatLng = LatLng(0.0, 0.0),
 )
 
 /**
@@ -36,14 +41,17 @@ data class AddDealUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class AddDealViewModelState(
-    val deals: List<RestaurantDeal>
+    val deals: List<RestaurantDeal>,
+    val restaurants: List<RestaurantDeal>,
+    val step: Step = Step.StepOne,
+    val restaurant: Restaurant = Restaurant("", LatLng(0.0, 0.0), "")
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, restaurant)
 }
 
 
@@ -58,7 +66,8 @@ class AddDealViewModel(
 ) : ViewModel() {
     private val viewModelState = MutableStateFlow(
         AddDealViewModelState(
-            deals = emptyList()
+            deals = emptyList(),
+            restaurants = emptyList(),
         )
     )
 
@@ -82,11 +91,11 @@ class AddDealViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.getRestaurantDeals(LatLng(0.0, 0.0)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
+            dealsRepository.searchNearbyRestaurants("", LatLng(0.0, 0.0)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
                 when (result) {
                     is Result.Success -> {
-                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
-                        viewModelState.update { it.copy(deals = deals) }
+                        val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                        viewModelState.update { it.copy(restaurants = restaurants) }
                     }
                     else -> Log.e("FetchingError", "SelectRestaurantViewModel, initial request failed")
                 }
@@ -107,6 +116,37 @@ class AddDealViewModel(
                 }
             }
         }
+    }
+
+    fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double) {
+        viewModelScope.launch {
+            dealsRepository.searchNearbyRestaurants(keyword, coordinates, radius).let { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                        viewModelState.update { it.copy(restaurants = restaurants) }
+                        Log.d("searchNearbyRestaurants", "Search request successful")
+                    }
+                    else -> Log.e("FetchingError", "SelectRestaurantViewModel, search request failed")
+                }
+            }
+        }
+    }
+
+    fun nextStep() {
+        if (uiState.value.step == Step.StepOne) {
+            viewModelState.update { it.copy(step = Step.StepTwo) }
+        }
+    }
+
+    fun prevStep() {
+        if (uiState.value.step == Step.StepTwo) {
+            viewModelState.update { it.copy(step = Step.StepOne) }
+        }
+    }
+
+    fun updateRestaurant(restaurant: Restaurant) {
+        viewModelState.update { it.copy(restaurant = restaurant) }
     }
 
     /**

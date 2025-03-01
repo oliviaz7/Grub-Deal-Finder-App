@@ -28,6 +28,12 @@ data class RawDeal(
     @SerializedName("image_id") val imageId: String?,
 )
 
+data class Restaurant(
+    @SerializedName("place_id") val placeId: String,
+    @SerializedName("coordinates") val coordinates: LatLng,
+    @SerializedName("restaurant_name") val restaurantName: String,
+)
+
 /**
  * Interface to the RestaurantDealsRepository data layer.
  */
@@ -46,4 +52,13 @@ interface RestaurantDealsRepository {
      * Add a new restaurant deal
      */
     suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit>
+
+    /**
+     * searchNearbyRestaurants
+     */
+    suspend fun searchNearbyRestaurants(
+        keyword: String,
+        coordinates: LatLng,
+        radius: Double = 1000.0
+    ): Result<List<Restaurant>>
 }
