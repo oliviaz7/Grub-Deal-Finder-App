@@ -28,6 +28,11 @@ data class RawDeal(
     @SerializedName("image_id") val imageId: String?,
 )
 
+// return type for when we add a deal
+data class AddDealResponse(
+    val uuid: String
+)
+
 data class SimpleRestaurant(
     @SerializedName("place_id") val placeId: String,
     @SerializedName("coordinates") val coordinates: LatLng,
@@ -48,10 +53,10 @@ interface RestaurantDealsRepository {
         radius: Double = 1000.0
     ): Result<List<RestaurantDealsResponse>>
 
-    /**
+     /**
      * Add a new restaurant deal
      */
-    suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit>
+    suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse>
 
     /**
      * searchNearbyRestaurants

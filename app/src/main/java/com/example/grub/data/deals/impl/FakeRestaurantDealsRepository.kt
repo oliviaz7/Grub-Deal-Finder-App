@@ -1,6 +1,7 @@
 package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
@@ -68,7 +69,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 restaurantName = "Mozy's Shawarma",
                 rawDeals = listOf(
                     RawDeal(
-                        id = "dealId_789",
+                        id = "10796322-ab95-4aea-9a7c-a006cae8eaca",
                         item = "Burger",
                         description = "meow",
                         type = DealType.BOGO,
@@ -164,12 +165,16 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         )
     }
 
+    private val fakeDealToAdd by lazy {
+        AddDealResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
+    }
+
     override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<List<RestaurantDealsResponse>> {
         return Result.Success(fakeDeals)
     }
 
-    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit> {
-        return Result.Success(Unit)
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {
+        return Result.Success(fakeDealToAdd)
     }
 
     override suspend fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double): Result<List<SimpleRestaurant>> {

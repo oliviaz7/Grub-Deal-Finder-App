@@ -5,6 +5,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import math
+import uuid
 
 load_dotenv()
 url = os.getenv("SUPABASE_URL")
@@ -36,6 +37,15 @@ def haversine(lat1, lon1, lat2, lon2):
 
 def iso_to_unix(iso_date):
 	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
+
+def generate_unique_deal_uuid():
+	while True:
+		new_uuid = str(uuid.uuid4())
+
+		# Query Supabase to check if the UUID exists
+		response = supabase.from_('Deal').select('id').eq('id', new_uuid).execute()
+		if not response.data:  # If no deal exists with this UUID, return it
+			return new_uuid
 
 def get_all_restaurant_deals():
 	result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
@@ -116,22 +126,23 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
+			deal_uuid = generate_unique_deal_uuid()
+
 			deal_item = {
-				"id": deal["id"], # TODO: SERVER HANDLES THIS
+				"id": deal_uuid,
 				"restaurant_id": restaurant.get("id"),
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal["type"],
 				"expiry_date": datetime.utcfromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
 				"date_posted": datetime.utcfromtimestamp(deal["date_posted"] / 1000).isoformat(),
-				"user_id": deal["user_id"],
+				"user_id": "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90", # guest account
 				"restrictions": deal["restrictions"],
 				"image_id": deal.get("imageId")
 			}
 
 			supabase.from_('Deal').insert([deal_item]).execute()
-
-			return jsonify({"message": "Deal added successfully"}), 201
+			return jsonify({"uuid": str(deal_uuid)}), 200
 
 	except Exception as e:
 		error_message = str(e)
