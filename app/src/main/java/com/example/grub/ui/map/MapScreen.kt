@@ -1,5 +1,3 @@
-//import android.graphics.Color
-
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,20 +49,6 @@ fun MapScreen(
         }
     }
 
-//    var initialCameraAnimated by remember { mutableStateOf(false) }
-//
-//    LaunchedEffect(uiState.userLocation) {
-//        uiState.userLocation?.let { location ->
-//            if (!initialCameraAnimated) {
-//                cameraPositionState.animate(
-//                    update = CameraUpdateFactory.newLatLngZoom(location, zoomIn)
-//                )
-//                initialCameraAnimated = true
-//            }
-//        }
-//    }
-
-
     println("MAP SCREEN ui state: ${uiState.restaurantDeals}")
 
     // fused location client giving two locations
@@ -80,10 +64,7 @@ fun MapScreen(
             properties = MapProperties(isMyLocationEnabled = uiState.hasLocationPermission),
             uiSettings = MapUiSettings(zoomControlsEnabled = true)
         ) {
-            // log the length of uiState.restaurantDeals
             Log.d("marker-bocation", "uiState.restaurantDeals.size: ${uiState.restaurantDeals.size}")
-
-            // so question
 
             uiState.restaurantDeals.forEach { deal ->
                 Log.d("marker-bocation", "deal: $deal")
