@@ -198,5 +198,3 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
             .clip(MaterialTheme.shapes.large)
     )
 }
-
-

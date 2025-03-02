@@ -2,6 +2,7 @@ package com.example.grub.model.mappers
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
@@ -38,6 +39,19 @@ object RestaurantDealMapper {
             restaurantName = response.restaurantName,
             coordinates = response.coordinates,
             deals = deals
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun mapResponseToRestaurantDeals(response: SimpleRestaurant): RestaurantDeal {
+        val zoneId = ZoneId.of("EST") // hardcoded time zone for now
+
+        return RestaurantDeal(
+            id = "",
+            placeId = response.placeId,
+            restaurantName = response.restaurantName,
+            coordinates = response.coordinates,
+            deals = emptyList()
         )
     }
 }
