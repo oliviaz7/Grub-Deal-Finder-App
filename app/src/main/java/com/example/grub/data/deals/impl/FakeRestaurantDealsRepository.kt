@@ -90,6 +90,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_1",
                 coordinates = LatLng(37.4228983, -122.084),
                 restaurantName = "Google Top Chicken",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -110,6 +111,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_2",
                 coordinates = LatLng(37.4210983, -122.084),
                 restaurantName = "Google Popeyes",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -130,6 +132,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_3",
                 coordinates = LatLng(37.4219983, -122.08286),
                 restaurantName = "Google Gols",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",

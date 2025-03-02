@@ -186,7 +186,7 @@ def add_restaurant_deal():
 
 @app.route('/search_nearby_restaurants')
 def nearby_search():
-	keyword = float(request.args.get('keyword'))
+	keyword = request.args.get('keyword')
 	latitude = float(request.args.get('latitude'))
 	longitude = float(request.args.get('longitude'))
 	radius = float(request.args.get('radius'))

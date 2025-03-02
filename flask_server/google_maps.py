@@ -39,8 +39,8 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
             "place_id": place["place_id"],
             "restaurant_name": place["name"],
             "coordinates": {
-                "latitude": place["location"]["lat"],
-                "longitude": place["location"]["lng"]
+                "latitude": place["geometry"]["location"]["lat"],
+                "longitude": place["geometry"]["location"]["lng"]
             }
         }
 
