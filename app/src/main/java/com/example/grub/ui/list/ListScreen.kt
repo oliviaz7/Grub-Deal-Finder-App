@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -70,7 +71,8 @@ fun ListScreen(
                             color = Color.White,
                             shape = MaterialTheme.shapes.small
                         )
-                        .size(300.dp, 40.dp),
+                        .weight(0.8f)
+                        .height( 40.dp),
                     uiState.searchText,
                     onSearchTextChange,
                     onFilter,
@@ -84,7 +86,8 @@ fun ListScreen(
                     modifier = Modifier
                         .padding(start = 12.dp)
                         .fillMaxWidth()
-                        .size(width = 60.dp, height = 40.dp),
+                        .weight(0.2f)
+                        .height(40.dp),
                     shape = MaterialTheme.shapes.small,
                     contentPadding = PaddingValues(8.dp),
                     colors = ButtonColors(

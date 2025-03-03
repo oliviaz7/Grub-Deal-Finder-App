@@ -136,15 +136,19 @@ fun AppNavHost(
             val deal = navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.get<Deal>("deal") ?:null
+            val restaurantName = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<String>("restaurantName") ?:null
 
             val dealDetailViewModel: DealDetailViewModel = viewModel(
                 factory = DealDetailViewModel.provideFactory(
-                    deal = deal
+                    deal = deal,
+                    restaurantName = restaurantName
                 )
             )
             ScreenWithScaffold(
                 navController,
-                showBottomNavItem = true,
+                showBottomNavItem = false,
                 showFloatingActionButton = false
             ) {
                 DealDetailRoute(
