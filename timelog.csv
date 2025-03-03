@@ -24,5 +24,8 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-25, 2, 0, 2, 2, 2, 2, product meeting and goals for p2
 2025-02-27, 0, 0, 0, 0, 0, 2, search bar ui
 2025-03-01, 0, 0, 0, 0, 0, 4, search bar functionality & error msg
-2025-03-02, 0, 0, 0, 0, 0, 4, add more api endpoints, added to RestaurantDealsResponse
+2025-03-01, 0, 0, 0, 0, 0, 4, add more api endpoints, added to RestaurantDealsResponse
+2025-03-01, 0, 3, 0, 0, 0, 0, prettify add deal flow
+2025-03-02, 4, 0, 0, 0, 0, 0, app organization for auth and user profile
+2025-03-03, 0, 0, 0, 0, 0, 5, deal details ui
 

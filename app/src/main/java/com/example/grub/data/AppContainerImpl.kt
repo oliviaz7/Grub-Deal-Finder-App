@@ -17,10 +17,10 @@
 package com.example.grub.data
 
 import android.content.Context
+import com.example.grub.data.auth.AuthRepository
+import com.example.grub.data.auth.impl.FakeAuthRepositoryImpl
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.impl.FakeRestaurantDealsRepository
-import com.example.grub.data.deals.impl.RestaurantDealsRepositoryImpl
-
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -31,6 +31,7 @@ interface AppContainer {
     val restaurantDealsRepository: RestaurantDealsRepository
     val storageService: StorageService
     val fusedLocationProviderClient: FusedLocationProviderClient
+    val authRepository: AuthRepository
 }
 
 /**
@@ -51,5 +52,9 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(applicationContext)
+    }
+
+    override val authRepository: AuthRepository by lazy {
+        FakeAuthRepositoryImpl()
     }
 }

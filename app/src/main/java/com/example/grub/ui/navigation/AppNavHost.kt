@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.ui.AppViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
@@ -40,6 +41,8 @@ import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
+import com.example.grub.ui.profile.ProfileRoute
+import com.example.grub.ui.profile.ProfileViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -57,6 +60,11 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Destinations.HOME_ROUTE,
 ) {
+    val appViewModel: AppViewModel = viewModel(
+        factory = AppViewModel.provideFactory(
+            authRepository = appContainer.authRepository
+        )
+    )
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -88,13 +96,18 @@ fun AppNavHost(
             }
         }
         composable(Destinations.PROFILE_ROUTE) {
-
+            val profileViewModel: ProfileViewModel = viewModel(
+                factory = ProfileViewModel.provideFactory(
+                    appViewModel = appViewModel,
+                    authRepository = appContainer.authRepository,
+                )
+            )
             ScreenWithScaffold(
                 navController,
                 showBottomNavItem = true,
-                showFloatingActionButton = true
+                showFloatingActionButton = false
             ) {
-                //to be implemented
+                ProfileRoute(profileViewModel)
             }
         }
         composable(Destinations.ADD_DEAL_ROUTE) {
@@ -123,15 +136,19 @@ fun AppNavHost(
             val deal = navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.get<Deal>("deal") ?:null
+            val restaurantName = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<String>("restaurantName") ?:null
 
             val dealDetailViewModel: DealDetailViewModel = viewModel(
                 factory = DealDetailViewModel.provideFactory(
-                    deal = deal
+                    deal = deal,
+                    restaurantName = restaurantName
                 )
             )
             ScreenWithScaffold(
                 navController,
-                showBottomNavItem = true,
+                showBottomNavItem = false,
                 showFloatingActionButton = false
             ) {
                 DealDetailRoute(
