@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -184,6 +185,8 @@ fun DealItem(
                     text = deal.type.toString() + " "+ deal.item,
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(start = 2.dp)
                 )
                 if(!deal.description.isNullOrBlank()){
@@ -203,8 +206,8 @@ fun DealItem(
                             contentDescription = "expiryIcon",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .size(15.dp)
-                                .padding(top = 2.dp, start = 0.dp),
+                                .size(14.dp)
+                                .scale(0.95f)
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(

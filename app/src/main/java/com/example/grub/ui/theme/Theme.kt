@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 val GrubColors = lightColorScheme(
     primary = grub_primary,
     onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer,
+    primaryContainer = grub_primaryContainer,
     onPrimaryContainer = md_theme_light_onPrimaryContainer,
     secondary = md_theme_light_secondary,
     onSecondary = md_theme_light_onSecondary,

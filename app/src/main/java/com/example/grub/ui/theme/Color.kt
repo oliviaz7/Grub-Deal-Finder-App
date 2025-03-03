@@ -76,4 +76,4 @@ val md_theme_dark_surfaceTint = Color(0xFFFFB3B4)
 
 val grub_background = Color(0xFFFFF3E0)
 val grub_primary = Color(0xFFFF6B00)
-val grub_secondary = Color(0x00000000)
+val grub_primaryContainer = Color(0xff5c4136)
