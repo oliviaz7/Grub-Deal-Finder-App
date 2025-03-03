@@ -80,10 +80,10 @@ val Typography = Typography(
         lineBreak = LineBreak.Heading
     ),
     titleSmall = defaultTextStyle.copy(
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Bold,
         lineBreak = LineBreak.Heading
     ),
     labelLarge = defaultTextStyle.copy(
@@ -102,14 +102,14 @@ val Typography = Typography(
         lineBreak = LineBreak.Paragraph
     ),
     bodyMedium = defaultTextStyle.copy(
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp,
         lineBreak = LineBreak.Paragraph
     ),
     bodySmall = defaultTextStyle.copy(
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+        fontSize = 10.sp,
+        lineHeight = 15.sp,
         letterSpacing = 0.4.sp,
         lineBreak = LineBreak.Paragraph
     ),

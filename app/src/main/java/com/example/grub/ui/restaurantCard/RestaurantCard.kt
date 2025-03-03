@@ -1,3 +1,5 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -5,10 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,14 +27,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.grub.R
 import com.example.grub.model.Deal
-import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.navigation.Destinations
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -51,6 +58,7 @@ import com.example.grub.ui.navigation.Destinations
  * @param restaurant The `RestaurantDeal` object representing the restaurant and its deals.
  * @param navController The `NavController` used to handle navigation to the deal details.
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RestaurantItem(
     restaurant: RestaurantDeal,
@@ -124,6 +132,7 @@ fun RestaurantItem(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DealItem(
     deal: Deal,
@@ -132,7 +141,7 @@ fun DealItem(
     Box(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 8.dp, vertical = 6.dp)
             .drawBehind {
                 val shadowSize = 2.dp.toPx()
                 drawRoundRect(
@@ -160,18 +169,55 @@ fun DealItem(
                     navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
                 }
         ) {
-            DealImage(deal.imageUrl)
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = deal.type.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                color = when (deal.type) {
-                    DealType.BOGO -> MaterialTheme.colorScheme.primary
-                    DealType.DISCOUNT -> MaterialTheme.colorScheme.primary
-                    DealType.FREE -> MaterialTheme.colorScheme.primary
-                    DealType.OTHER -> MaterialTheme.colorScheme.primary
-                }
+            DealImage(
+                deal.imageUrl,
+                Modifier
+                    .weight(0.3f)
+                    .aspectRatio(5f/4f)
+                    .clip(MaterialTheme.shapes.small)
             )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column (
+                Modifier.weight(0.7f)
+            ){
+                Text(
+                    text = deal.type.toString() + " "+ deal.item,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+                if(!deal.description.isNullOrBlank()){
+                    Text(
+                        text = deal.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(start = 2.dp)
+                    )
+                }
+                if(deal.expiryDate!=null){
+                    Row(){
+                        Icon(
+                            Icons.Filled.CalendarMonth,
+                            contentDescription = "expiryIcon",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(15.dp)
+                                .padding(top = 2.dp, start = 0.dp),
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = "Valid Until: " + deal.expiryDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+
+                }
+
+            }
+
         }
     }
 
@@ -182,9 +228,7 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
     imageUrl?.let { url ->
         AsyncImage(
             model = url,
-            modifier = modifier
-                .size(32.dp)
-                .clip(MaterialTheme.shapes.small),
+            modifier = modifier,
             contentDescription = "Deal Image",
             // TODO: replace with a better loading placeholder
             placeholder = painterResource(R.drawable.placeholder_4_3),
@@ -194,7 +238,5 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
         painter = painterResource(R.drawable.placeholder_1_1),
         contentDescription = null,
         modifier = modifier
-            .size(32.dp)
-            .clip(MaterialTheme.shapes.large)
     )
 }
