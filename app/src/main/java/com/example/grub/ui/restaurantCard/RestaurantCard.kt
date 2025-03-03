@@ -124,7 +124,7 @@ fun RestaurantItem(
 
             Column() {
                 restaurant.deals.forEach { deal ->
-                    DealItem(deal = deal, navController = navController)
+                    DealItem(restaurantName = restaurant.restaurantName, deal = deal, navController = navController)
                 }
             }
         }
@@ -136,6 +136,7 @@ fun RestaurantItem(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DealItem(
+    restaurantName: String,
     deal: Deal,
     navController: NavController
 ) {
@@ -167,6 +168,7 @@ fun DealItem(
                         key = "deal",
                         value = deal
                     )
+                    navController.currentBackStackEntry?.savedStateHandle?.set("restaurantName", restaurantName)
                     navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
                 }
         ) {

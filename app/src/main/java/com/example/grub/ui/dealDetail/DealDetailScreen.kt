@@ -61,6 +61,8 @@ fun DealDetailScreen(
     ) { innerPadding ->
         val screenModifier = Modifier.padding(innerPadding)
         val deal = uiState.deal!!
+        val restaurantName = uiState.restaurantName!!
+
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -90,7 +92,7 @@ fun DealDetailScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Restaurant",
+                        text = restaurantName,
                         style = MaterialTheme.typography.displaySmall
                     )
                     Row() {

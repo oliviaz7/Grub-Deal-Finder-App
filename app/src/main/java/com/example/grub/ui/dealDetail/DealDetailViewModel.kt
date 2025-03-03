@@ -36,7 +36,8 @@ import kotlinx.coroutines.launch
  * precisely represent the state available to render the UI.
  */
 data class DealDetailUiState(
-    val deal: Deal?
+    val deal: Deal?,
+    val restaurantName: String?
 )
 
 /**
@@ -44,14 +45,15 @@ data class DealDetailUiState(
  * THIS ONLY BECOMES RELEVANT WHEN OUR THING BECOMES MORE COMPLEX
  */
 private data class DealDetailViewModelState(
-    val deal: Deal?
+    val deal: Deal?,
+    val restaurantName: String?
 ) {
 
     /**
      * Converts this [DealDetailViewModelState] into a more strongly typed [DealDetailUiState] for driving
      * the ui.
      */
-    fun toUiState(): DealDetailUiState = DealDetailUiState(deal)
+    fun toUiState(): DealDetailUiState = DealDetailUiState(deal, restaurantName)
 }
 
 /**
@@ -59,12 +61,14 @@ private data class DealDetailViewModelState(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class DealDetailViewModel(
-    private val deal: Deal?
+    private val deal: Deal?,
+    private val restaurantName: String?
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
         DealDetailViewModelState(
-            deal = null
+            deal = null,
+            restaurantName = ""
         )
     )
 
@@ -80,7 +84,7 @@ class DealDetailViewModel(
     init {
         viewModelScope.launch {
             // Deserialize the JSON string back to the Deal object
-            viewModelState.update { it.copy(deal = deal) }
+            viewModelState.update { it.copy(deal = deal, restaurantName = restaurantName) }
         }
     }
 
@@ -89,11 +93,12 @@ class DealDetailViewModel(
      */
     companion object {
         fun provideFactory(
-            deal: Deal?
+            deal: Deal?,
+            restaurantName: String?
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return DealDetailViewModel(deal) as T
+                return DealDetailViewModel(deal, restaurantName) as T
             }
         }
     }
