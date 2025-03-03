@@ -40,21 +40,12 @@ def haversine(lat1, lon1, lat2, lon2):
 def iso_to_unix(iso_date):
 	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
 
-def generate_restaurant_uuid():
+def generate_new_uuid(table_name):
 	while True:
 		new_uuid = str(uuid.uuid4())
 
 		# Query Supabase to check if the UUID exists
-		response = supabase.from_('Restaurant').select('id').eq('id', new_uuid).execute()
-		if not response.data:  # If no deal exists with this UUID, return it
-			return new_uuid
-
-def generate_deal_uuid():
-	while True:
-		new_uuid = str(uuid.uuid4())
-
-		# Query Supabase to check if the UUID exists
-		response = supabase.from_('Deal').select('id').eq('id', new_uuid).execute()
+		response = supabase.from_(table_name).select('id').eq('id', new_uuid).execute()
 		if not response.data:  # If no deal exists with this UUID, return it
 			return new_uuid
 
@@ -145,7 +136,7 @@ def add_restaurant_deal():
 
 		# Insert restaurant if it doesnt exist
 		if not existing_restaurant.data:
-			restaurant_uuid = generate_restaurant_uuid()
+			restaurant_uuid = generate_new_uuid('Restaurant')
 			restaurant_data = {
 				"id": restaurant_uuid,
 				"place_id": restaurant.get("place_id"),
@@ -160,7 +151,7 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			deal_uuid = generate_deal_uuid()
+			deal_uuid = generate_new_uuid('Deal')
 
 			deal_item = {
 				"id": deal_uuid,
