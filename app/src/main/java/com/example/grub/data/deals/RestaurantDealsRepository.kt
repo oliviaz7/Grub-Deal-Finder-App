@@ -32,7 +32,7 @@ data class RawDeal(
 
 // return type for when we add a deal
 data class AddDealResponse(
-    val uuid: String
+    val dealId: String
 )
 
 data class SimpleRestaurant(

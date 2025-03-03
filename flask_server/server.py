@@ -40,15 +40,6 @@ def haversine(lat1, lon1, lat2, lon2):
 def iso_to_unix(iso_date):
 	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
 
-def generate_new_uuid(table_name):
-	while True:
-		new_uuid = str(uuid.uuid4())
-
-		# Query Supabase to check if the UUID exists
-		response = supabase.from_(table_name).select('id').eq('id', new_uuid).execute()
-		if not response.data:  # If no deal exists with this UUID, return it
-			return new_uuid
-
 def get_all_restaurant_deals():
 	result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
 	restaurant_deals = result.data
@@ -129,16 +120,15 @@ def add_restaurant_deal():
 		restaurant = request.json
 		restaurant_place_id = restaurant.get("place_id")
 		restaurant_uuid = restaurant.get("id")
-		image_url = get_restaurant_image_url(restaurant_place_id)
 
 		# Check if restaurant already exists
 		existing_restaurant = supabase.from_('Restaurant').select('place_id').eq('place_id', restaurant_place_id).execute()
 
 		# Insert restaurant if it doesnt exist
 		if not existing_restaurant.data:
-			restaurant_uuid = generate_new_uuid('Restaurant')
+			image_url = get_restaurant_image_url(restaurant_place_id)
+
 			restaurant_data = {
-				"id": restaurant_uuid,
 				"place_id": restaurant.get("place_id"),
 				"restaurant_name": restaurant.get("restaurant_name"),
 				"display_address": restaurant.get("display_address"),
@@ -151,10 +141,7 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			deal_uuid = generate_new_uuid('Deal')
-
 			deal_item = {
-				"id": deal_uuid,
 				"restaurant_id": restaurant_uuid,
 				"item": deal["item"],
 				"description": deal.get("description"),
@@ -166,8 +153,10 @@ def add_restaurant_deal():
 				"image_id": deal.get("imageId")
 			}
 
-			supabase.from_('Deal').insert([deal_item]).execute()
-			return jsonify({"uuid": str(deal_uuid)}), 200
+			response = supabase.from_('Deal').insert([deal_item]).execute()
+			deal_uuid = response.data[0]['id'] if response.data else None
+
+			return jsonify({"dealId": str(deal_uuid)}), 200
 
 	except Exception as e:
 		error_message = str(e)
