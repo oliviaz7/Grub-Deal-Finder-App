@@ -1,6 +1,7 @@
 package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
@@ -17,6 +18,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
                 restaurantName = "MCD",
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -36,6 +38,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
                 restaurantName = "Chef Signature",
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_456",
@@ -65,10 +68,11 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 id = "789",
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
+                displayAddress = "123 Mommy Park Road, Mississauga",
                 restaurantName = "Mozy's Shawarma",
                 rawDeals = listOf(
                     RawDeal(
-                        id = "dealId_789",
+                        id = "10796322-ab95-4aea-9a7c-a006cae8eaca",
                         item = "Burger",
                         description = "meow",
                         type = DealType.BOGO,
@@ -86,6 +90,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_1",
                 coordinates = LatLng(37.4228983, -122.084),
                 restaurantName = "Google Top Chicken",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -106,6 +111,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_2",
                 coordinates = LatLng(37.4210983, -122.084),
                 restaurantName = "Google Popeyes",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -126,6 +132,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                 placeId = "placeId_3",
                 coordinates = LatLng(37.4219983, -122.08286),
                 restaurantName = "Google Gols",
+                displayAddress = "123 Lorne Park Road, Mississauga",
                 rawDeals = listOf(
                     RawDeal(
                         id = "dealId_123",
@@ -164,12 +171,16 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         )
     }
 
+    private val fakeDealToAdd by lazy {
+        AddDealResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
+    }
+
     override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<List<RestaurantDealsResponse>> {
         return Result.Success(fakeDeals)
     }
 
-    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit> {
-        return Result.Success(Unit)
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {
+        return Result.Success(fakeDealToAdd)
     }
 
     override suspend fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double): Result<List<SimpleRestaurant>> {

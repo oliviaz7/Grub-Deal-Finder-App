@@ -4,7 +4,9 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
+import google_maps
 import math
+import uuid
 
 load_dotenv()
 url = os.getenv("SUPABASE_URL")
@@ -16,6 +18,7 @@ app = Flask(__name__)
 
 CORS(app)
 
+######### HELPER FUNCTIONS ##############
 def haversine(lat1, lon1, lat2, lon2):
 	R = 6371000  # Radius of the Earth in meters
 
@@ -72,6 +75,23 @@ def format_restaurant_data(restaurants):
 
 	return restaurants
 
+def get_restaurant_image_url(place_id):
+	website = google_maps.get_restaurant_website(place_id)
+
+	if website is None:
+		return None
+
+	# Extract domain from the website URL
+	domain = website.replace("https://", "").replace("http://", "").split("/")[0]
+
+	# Google Favicon API URL
+	favicon_url = f"https://www.google.com/s2/favicons?sz=64&domain={domain}"
+
+	return favicon_url
+
+
+######### ROUTES ##############
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	try:
@@ -92,24 +112,29 @@ def get_deals():
 		print(f"Error occurred: {str(e)}")
 		return jsonify({"error": str(e)}), 500
 
+
 @app.route('/add_restaurant_deal', methods=["POST"])
 def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
 	try:
 		restaurant = request.json
 		restaurant_place_id = restaurant.get("place_id")
+		restaurant_uuid = restaurant.get("id")
 
 		# Check if restaurant already exists
 		existing_restaurant = supabase.from_('Restaurant').select('place_id').eq('place_id', restaurant_place_id).execute()
 
 		# Insert restaurant if it doesnt exist
 		if not existing_restaurant.data:
+			image_url = get_restaurant_image_url(restaurant_place_id)
+
 			restaurant_data = {
-				"id": restaurant.get("id"),
 				"place_id": restaurant.get("place_id"),
 				"restaurant_name": restaurant.get("restaurant_name"),
+				"display_address": restaurant.get("display_address"),
 				"latitude": restaurant["coordinates"]["latitude"],
-				"longitude": restaurant["coordinates"]["longitude"]
+				"longitude": restaurant["coordinates"]["longitude"],
+				"image_url": image_url,
 			}
 			supabase.from_('Restaurant').insert([restaurant_data]).execute()
 
@@ -117,26 +142,38 @@ def add_restaurant_deal():
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
 			deal_item = {
-				"id": deal["id"], # TODO: SERVER HANDLES THIS
-				"restaurant_id": restaurant.get("id"),
+				"restaurant_id": restaurant_uuid,
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal["type"],
 				"expiry_date": datetime.utcfromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
 				"date_posted": datetime.utcfromtimestamp(deal["date_posted"] / 1000).isoformat(),
-				"user_id": deal["user_id"],
+				"user_id": "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90", # guest account
 				"restrictions": deal["restrictions"],
 				"image_id": deal.get("imageId")
 			}
 
-			supabase.from_('Deal').insert([deal_item]).execute()
+			response = supabase.from_('Deal').insert([deal_item]).execute()
+			deal_uuid = response.data[0]['id'] if response.data else None
 
-			return jsonify({"message": "Deal added successfully"}), 201
+			return jsonify({"dealId": str(deal_uuid)}), 200
 
 	except Exception as e:
 		error_message = str(e)
 		print(f"Error occurred: {error_message}")
 		return jsonify({"error": str(e)}), 500
+
+
+@app.route('/search_nearby_restaurants')
+def nearby_search():
+	keyword = request.args.get('keyword')
+	latitude = float(request.args.get('latitude'))
+	longitude = float(request.args.get('longitude'))
+	radius = float(request.args.get('radius'))
+
+	nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
+
+	return jsonify(nearby_restaurants)
 
 
 @app.route('/')

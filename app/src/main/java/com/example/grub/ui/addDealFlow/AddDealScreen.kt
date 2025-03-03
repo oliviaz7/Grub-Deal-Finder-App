@@ -232,6 +232,7 @@ fun AddDealScreen(
                                 placeId = uiState.selectedRestaurant.placeId,
                                 coordinates = uiState.selectedRestaurant.coordinates,
                                 restaurantName = uiState.selectedRestaurant.restaurantName,
+                                displayAddress = "restaurant_addy",
                                 rawDeals = listOf(
                                     RawDeal(
                                         id = "default_deal_id",

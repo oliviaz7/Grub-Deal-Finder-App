@@ -2,6 +2,7 @@ package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
 import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.service.RetrofitClient.apiService
@@ -24,14 +25,11 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         }
     }
 
-    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<Unit> {
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {
         return try {
             val response = apiService.addRestaurantDeal(deal)
-            if (response.isSuccessful) {
-                Result.Success(Unit)
-            } else {
-                Result.Error(Exception("Failed to add deal: ${response.errorBody()?.string()}"))
-            }
+            Result.Success(response)
+
         } catch (e: Exception) {
             Result.Error(e)
         }
