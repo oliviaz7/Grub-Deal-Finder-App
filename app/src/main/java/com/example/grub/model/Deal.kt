@@ -1,7 +1,10 @@
 package com.example.grub.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.time.ZonedDateTime
 
+@Parcelize
 data class Deal(
     val id: String,
     val item: String,
@@ -11,11 +14,15 @@ data class Deal(
     val datePosted: ZonedDateTime,
     val userId: String,
     val restrictions: String, // TODO: figure out how we're handling
-)
+    val imageUrl: String?,
+) : Parcelable
 
 enum class DealType {
     BOGO,
     DISCOUNT,
     FREE,
-    // TODO: add more
+    OTHER;
+    // TODO: add more.
+    // NOTE: whenever you add a DealType, please add the enum in supabase as well.
+    //       Go to Database > DATABASE MANAGEMENT > Enumerated Types > Update type (for DealType) > add value for new enum
 }

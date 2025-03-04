@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "583600307345",
+    "project_id": "meowmeow-6c3ec",
+    "storage_bucket": "meowmeow-6c3ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583600307345:android:b96f2cc09ba142d34f9330",
+        "android_client_info": {
+          "package_name": "com.example.grub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhKzUqv4c4cB3-M_xbO8ukERXhARmdLIk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

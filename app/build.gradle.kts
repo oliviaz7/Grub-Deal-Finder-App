@@ -19,6 +19,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose)
     alias(libs.plugins.secrets)
+    alias(libs.plugins.google.services)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -109,6 +111,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
 
+    implementation(libs.accompanist.permissions)
+
     implementation(libs.androidx.glance)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
@@ -120,6 +124,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.window)
+    implementation(platform(libs.firebase.bom))
+
+    val firebaseBom = platform(libs.firebase.bom)
+    implementation(firebaseBom)
+    androidTestImplementation(firebaseBom)
+    implementation(libs.firebase.storage)
+    implementation(libs.coil.kt.compose)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)
@@ -130,7 +144,5 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.compose.ui.test)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
 

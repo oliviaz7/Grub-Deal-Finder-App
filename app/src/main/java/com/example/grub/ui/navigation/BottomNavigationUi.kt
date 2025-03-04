@@ -1,32 +1,42 @@
 package com.example.grub.ui.navigation
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PersonPin
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.example.grub.R
 
 @Composable
 fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier) {
 
     val items = listOf(
-        BottomNavItem.Map,
-        BottomNavItem.Discover,
         BottomNavItem.List,
-        )
+        BottomNavItem.Map,
+        BottomNavItem.Profile,
+    )
+
+    val currentRoute = navController.currentDestination?.route
 
     NavigationBar(modifier = modifier) {
         items.forEach { item ->
             AddItem(
                 screen = item,
                 navController = navController,
+                selected = currentRoute == item.route
             )
         }
     }
@@ -34,34 +44,36 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
 
 sealed class BottomNavItem(
     var title: String,
-    var icon: Int,
+    var icon: ImageVector,
     val route: String,
 ) {
     data object Map :
         BottomNavItem(
             "Map",
-            R.drawable.ic_jetnews_bookmark, // replace
+            Icons.Outlined.Map,
             Destinations.HOME_ROUTE,
-        )
-    data object Discover :
-        BottomNavItem(
-            "Discover",
-            R.drawable.ic_jetnews_logo, // replace
-            Destinations.INTERESTS_ROUTE,
         )
 
     data object List :
         BottomNavItem(
             "List",
-            R.drawable.ic_jetnews_logo, // replace
+            Icons.Outlined.ListAlt,
             Destinations.LIST_ROUTE,
+        )
+
+    data object Profile :
+        BottomNavItem(
+            "Profile",
+            Icons.Outlined.PersonPin,
+            Destinations.PROFILE_ROUTE,
         )
 }
 
 @Composable
 fun RowScope.AddItem(
     screen: BottomNavItem,
-    navController: NavController
+    navController: NavController,
+    selected: Boolean
 ) {
     NavigationBarItem(
         label = {
@@ -69,8 +81,14 @@ fun RowScope.AddItem(
         },
         icon = {
             Icon(
-                painterResource(id = screen.icon),
-                contentDescription = screen.title
+                screen.icon,
+                contentDescription = screen.title,
+                tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary.copy(
+                    alpha = 0.8f
+                ),
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(24.dp))
             )
         },
         selected = false,
@@ -90,6 +108,5 @@ fun RowScope.AddItem(
                 restoreState = true
             }
         },
-        colors = NavigationBarItemDefaults.colors()
     )
 }
