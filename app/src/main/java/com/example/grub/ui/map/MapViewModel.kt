@@ -11,16 +11,20 @@ import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.maps.model.LatLng
-
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.Priority
+/**
+ * event: ui --> viewmodel
+ */
+sealed class MapEvent {
+    data class UpdateCameraViewState(val cameraCoordinate: LatLng?, val zoom: Float, val visibleRadius: Double?) : MapEvent()
+}
 
 /**
  * UI state for the Map route.
@@ -28,7 +32,10 @@ import com.google.android.gms.location.Priority
 data class MapUiState(
     val restaurantDeals: List<RestaurantDeal>,
     val hasLocationPermission: Boolean,
-    val userLocation: LatLng?
+    val userLocation: LatLng?,
+    val cameraCoordinate: LatLng?,
+    val cameraZoom: Float,
+    val visibleRadius: Double?
 )
 
 /**
@@ -46,27 +53,41 @@ class MapViewModel(
         MapUiState(
             restaurantDeals = emptyList(),
             hasLocationPermission = false,
-            userLocation = null // default to null
+            userLocation = null,
+            cameraCoordinate = null,
+            cameraZoom = 0f,
+            visibleRadius = null
         )
     )
 
     // UI state exposed to the UI (not mutable for safety)
     val uiState = _uiState.asStateFlow()
 
-    private var locationCallback: LocationCallback? = null
-
-    init {
-        viewModelScope.launch {
-//            restaurantDealsRepository.getRestaurantDeals(LatLng(0.0,0.0)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
-              restaurantDealsRepository.getRestaurantDeals(LatLng(37.4210983, -122.084), 10.0).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
+    private suspend fun getRestaurantDeals() {
+        if (_uiState.value.cameraCoordinate != null && _uiState.value.visibleRadius != null) {
+                // neither of them are null, but we still need to force?
+            Log.d("marker-location", "cameracoord param for getRestaurantDeals: ${_uiState.value.cameraCoordinate}")
+            Log.d("marker-location", "visibleRadius param for getRestaurantDeals: ${_uiState.value.visibleRadius}")
+            restaurantDealsRepository.getRestaurantDeals(_uiState.value.cameraCoordinate!!, _uiState.value.visibleRadius!!).let { result ->
                 when (result) {
                     is Result.Success -> {
                         val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
                         _uiState.update { it.copy(restaurantDeals = deals) }
+                        Log.d("marker-location", "restaurantDeals: ${_uiState.value.restaurantDeals}")
+                        Log.d("marker-location", "restaurantDeals size: ${_uiState.value.restaurantDeals.size}")
                     }
-                    else -> Log.e("FetchingError", "MapViewModel, initial request failed")
+                    else -> Log.e("FetchingError", "MapViewModel, request failed")
                 }
             }
+        } else {
+            Log.e("marker-location", "_uiState.value.cameraCoordinate is null or _uiState.value.visibleRadius is null")
+        }
+    }
+
+    // do we need to getRestaurantDeals on init
+    init {
+        viewModelScope.launch {
+            getRestaurantDeals()
         }
     }
 
@@ -74,13 +95,12 @@ class MapViewModel(
      * Update our own state when we detect a change in location permissions
      */
     fun onPermissionsChanged(hasLocationPermission: Boolean) {
-        Log.d("location-permission", "location granted: $hasLocationPermission")
+        Log.i("location-permission", "location granted: $hasLocationPermission")
         _uiState.update {
             it.copy(hasLocationPermission = hasLocationPermission)
         }
 
-        if (hasLocationPermission) {
-            Log.d("user-location", "set up init location")
+        if (hasLocationPermission) { // and there was no previous location?
             getCurrentUserLocation()  // get the user location if permission is granted
         }
     }
@@ -105,9 +125,30 @@ class MapViewModel(
             }
     }
 
-    // okay how to do live location updates?
-    // https://developer.android.com/training/location/receive-location-updates
+    fun onEvent(event: MapEvent) {
+        Log.d("marker-location", "hello we in the function onEvent")
+        when (event) {
+            is MapEvent.UpdateCameraViewState -> {
+                Log.d("marker-location", "event.visibleRadius: ${event.visibleRadius}")
+                Log.d("marker-location", "event.cameraCoordinate: ${event.cameraCoordinate}")
+                Log.d("marker-location", "event.zoom: ${event.zoom}")
+                _uiState.value = _uiState.value.copy(
+                    visibleRadius = event.visibleRadius,
+                    cameraCoordinate = event.cameraCoordinate,
+                    cameraZoom = event.zoom
+                )
+                if (event.zoom > 9f) { // turn this into a constant
+                    viewModelScope.launch { getRestaurantDeals() }
+                } else {
+                    // Clear any existing deals when zoomed out too far
+                    _uiState.update { current -> current.copy(restaurantDeals = emptyList()) }
+                    Log.i("marker-location", "Zoom too low, skipping backend query")
+                }
+            }
+        }
+    }
 
+    // https://developer.android.com/training/location/receive-location-updates
     /**
      * Factory for HomeViewModel that takes PostsRepository as a dependency
      */
