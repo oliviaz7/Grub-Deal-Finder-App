@@ -33,7 +33,7 @@ data class AddDealUiState(
     val restaurants: List<RestaurantDeal>,
     val step: Step,
     val selectedRestaurant: SimpleRestaurant,
-    val coordinates: LatLng = LatLng(0.0, 0.0),
+    val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
 /**
@@ -91,10 +91,12 @@ class AddDealViewModel(
 
     init {
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants("", LatLng(0.0, 0.0)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
+            dealsRepository.searchNearbyRestaurants("", LatLng(43.4712, -80.5440)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
                 when (result) {
                     is Result.Success -> {
                         val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+
+                        Log.d("NEARBY OPTIONS", restaurants.toString())
                         viewModelState.update { it.copy(restaurants = restaurants) }
                     }
                     else -> Log.e("FetchingError", "SelectRestaurantViewModel, initial request failed")

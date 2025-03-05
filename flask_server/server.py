@@ -116,16 +116,17 @@ def get_deals():
 @app.route('/add_restaurant_deal', methods=["POST"])
 def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
+	print("add restaurant deal")
 	try:
 		restaurant = request.json
 		restaurant_place_id = restaurant.get("place_id")
-		restaurant_uuid = restaurant.get("id")
 
 		# Check if restaurant already exists
-		existing_restaurant = supabase.from_('Restaurant').select('place_id').eq('place_id', restaurant_place_id).execute()
+		existing_restaurant_id = supabase.from_('Restaurant').select('id').eq('place_id', restaurant_place_id).execute()
+		restaurant_id = existing_restaurant_id.data[0]['id'] if existing_restaurant_id.data else None
 
 		# Insert restaurant if it doesnt exist
-		if not existing_restaurant.data:
+		if not restaurant_id:
 			image_url = get_restaurant_image_url(restaurant_place_id)
 
 			restaurant_data = {
@@ -136,24 +137,28 @@ def add_restaurant_deal():
 				"longitude": restaurant["coordinates"]["longitude"],
 				"image_url": image_url,
 			}
-			supabase.from_('Restaurant').insert([restaurant_data]).execute()
+			response = supabase.from_('Restaurant').insert([restaurant_data]).execute()
+			restaurant_id = response.data[0]['id'] if response.data else None
 
+		print("restaurant_id", restaurant_id)
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
 			deal_item = {
-				"restaurant_id": restaurant_uuid,
+				"restaurant_id": restaurant_id,
 				"item": deal["item"],
 				"description": deal.get("description"),
-				"type": deal["type"],
+				"type": deal.get("type"),
 				"expiry_date": datetime.utcfromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
 				"date_posted": datetime.utcfromtimestamp(deal["date_posted"] / 1000).isoformat(),
 				"user_id": "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90", # guest account
-				"restrictions": deal["restrictions"],
+				"restrictions": deal.get("restrictions"),
 				"image_id": deal.get("imageId")
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
+			print("supabase response", response)
+
 			deal_uuid = response.data[0]['id'] if response.data else None
 
 			return jsonify({"dealId": str(deal_uuid)}), 200
@@ -172,7 +177,7 @@ def nearby_search():
 	radius = float(request.args.get('radius'))
 
 	nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
-
+	print("NEARBY RESTAURANTS:", nearby_restaurants)
 	return jsonify(nearby_restaurants)
 
 
@@ -182,4 +187,4 @@ def index():
 
 # Run the Flask app
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=5000, debug=True)
+	app.run(host='0.0.0.0', port=0, debug=True)

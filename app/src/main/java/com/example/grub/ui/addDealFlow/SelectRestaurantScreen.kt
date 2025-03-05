@@ -1,12 +1,16 @@
 package com.example.grub.ui.addDealFlow
 
 import RestaurantItem
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -32,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.google.android.gms.maps.model.LatLng
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectRestaurantScreen (
@@ -99,29 +104,32 @@ fun SelectRestaurantScreen (
                     .padding(bottom = 16.dp)
             )
 
-            uiState.restaurants.forEach { restaurant ->
-                RestaurantItem(
-                    restaurant = restaurant,
-                    navController = navController,
-                    modifier = Modifier
-                        .clickable(onClick = {
-                            updateRestaurant(
-                                SimpleRestaurant(
-                                    restaurant.placeId,
-                                    restaurant.coordinates,
-                                    restaurant.restaurantName
+            LazyColumn {
+                items(uiState.restaurants) { restaurant ->
+                    RestaurantItem(
+                        restaurant = restaurant,
+                        navController = navController,
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                updateRestaurant(
+                                    SimpleRestaurant(
+                                        restaurant.placeId,
+                                        restaurant.coordinates,
+                                        restaurant.restaurantName
+                                    )
                                 )
-                            )
-                        })
-                )
-            }
-
-            Button(
-                enabled = isNextButtonEnabled(),
-                onClick = { nextStep() },
-                modifier = modifier
-            ) {
-                Text("Next")
+                            })
+                    )
+                }
+                item {
+                    Button(
+                        enabled = isNextButtonEnabled(),
+                        onClick = { nextStep() },
+                        modifier = modifier
+                    ) {
+                        Text("Next")
+                    }
+                }
             }
         }
     }
