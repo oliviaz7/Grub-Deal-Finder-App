@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 
 /**
  * Displays the Map route.
@@ -36,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun MapRoute(
     mapViewModel: MapViewModel,
+    navController: NavController, // we added a navController here
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     // UiState of the HomeScreen
@@ -43,8 +45,10 @@ fun MapRoute(
 
     MapRoute(
         uiState = uiState,
+        navController = navController,
         snackbarHostState = snackbarHostState,
         onPermissionsChanged = { mapViewModel.onPermissionsChanged(it) },
+        onEvent = { event: MapEvent -> mapViewModel.onEvent(event) },
     )
 }
 
@@ -56,14 +60,19 @@ fun MapRoute(
  * @param uiState (state) the data to show on the screen
  * @param snackbarHostState (state) state for the [Scaffold] component on this screen
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MapRoute(
     uiState: MapUiState,
+    navController: NavController,
     snackbarHostState: SnackbarHostState,
     onPermissionsChanged: (Boolean) -> Unit,
+    onEvent: (MapEvent) -> Unit,
 ) {
     MapScreen(
         uiState = uiState,
+        navController = navController,
         onPermissionsChanged = onPermissionsChanged,
+        onEvent = onEvent,
     )
 }

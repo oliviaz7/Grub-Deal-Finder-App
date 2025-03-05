@@ -81,7 +81,7 @@ fun AppNavHost(
                 )
             )
             ScreenWithScaffold(navController) {
-                MapRoute(mapViewModel = mapViewModel)
+                MapRoute(mapViewModel = mapViewModel, navController)
             }
         }
         composable(Destinations.LIST_ROUTE) {
