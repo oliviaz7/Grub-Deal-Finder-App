@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +29,6 @@ import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -63,16 +63,17 @@ fun DealDetailScreen(
         val screenModifier = Modifier.padding(innerPadding)
         val deal = uiState.deal!!
         val restaurantName = uiState.restaurantName!!
-
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
+                .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .aspectRatio(8f / 5f)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 DealImage(
                     deal.imageUrl,
@@ -87,7 +88,7 @@ fun DealDetailScreen(
                 Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 20.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -133,10 +134,9 @@ fun DealDetailScreen(
             }
 
 
-
             Box(
                 Modifier
-                    .weight(1f, fill = true)
+                    .offset(y = (-20).dp)
                     .background(
                         MaterialTheme.colorScheme.primaryContainer,
                         shape = MaterialTheme.shapes.large
@@ -291,7 +291,13 @@ fun DealDetailScreen(
                         color = Color.White
                     )
                     Text(
-                        text = "Posted On: ${deal.datePosted.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))}",
+                        text = "Posted On: ${
+                            deal.datePosted.format(
+                                DateTimeFormatter.ofPattern(
+                                    "MMMM dd, yyyy"
+                                )
+                            )
+                        }",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
 
@@ -325,7 +331,6 @@ fun DealDetailScreen(
                 }
             }
         }
-
 
     }
 }

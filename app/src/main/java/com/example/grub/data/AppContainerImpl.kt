@@ -43,8 +43,8 @@ interface AppContainer {
 class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val restaurantDealsRepository: RestaurantDealsRepository by lazy {
-//        FakeRestaurantDealsRepository()
-        RestaurantDealsRepositoryImpl()
+        FakeRestaurantDealsRepository()
+//        RestaurantDealsRepositoryImpl()
     }
 
     override val storageService: StorageService by lazy {

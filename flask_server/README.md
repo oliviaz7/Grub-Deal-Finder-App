@@ -26,7 +26,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 ### Step 4: Set Up Environment Variables
-Copy the `.env.example` file to a new file named `.env` with `cp .env.example .env` and replace the placeholder values (search SUPABASE_URL in discord)
+Copy the `.env.example` file to a new file named `.env` with `cp .env.example .env` and replace the placeholder values (search SUPABASE_URL and MAPS_API_KEY in discord)
 
 ### Step 5: Run the Flask Server
 To start the Flask server, run: `python server.py`

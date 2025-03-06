@@ -5,7 +5,7 @@ import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
 import com.example.grub.data.Result
 import com.example.grub.data.auth.AuthRepository
-import com.example.grub.data.auth.UserProfile
+import com.example.grub.model.User
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import kotlinx.coroutines.delay
@@ -16,21 +16,23 @@ import kotlinx.coroutines.flow.asStateFlow
 class FakeAuthRepositoryImpl : AuthRepository {
 
     private var loggedInUserToken: String? = null
-    private val fakeUserProfile = UserProfile(
+    private val fakeUserProfile = User(
         id = "fake_user_123",
         username = "testuser",
-        email = "testuser@example.com",
+        firstName = "guest",
+        lastName = "user",
+        email = "example@gmail.com"
     )
 
-    private val _isLoggedIn = MutableStateFlow(loggedInUserToken != null)
-    override val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+    private val _loggedInUser = MutableStateFlow<User?>(null)
+    override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
 
     override suspend fun login(username: String, password: String): Result<String> {
         // Simulate a delay to mimic network call
         delay(500)
 
         return if (username.isNotBlank() && password.isNotBlank()) {
-            _isLoggedIn.value = true
+            _loggedInUser.value = fakeUserProfile
             loggedInUserToken = "fake_token_${username.hashCode()}"
             Result.Success(loggedInUserToken!!)
         } else {
@@ -41,11 +43,13 @@ class FakeAuthRepositoryImpl : AuthRepository {
     override suspend fun logout() {
         // Simulate a delay for logout
         delay(300)
-        _isLoggedIn.value = false
+        _loggedInUser.value = null
         loggedInUserToken = null
     }
 
-    override suspend fun getUserProfile(): Result<UserProfile> {
+    // TODO: OLIVIA FIGURE OUT WHERE TO STORE LOGGED IN STATE AND HOW WE GET IT
+    // BETWEEN APP COLD BOOTS WHERE DO WE PERSIST IT?
+    suspend fun getUserProfile(): Result<User> {
         // Simulate a delay to mimic network call
         delay(500)
 

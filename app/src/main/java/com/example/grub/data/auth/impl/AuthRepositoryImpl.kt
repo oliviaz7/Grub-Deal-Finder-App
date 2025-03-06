@@ -2,7 +2,7 @@ package com.example.grub.data.auth.impl
 
 import android.util.Log
 import com.example.grub.data.auth.AuthRepository
-import com.example.grub.data.auth.UserProfile
+import com.example.grub.model.User
 import com.example.grub.data.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,10 +29,9 @@ import com.google.firebase.Firebase
 import kotlinx.coroutines.launch
 
 class AuthRepositoryImpl : AuthRepository {
-    private val _isLoggedIn = MutableStateFlow(false)
-    override val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
-
     // TODO: look into using android shared preferences to persist any tokens
+    private val _loggedInUser = MutableStateFlow<User?>(null)
+    override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
 
     private lateinit var auth: FirebaseAuth
 
@@ -95,18 +94,5 @@ class AuthRepositoryImpl : AuthRepository {
 
     override suspend fun logout() {
         firebaseAuth.signOut()
-        _isLoggedIn.value = false
-
-    }
-
-    override suspend fun getUserProfile(): Result<UserProfile> {
-        val user = firebaseAuth.currentUser
-        return if (user != null) {
-
-            Result.Success(UserProfile(user.uid, user.displayName ?: "Unknown", user.email ?: "No email"))
-        } else {
-            Result.Error(Exception("User not logged in"))
-        }
     }
 }
-

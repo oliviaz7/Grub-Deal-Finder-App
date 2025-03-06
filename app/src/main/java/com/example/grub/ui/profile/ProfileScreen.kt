@@ -20,10 +20,10 @@ fun ProfileScreen(
     uiState: ProfileUiState,
     modifier: Modifier = Modifier,
 ) {
-    if (uiState.isLoggedIn && uiState.userProfile != null) {
+    if (uiState.isLoggedIn && uiState.currentUser != null) {
         Column(modifier = modifier) {
-            Text(uiState.userProfile.username)
-            Text(uiState.userProfile.email)
+            Text(uiState.currentUser.username)
+            Text(uiState.currentUser.email)
         }
     } else {
         // TODO: show the login flow?
