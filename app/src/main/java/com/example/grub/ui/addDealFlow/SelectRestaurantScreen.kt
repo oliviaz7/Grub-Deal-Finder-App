@@ -101,7 +101,7 @@ fun SelectRestaurantScreen (
                             searchNearbyRestaurants(
                                 uiState.restaurantSearchText,
                                 uiState.coordinates,
-                                1000.0
+                                if (uiState.restaurantSearchText.isEmpty()) 1000.0 else 5000.0
                             )
                         }
                     )
