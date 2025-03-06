@@ -61,7 +61,7 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
             "coordinates": {
                 "latitude": place["geometry"]["location"]["lat"],
                 "longitude": place["geometry"]["location"]["lng"]
-            }
+            },
         }
 
         nearby_restaurants.append(place_info)
