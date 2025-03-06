@@ -29,7 +29,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.grub"
-        minSdk = libs.versions.minSdk.get().toInt()
+        // Auth minSdk has error when default grabs 21
+        minSdk = 23
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
@@ -88,6 +89,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+//    implementation (libs.play.services.auth)  // For Google Sign-In
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -131,6 +133,12 @@ dependencies {
     androidTestImplementation(firebaseBom)
     implementation(libs.firebase.storage)
     implementation(libs.coil.kt.compose)
+    implementation(libs.firebase.auth)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.google.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)

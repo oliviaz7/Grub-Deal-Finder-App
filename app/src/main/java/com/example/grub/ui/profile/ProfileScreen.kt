@@ -5,6 +5,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
+//import android.content.Intent
+//import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.fillMaxSize
+//import androidx.compose.material3.Button
+//import androidx.compose.material3.Text
+//import androidx.compose.material3.TextField
+//import androidx.compose.ui.tooling.preview.Preview
+//import com.example.grub.data.auth.UserProfile
+//import com.google.android.gms.common.api.ApiException
+
 @Composable
 fun ProfileScreen(
     uiState: ProfileUiState,

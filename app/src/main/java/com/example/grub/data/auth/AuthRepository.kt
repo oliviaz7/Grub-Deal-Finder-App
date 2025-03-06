@@ -1,4 +1,5 @@
 package com.example.grub.data.auth
+import androidx.credentials.Credential
 import com.example.grub.data.Result
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,6 +15,7 @@ data class UserProfile(
 interface AuthRepository {
     suspend fun login(username: String, password: String): Result<String> // Returns token
     suspend fun logout()
+    suspend fun handleSignIn(credential: Credential)
     val isLoggedIn: StateFlow<Boolean>
     suspend fun getUserProfile(): Result<UserProfile>
 }

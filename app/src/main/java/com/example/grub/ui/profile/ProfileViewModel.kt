@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import androidx.credentials.Credential
 
 /**
  * UI state for the Map route.
@@ -62,6 +63,23 @@ class ProfileViewModel(
             }
         }
     }
+
+    // Function to handle login
+    fun handleSignIn(credential: Credential) {
+        viewModelScope.launch {
+            // Handle Google sign-in with the provided credential
+            authRepository.handleSignIn(credential)
+        }
+    }
+
+    // Function to handle logout
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+            _uiState.update { it.copy(isLoggedIn = false, userProfile = null) }
+        }
+    }
+
 
     /**
      * Factory for ProfileViewModel that takes AppViewModel as a dependency
