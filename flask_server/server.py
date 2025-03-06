@@ -202,7 +202,7 @@ def nearby_search():
 		nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
 
 		logger.info(f"Found {len(nearby_restaurants)} restaurants near ({latitude}, {longitude}) within {radius}m")
-        nearby_restaurants.sort(key=lambda x: haversine(latitude, longitude, x["coordinates"]["latitude"], x["coordinates"]["longitude"]))
+		nearby_restaurants.sort(key=lambda x: haversine(latitude, longitude, x["coordinates"]["latitude"], x["coordinates"]["longitude"]))
 
 		return jsonify(nearby_restaurants)
 
