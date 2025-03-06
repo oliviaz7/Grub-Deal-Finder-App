@@ -9,11 +9,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,6 +64,7 @@ class AddDealViewModel(
     private val dealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
     private val storageService: StorageService,
+    private val appViewModel: AppViewModel,
 ) : ViewModel() {
     private val viewModelState = MutableStateFlow(
         AddDealViewModelState(
@@ -90,18 +92,25 @@ class AddDealViewModel(
     }
 
     init {
+        println("ex. how to get the logged in user: ${appViewModel.currentUser.value}")
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants("", LatLng(43.4712, -80.5440)).let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
-                when (result) {
-                    is Result.Success -> {
-                        val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+            dealsRepository.searchNearbyRestaurants("", LatLng(43.4712, -80.5440))
+                .let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
+                    when (result) {
+                        is Result.Success -> {
+                            val restaurants =
+                                result.data.map(dealMapper::mapResponseToRestaurantDeals)
 
-                        Log.d("NEARBY OPTIONS", restaurants.toString())
-                        viewModelState.update { it.copy(restaurants = restaurants) }
+                            Log.d("NEARBY OPTIONS", restaurants.toString())
+                            viewModelState.update { it.copy(restaurants = restaurants) }
+                        }
+
+                        else -> Log.e(
+                            "FetchingError",
+                            "SelectRestaurantViewModel, initial request failed"
+                        )
                     }
-                    else -> Log.e("FetchingError", "SelectRestaurantViewModel, initial request failed")
                 }
-            }
         }
     }
 
@@ -112,6 +121,7 @@ class AddDealViewModel(
                     // Handle success, e.g., update UI state or notify user
                     Log.d("AddDeal", "Deal added successfully")
                 }
+
                 is Result.Error -> {
                     // Handle error, e.g., show error message
                     Log.e("AddDeal", "Error adding deal: ${result.exception}")
@@ -129,7 +139,11 @@ class AddDealViewModel(
                         viewModelState.update { it.copy(restaurants = restaurants) }
                         Log.d("searchNearbyRestaurants", "Search request successful")
                     }
-                    else -> Log.e("FetchingError", "SelectRestaurantViewModel, search request failed")
+
+                    else -> Log.e(
+                        "FetchingError",
+                        "SelectRestaurantViewModel, search request failed"
+                    )
                 }
             }
         }
@@ -159,10 +173,16 @@ class AddDealViewModel(
             dealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
             storageService: StorageService,
+            appViewModel: AppViewModel,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return AddDealViewModel(dealsRepository, dealMapper, storageService,) as T
+                return AddDealViewModel(
+                    dealsRepository,
+                    dealMapper,
+                    storageService,
+                    appViewModel
+                ) as T
             }
         }
     }

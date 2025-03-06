@@ -1,12 +1,10 @@
 package com.example.grub.ui.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.grub.data.Result
 import com.example.grub.data.auth.AuthRepository
-import com.example.grub.data.auth.UserProfile
+import com.example.grub.model.User
 import com.example.grub.ui.AppViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +16,11 @@ import kotlinx.coroutines.launch
  * UI state for the Map route.
  */
 data class ProfileUiState(
-    val isLoggedIn: Boolean = false,
-    val userProfile: UserProfile? = null,
+    val currentUser: User? = null,
     val errorMessage: String? = null
-)
+) {
+    val isLoggedIn = currentUser != null
+}
 
 class ProfileViewModel(
     private val appViewModel: AppViewModel,
@@ -38,26 +37,12 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            appViewModel.isLoggedIn.collect { isLoggedIn: Boolean ->
+            appViewModel.currentUser.collect { currentUser: User? ->
                 _uiState.update {
+                    // if currentUser is null, means no one is logged in
                     it.copy(
-                        // use isLoggedIn state for conditional UI rendering
-                        isLoggedIn = isLoggedIn,
+                        currentUser = currentUser,
                     )
-                }
-                if (isLoggedIn) {
-                    authRepository.getUserProfile().let { result ->
-                        when (result) {
-                            is Result.Success -> {
-                                _uiState.update {
-                                    it.copy(
-                                        userProfile = result.data,
-                                    )
-                                }
-                            }
-                            else -> Log.e("FetchingError", "ProfileVM, failed to get user profile")
-                        }
-                    }
                 }
             }
         }
