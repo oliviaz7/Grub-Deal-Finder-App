@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.auth.AuthRepository
+import com.example.grub.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,15 +19,19 @@ import kotlinx.coroutines.launch
 class AppViewModel(
     private val authRepository: AuthRepository // Placeholder for future auth
 ) : ViewModel() {
-    private val _isLoggedIn = MutableStateFlow(false) // Default to not logged in
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
+    // Current logged-in user (null if not logged in)
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
     init {
         viewModelScope.launch {
-            authRepository.isLoggedIn.collect { loggedIn ->
-                _isLoggedIn.value = loggedIn
+            authRepository.loggedInUser.collect { user ->
+                _currentUser.value = user
             }
         }
+
+        // TODO: OLIVIA ADD GET USER LOCATION HERE AND EXPOSE COORDINATE FLOWS
     }
 
     /**
