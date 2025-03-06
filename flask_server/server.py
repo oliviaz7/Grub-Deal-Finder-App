@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 import google_maps
 import math
-import uuid
+import logging
+
+# Configure logging
+logger = logging.getLogger('werkzeug')
+logger.propagate = False
 
 load_dotenv()
 url = os.getenv("SUPABASE_URL")
@@ -38,24 +42,34 @@ def haversine(lat1, lon1, lat2, lon2):
 	return distance
 
 def iso_to_unix(iso_date):
-	return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
+	try:
+		return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
+
+	except Exception as e:
+		logger.error(f"Error occurred at iso_to_unix: {str(e)}", exc_info=True)
+		return None
 
 def get_all_restaurant_deals():
-	result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
-	restaurant_deals = result.data
-	return restaurant_deals
+	"""Fetches all restaurants and their deals from Supabase."""
+	try:
+		result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
+		return result.data
+	except Exception as e:
+		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
+		return []
 
 def get_restaurants_given_filters(user_lat, user_long, radius):
-	"""Filter restaurants that are within the given radius."""
+	"""Filter restaurants based on user location and radius."""
 	restaurant_deals = get_all_restaurant_deals()
 	filtered_restaurants = []
 
 	for restaurant in restaurant_deals:
 		res_lat = restaurant["latitude"]
 		res_long = restaurant["longitude"]
+		distance = haversine(res_lat, res_long, user_lat, user_long)
 
 		# check if restaurant distance is within user location
-		if haversine(res_lat, res_long, user_lat, user_long) <= radius:
+		if distance <= radius:
 			filtered_restaurants.append(restaurant)
 
 	return filtered_restaurants
@@ -76,29 +90,34 @@ def format_restaurant_data(restaurants):
 	return restaurants
 
 def get_restaurant_image_url(place_id):
-	website = google_maps.get_restaurant_website(place_id)
+	"""Fetches restaurant image URL using Google Favicon API."""
+	try:
+		website = google_maps.get_restaurant_website(place_id)
 
-	if website is None:
+		if not website:
+			logger.warning(f"No website found for place_id: {place_id} which has website {website}")
+			return None
+
+		domain = website.replace("https://", "").replace("http://", "").split("/")[0]
+		favicon_url = f"https://www.google.com/s2/favicons?sz=64&domain={domain}"
+		return favicon_url
+
+	except Exception as e:
+		logger.error(f"Failed to get image URL for place_id {place_id}: {str(e)}", exc_info=True)
 		return None
-
-	# Extract domain from the website URL
-	domain = website.replace("https://", "").replace("http://", "").split("/")[0]
-
-	# Google Favicon API URL
-	favicon_url = f"https://www.google.com/s2/favicons?sz=64&domain={domain}"
-
-	return favicon_url
 
 
 ######### ROUTES ##############
 
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
+	"""Gets restaurant deals based on user location and radius."""
 	try:
 		"""Gets restaurant deals from Supabase given a latitude, longitude and radius."""
 		latitude = float(request.args.get('latitude'))
 		longitude = float(request.args.get('longitude'))
 		radius = float(request.args.get('radius'))
+		logger.info(f"Fetching deals for lat: {latitude}, long: {longitude}, radius: {radius}")
 
 		# Filter restaurants based on coords and radius
 		filtered_restaurants = get_restaurants_given_filters(latitude, longitude, radius)
@@ -109,17 +128,18 @@ def get_deals():
 		return jsonify(formatted_restaurants)
 
 	except Exception as e:
-		print(f"Error occurred: {str(e)}")
-		return jsonify({"error": str(e)}), 500
+		error_message = str(e)
+		logger.error(f"Error occurred: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while fetching restaurant deals"}), 500
 
 
 @app.route('/add_restaurant_deal', methods=["POST"])
 def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
-	print("add restaurant deal")
 	try:
 		restaurant = request.json
 		restaurant_place_id = restaurant.get("place_id")
+		logger.info(f"Received new add deal request for place_id: {restaurant_place_id}")
 
 		# Check if restaurant already exists
 		existing_restaurant_id = supabase.from_('Restaurant').select('id').eq('place_id', restaurant_place_id).execute()
@@ -139,8 +159,8 @@ def add_restaurant_deal():
 			}
 			response = supabase.from_('Restaurant').insert([restaurant_data]).execute()
 			restaurant_id = response.data[0]['id'] if response.data else None
+			logger.info(f"Added new restaurant: {restaurant.get('restaurant_name')}")
 
-		print("restaurant_id", restaurant_id)
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
@@ -157,28 +177,38 @@ def add_restaurant_deal():
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
-			print("supabase response", response)
-
 			deal_uuid = response.data[0]['id'] if response.data else None
+			logger.info(f"Added new deal: {deal['item']} for restaurant {restaurant.get('restaurant_name')}")
 
 			return jsonify({"dealId": str(deal_uuid)}), 200
 
 	except Exception as e:
 		error_message = str(e)
-		print(f"Error occurred: {error_message}")
-		return jsonify({"error": str(e)}), 500
+		logger.error(f"Error occurred at add_restaurant_deal: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while adding the deal"}), 500
 
 
 @app.route('/search_nearby_restaurants')
 def nearby_search():
-	keyword = request.args.get('keyword')
-	latitude = float(request.args.get('latitude'))
-	longitude = float(request.args.get('longitude'))
-	radius = float(request.args.get('radius'))
+	try:
+		keyword = request.args.get('keyword')
+		latitude = float(request.args.get('latitude'))
+		longitude = float(request.args.get('longitude'))
+		radius = float(request.args.get('radius'))
 
-	nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
-	print("NEARBY RESTAURANTS:", nearby_restaurants)
-	return jsonify(nearby_restaurants)
+		logger.info(f"Received request for nearby restaurants with keyword='{keyword}', "
+					f"latitude={latitude}, longitude={longitude}, radius={radius}")
+
+		nearby_restaurants = google_maps.search_nearby_restaurants(keyword, latitude, longitude, radius)
+
+		logger.info(f"Found {len(nearby_restaurants)} restaurants near ({latitude}, {longitude}) within {radius}m")
+
+		return jsonify(nearby_restaurants)
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
 
 
 @app.route('/')
