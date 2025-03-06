@@ -35,9 +35,11 @@ fun AddDealRoute(
         updateRestaurant = addDealViewModel::updateRestaurant,
         nextStep = addDealViewModel::nextStep,
         prevStep = addDealViewModel::prevStep,
+        onSearchTextChange = addDealViewModel::onSearchTextChange,
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddDealRoute(
     uiState: AddDealUiState,
@@ -48,6 +50,7 @@ fun AddDealRoute(
     updateRestaurant: (SimpleRestaurant) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
+    onSearchTextChange: (String) -> Unit,
 ) {
     if (uiState.step == Step.StepOne) {
         SelectRestaurantScreen(
@@ -56,6 +59,7 @@ fun AddDealRoute(
             searchNearbyRestaurants = searchNearbyRestaurants,
             updateRestaurant = updateRestaurant,
             nextStep = nextStep,
+            onSearchTextChange = onSearchTextChange,
         )
     } else {
         AddDealScreen(
