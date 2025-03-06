@@ -3,6 +3,7 @@ import androidx.credentials.Credential
 import com.example.grub.data.Result
 import com.example.grub.model.User
 import kotlinx.coroutines.flow.StateFlow
+import android.os.Bundle
 
 /**
  * Manages the data layer related to authentication and user profile information.
