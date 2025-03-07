@@ -48,7 +48,7 @@ fun MapRoute(
         navController = navController,
         snackbarHostState = snackbarHostState,
         onPermissionsChanged = { mapViewModel.onPermissionsChanged(it) },
-        onEvent = { event: MapEvent -> mapViewModel.onMapEvent(event) },
+        onEvent = { event: MapEvent -> mapViewModel.onEvent(event) },
     )
 }
 

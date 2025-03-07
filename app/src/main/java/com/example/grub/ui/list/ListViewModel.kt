@@ -18,14 +18,17 @@ package com.example.grub.ui.list
 
 import CustomFilter
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,14 +64,22 @@ class ListViewModel(
 
     init {
         viewModelScope.launch {
-            // List view model just needs to subscribe to accumulated deals,
-            // don't need to worry about making the call to getRestaurantDeals
-            // since map view model handles that
-            restaurantDealsRepository.accumulatedDeals().collect { accumulatedDeals ->
-                val mappedDeals =
-                    accumulatedDeals.map { dealMapper.mapResponseToRestaurantDeals(it) }
-                viewModelState.update { it.copy(restaurantDeals = mappedDeals) }
-            }
+            restaurantDealsRepository.getRestaurantDeals(LatLng(43.5315, -79.6131))
+                .let { result -> // TODO: REPLACE LATLNG WITH VALID CURR LOCATION VALUES
+                    when (result) {
+                        is Result.Success -> {
+                            val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                            viewModelState.update {
+                                it.copy(
+                                    restaurantDeals = deals,
+                                    filteredDeals = deals
+                                )
+                            }
+                        }
+
+                        else -> Log.e("FetchingError", "ListViewModel, initial request failed")
+                    }
+                }
         }
     }
 

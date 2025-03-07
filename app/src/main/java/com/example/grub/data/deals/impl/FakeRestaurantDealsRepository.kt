@@ -8,15 +8,8 @@ import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 class FakeRestaurantDealsRepository : RestaurantDealsRepository {
-    private val _accumulatedDeals = MutableStateFlow<List<RestaurantDealsResponse>>(emptyList())
-    override fun accumulatedDeals(): StateFlow<List<RestaurantDealsResponse>> =
-        _accumulatedDeals.asStateFlow()
 
     private val fakeDeals by lazy {
         listOf(
@@ -182,11 +175,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         AddDealResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
     }
 
-    override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<Unit> {
-        _accumulatedDeals.update { currentDeals ->
-            (currentDeals + fakeDeals).distinctBy { it.id }
-        }
-        return Result.Success(Unit)
+    override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<List<RestaurantDealsResponse>> {
+        return Result.Success(fakeDeals)
     }
 
     override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {

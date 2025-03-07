@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
@@ -22,11 +23,7 @@ import kotlinx.coroutines.launch
  * event: ui --> viewmodel
  */
 sealed class MapEvent {
-    data class UpdateCameraViewState(
-        val cameraCoordinate: LatLng?,
-        val zoom: Float,
-        val visibleRadius: Double?
-    ) : MapEvent()
+    data class UpdateCameraViewState(val cameraCoordinate: LatLng?, val zoom: Float, val visibleRadius: Double?) : MapEvent()
 }
 
 /**
@@ -48,7 +45,7 @@ data class MapUiState(
 class MapViewModel(
     private val restaurantDealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
-    private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val fusedLocationProviderClient : FusedLocationProviderClient
 ) : ViewModel() {
 
     // Mutable state that view model operations should update
@@ -67,29 +64,30 @@ class MapViewModel(
     val uiState = _uiState.asStateFlow()
 
     private suspend fun getRestaurantDeals() {
-        val currentCameraCoordinates = _uiState.value.cameraCoordinate
-        val currentVisibleRadius = _uiState.value.visibleRadius
-        Log.d(
-            "marker-location",
-            "getRestaurantDeals camera coords param: $currentCameraCoordinates and visibleRadius: $currentVisibleRadius"
-        )
-
-        if (currentCameraCoordinates != null && currentVisibleRadius != null) {
-            restaurantDealsRepository.getRestaurantDeals(
-                currentCameraCoordinates,
-                currentVisibleRadius
-            )
+        if (_uiState.value.cameraCoordinate != null && _uiState.value.visibleRadius != null) {
+                // neither of them are null, but we still need to force?
+            Log.d("marker-location", "cameracoord param for getRestaurantDeals: ${_uiState.value.cameraCoordinate}")
+            Log.d("marker-location", "visibleRadius param for getRestaurantDeals: ${_uiState.value.visibleRadius}")
+            restaurantDealsRepository.getRestaurantDeals(_uiState.value.cameraCoordinate!!, _uiState.value.visibleRadius!!).let { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
+                        _uiState.update { it.copy(restaurantDeals = deals) }
+                        Log.d("marker-location", "restaurantDeals: ${_uiState.value.restaurantDeals}")
+                        Log.d("marker-location", "restaurantDeals size: ${_uiState.value.restaurantDeals.size}")
+                    }
+                    else -> Log.e("FetchingError", "MapViewModel, request failed")
+                }
+            }
+        } else {
+            Log.e("marker-location", "_uiState.value.cameraCoordinate is null or _uiState.value.visibleRadius is null")
         }
     }
 
+    // do we need to getRestaurantDeals on init
     init {
         viewModelScope.launch {
             getRestaurantDeals()
-            restaurantDealsRepository.accumulatedDeals().collect { accumulatedDeals ->
-                val mappedDeals =
-                    accumulatedDeals.map { dealMapper.mapResponseToRestaurantDeals(it) }
-                _uiState.update { it.copy(restaurantDeals = mappedDeals) }
-            }
         }
     }
 
@@ -127,7 +125,8 @@ class MapViewModel(
             }
     }
 
-    fun onMapEvent(event: MapEvent) {
+    fun onEvent(event: MapEvent) {
+        Log.d("marker-location", "hello we in the function onEvent")
         when (event) {
             is MapEvent.UpdateCameraViewState -> {
                 Log.d("marker-location", "event.visibleRadius: ${event.visibleRadius}")
@@ -157,15 +156,11 @@ class MapViewModel(
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
-            fusedLocationProviderClient: FusedLocationProviderClient
+            fusedLocationProviderClient : FusedLocationProviderClient
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(
-                    restaurantDealsRepository,
-                    dealMapper,
-                    fusedLocationProviderClient
-                ) as T
+                return MapViewModel(restaurantDealsRepository, dealMapper, fusedLocationProviderClient) as T
             }
         }
     }
