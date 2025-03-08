@@ -25,6 +25,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 
+
 class AuthRepositoryImpl : AuthRepository {
     // TODO: look into using android shared preferences to persist any tokens
     private val _loggedInUser = MutableStateFlow<User?>(null)

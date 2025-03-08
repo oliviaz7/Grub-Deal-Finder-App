@@ -59,7 +59,6 @@ class ProfileViewModel(
     fun logout() {
         viewModelScope.launch {
             authRepository.logout()
-//            _uiState.update { it.copy(isLoggedIn = false, userProfile = null) }
         }
     }
 
