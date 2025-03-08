@@ -43,6 +43,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,6 +64,7 @@ fun DealDetailScreen(
         val screenModifier = Modifier.padding(innerPadding)
         val deal = uiState.deal!!
         val restaurantName = uiState.restaurantName!!
+        val restaurantAddress = uiState.restaurantAddress!!
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -101,14 +103,14 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.LocationOn,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "address",
+                            text = restaurantAddress,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -117,7 +119,7 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.Schedule,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(24.dp)
@@ -150,13 +152,13 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.Star,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier
                                 .padding(top = 8.dp)
                                 .size(40.dp)
                         )
-                        Spacer(modifier = Modifier.width(2.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "${deal.type}",
                             style = MaterialTheme.typography.displayMedium,
@@ -176,7 +178,7 @@ fun DealDetailScreen(
                         Row() {
                             Icon(
                                 Icons.Filled.CalendarMonth,
-                                contentDescription = "expiryIcon",
+                                contentDescription = null,
                                 tint = Color.White,
                                 modifier = Modifier
                                     .size(18.dp)
@@ -265,7 +267,7 @@ fun DealDetailScreen(
                                 ),
                                 color = Color.Black
                             )
-                            if (deal.description != null) {
+                            if (deal.description != null && deal.description != "") {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = deal.description,
@@ -288,7 +290,9 @@ fun DealDetailScreen(
                     Text(
                         text = "Posted By: ${deal.userId}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = "Posted On: ${

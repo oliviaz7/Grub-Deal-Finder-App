@@ -3,6 +3,7 @@ package com.example.grub.ui.list
 import CustomFilterDialog
 import RestaurantItem
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -56,7 +56,6 @@ fun ListScreen(
     val scrollState = rememberScrollState()
     val interactionSource = remember { MutableInteractionSource() }
 
-
     Scaffold(
         topBar = {
             Row(
@@ -72,7 +71,7 @@ fun ListScreen(
                             shape = MaterialTheme.shapes.small
                         )
                         .weight(0.8f)
-                        .height( 40.dp),
+                        .height(40.dp),
                     uiState.searchText,
                     onSearchTextChange,
                     onFilter,
