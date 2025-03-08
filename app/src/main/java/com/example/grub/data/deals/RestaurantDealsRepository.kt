@@ -39,6 +39,8 @@ data class SimpleRestaurant(
     @SerializedName("place_id") val placeId: String,
     @SerializedName("coordinates") val coordinates: LatLng,
     @SerializedName("restaurant_name") val restaurantName: String,
+    @SerializedName("display_address") val displayAddress: String? = null,
+    @SerializedName("image_url") val imageUrl: String? =  null,
 )
 
 /**

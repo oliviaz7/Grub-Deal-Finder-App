@@ -34,6 +34,7 @@ data class AddDealUiState(
     val restaurants: List<RestaurantDeal>,
     val step: Step,
     val selectedRestaurant: SimpleRestaurant,
+    val restaurantSearchText: String,
     val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
@@ -45,14 +46,15 @@ private data class AddDealViewModelState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>,
     val step: Step = Step.StepOne,
-    val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), "")
+    val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
+    val restaurantSearchText: String = "",
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText)
 }
 
 
@@ -163,6 +165,10 @@ class AddDealViewModel(
 
     fun updateRestaurant(simpleRestaurant: SimpleRestaurant) {
         viewModelState.update { it.copy(selectedRestaurant = simpleRestaurant) }
+    }
+
+    fun onSearchTextChange(searchText: String) {
+        viewModelState.update { it.copy(restaurantSearchText = searchText) }
     }
 
     /**
