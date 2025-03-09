@@ -53,8 +53,8 @@ object RestaurantDealMapper {
             restaurantName = response.restaurantName,
             coordinates = response.coordinates,
             deals = emptyList(),
-            displayAddress = "", //todo
-            imageUrl = null, //todo
+            displayAddress = "", //todo: maybe angela should try to see if this is the intended solution?
+            imageUrl = null, //todo: ^^
         )
     }
 }

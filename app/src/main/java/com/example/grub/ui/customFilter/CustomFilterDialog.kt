@@ -51,7 +51,7 @@ fun CustomFilterDialog(
                         ElevatedFilterChip(
                             selected = selectedCustomFilter.type.contains(filterType),
                             onClick = { onSelectCustomFilter("type", filterType) },
-                            label = { Text(text = filterType.capitalize()) }, // ✅ Capitalizes labels
+                            label = { Text(text = filterType.capitalize()) },
                             modifier = Modifier
                         )
                     }

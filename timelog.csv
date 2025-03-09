@@ -36,4 +36,6 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-06 2, 2, 2, 2, 2, 2, team meeting on deal restrictions and filters
 2025-03-07, 2, 0, 0, 0, 0, 0, thinking about product UX and add deal flow
 2025-03-07, 2, 0, 0, 0, 0, 0, synchronize getDeals and observed results across different VM
+2025-03-08, 0, 0, 0, 0, 0, 4, ui fixes, be-fe integrations
+2025-03-09, 0, 0, 0, 0, 0, 3, sorting ui + mock impl
 

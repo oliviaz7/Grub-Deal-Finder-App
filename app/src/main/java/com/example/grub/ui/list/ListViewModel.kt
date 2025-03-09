@@ -70,10 +70,10 @@ class ListViewModel(
                     accumulatedDeals.map { dealMapper.mapResponseToRestaurantDeals(it) }
                 viewModelState.update {
                     it.copy(
-                            restaurantDeals = mappedDeals,
-                    filteredDeals = mappedDeals
+                        restaurantDeals = mappedDeals,
                     )
                 }
+                onFilter()
             }
         }
     }
@@ -85,6 +85,17 @@ class ListViewModel(
     }
 
     fun onFilter() {
+        val sortedDeals: List<RestaurantDeal> = when (uiState.value.selectedSort) {
+            "Distance" -> uiState.value.restaurantDeals //todo: sortByDistance(uiState.value.restaurantDeals)
+            "Date Posted" -> uiState.value.restaurantDeals.sortedByDescending { it.deals.firstOrNull()?.datePosted }
+            "Up Votes" -> uiState.value.restaurantDeals // todo: need upvotes from be first
+            else -> uiState.value.restaurantDeals
+        }
+        viewModelState.update { currentState ->
+            currentState.copy(
+                restaurantDeals = sortedDeals,
+            )
+        }
         val query = uiState.value.searchText.trim()
         val searchFilteredList = if (query.isBlank()) {
             uiState.value.restaurantDeals
@@ -170,9 +181,7 @@ class ListViewModel(
     }
 
     fun onSortOptionSelected(option: String) {
-        viewModelState.update { it.copy(selectedSort = option ) }
-        //sort alldeals (restauruntdeals)
-        //get the filtered deals from sorted all deals
+        viewModelState.update { it.copy(selectedSort = option) }
         onFilter()
 
     }
