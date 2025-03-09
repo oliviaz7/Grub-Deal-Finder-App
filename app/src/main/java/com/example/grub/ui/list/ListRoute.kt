@@ -48,6 +48,7 @@ fun ListRoute(
         onShowFilterDialog = { bool: Boolean -> listViewModel.onShowFilterDialog(bool) },
         onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) },
         onSearchTextChange = { searchText: String -> listViewModel.onSearchTextChange(searchText) },
-        onFilter = { -> listViewModel.onFilter() }
+        onFilter = { -> listViewModel.onFilter() },
+        onSortOptionSelected = { option: String -> listViewModel.onSortOptionSelected(option) }
     )
 }

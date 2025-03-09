@@ -42,7 +42,8 @@ data class ListUiState(
     val selectedFilter: String = "All",
     val showFilterDialog: Boolean = false,
     val selectedCustomFilter: CustomFilter = CustomFilter(),
-    val searchText: String = ""
+    val searchText: String = "",
+    val selectedSort: String = "",
 )
 
 /**
@@ -166,6 +167,14 @@ class ListViewModel(
 
     fun onShowFilterDialog(bool: Boolean) {
         viewModelState.update { it.copy(showFilterDialog = bool) }
+    }
+
+    fun onSortOptionSelected(option: String) {
+        viewModelState.update { it.copy(selectedSort = option ) }
+        //sort alldeals (restauruntdeals)
+        //get the filtered deals from sorted all deals
+        onFilter()
+
     }
 
     /**

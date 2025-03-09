@@ -1,9 +1,11 @@
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedFilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +37,7 @@ fun CustomFilterDialog(
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
 ) {
+    val filterTypes = listOf("FREE", "DISCOUNT", "BOGO", "OTHER")
     AlertDialog(
         onDismissRequest = {
             onShowFilterDialog(false)
@@ -42,26 +45,16 @@ fun CustomFilterDialog(
         title = { Text(text = "Custom Filter") },
         text = {
             Column {
-                Text(text = "Deal Type")
-                Row {
-                    ElevatedFilterChip(
-                        selected = selectedCustomFilter.type.contains("FREE"),
-                        onClick = { onSelectCustomFilter("type", "Free") },
-                        label = { Text(text = "Free") },
-                        modifier = Modifier,
-                    )
-                    ElevatedFilterChip(
-                        selected = selectedCustomFilter.type.contains("DISCOUNT"),
-                        onClick = { onSelectCustomFilter("type", "Discount") },
-                        label = { Text(text = "Discount") },
-                        modifier = Modifier,
-                    )
-                    ElevatedFilterChip(
-                        selected = selectedCustomFilter.type.contains("BOGO"),
-                        onClick = { onSelectCustomFilter("type", "BOGO") },
-                        label = { Text(text = "BOGO") },
-                        modifier = Modifier,
-                    )
+                Text(text = "Deal Type", style = MaterialTheme.typography.bodyLarge)
+                LazyRow {
+                    items(filterTypes) { filterType ->
+                        ElevatedFilterChip(
+                            selected = selectedCustomFilter.type.contains(filterType),
+                            onClick = { onSelectCustomFilter("type", filterType) },
+                            label = { Text(text = filterType.capitalize()) }, // ✅ Capitalizes labels
+                            modifier = Modifier
+                        )
+                    }
                 }
 
             }
