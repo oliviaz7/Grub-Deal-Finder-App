@@ -31,6 +31,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * UI state for the List route.
@@ -86,7 +90,7 @@ class ListViewModel(
 
     fun onFilter() {
         val sortedDeals: List<RestaurantDeal> = when (uiState.value.selectedSort) {
-            "Distance" -> uiState.value.restaurantDeals //todo: sortByDistance(uiState.value.restaurantDeals)
+            "Distance" -> sortByDistance(uiState.value.restaurantDeals) //todo: figure out curr coords
             "Date Posted" -> uiState.value.restaurantDeals.sortedByDescending { it.deals.firstOrNull()?.datePosted }
             "Up Votes" -> uiState.value.restaurantDeals // todo: need upvotes from be first
             else -> uiState.value.restaurantDeals
@@ -183,7 +187,41 @@ class ListViewModel(
     fun onSortOptionSelected(option: String) {
         viewModelState.update { it.copy(selectedSort = option) }
         onFilter()
+    }
 
+    private fun sortByDistance(deals: List<RestaurantDeal>): List<RestaurantDeal> {
+        //TODO: i need to get current coords in my viewModel, or maybe this can be extracted to another layer
+        val userLat = null
+        val userLon = null
+
+        return if (userLat != null && userLon != null) {
+            deals.sortedBy { restaurant ->
+                calculateDistance(
+                    userLat,
+                    userLon,
+                    restaurant.coordinates.latitude,
+                    restaurant.coordinates.longitude
+                )
+            }
+        } else {
+            deals
+        }
+    }
+
+    private fun calculateDistance(
+        lat1: Double, lon1: Double,
+        lat2: Double, lon2: Double
+    ): Double {
+        val R = 6371 // Radius of the Earth in km
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return R * c // Distance in km
     }
 
     /**
