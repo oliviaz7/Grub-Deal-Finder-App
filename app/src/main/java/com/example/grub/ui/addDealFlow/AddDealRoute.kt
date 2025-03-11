@@ -9,6 +9,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.ui.addDealFlow.screens.AddDealScreen
+import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
+import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
 import com.google.android.gms.maps.model.LatLng
 
 /**
@@ -63,7 +66,18 @@ fun AddDealRoute(
                 onSearchTextChange = onSearchTextChange,
             )
         }
+
         Step.Step2 -> {
+            AddImagesScreen(
+                uiState = uiState,
+                navController = navController,
+                uploadImage = uploadTest,
+                prevStep = prevStep,
+                nextStep = nextStep,
+            )
+        }
+
+        Step.Step3 -> {
             AddDealScreen(
                 uiState = uiState,
                 navController = navController,
@@ -74,28 +88,7 @@ fun AddDealRoute(
                 nextStep = nextStep,
             )
         }
-        Step.Step3 -> {}
         Step.Step4 -> {}
-    }
-    if (uiState.step == Step.Step1) {
-        SelectRestaurantScreen(
-            uiState = uiState,
-            navController = navController,
-            searchNearbyRestaurants = searchNearbyRestaurants,
-            updateRestaurant = updateRestaurant,
-            nextStep = nextStep,
-            onSearchTextChange = onSearchTextChange,
-        )
-    } else {
-        AddDealScreen(
-            uiState = uiState,
-            navController = navController,
-            uploadImage = uploadTest,
-            addNewRestaurantDeal = addNewRestaurantDeal,
-            searchNearbyRestaurants = searchNearbyRestaurants,
-            prevStep = prevStep,
-            nextStep = nextStep,
-        )
     }
 }
 

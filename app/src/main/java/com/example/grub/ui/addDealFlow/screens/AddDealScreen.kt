@@ -1,4 +1,4 @@
-package com.example.grub.ui.addDealFlow
+package com.example.grub.ui.addDealFlow.screens
 
 import android.app.DatePickerDialog
 import android.net.Uri
@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -24,16 +23,15 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -42,6 +40,7 @@ import androidx.navigation.NavController
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
+import com.example.grub.ui.addDealFlow.AddDealUiState
 import com.google.android.gms.maps.model.LatLng
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -167,7 +166,10 @@ fun AddDealScreen(
                     onClick = { prevStep() },
                     modifier = Modifier
                         .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.primary
+                    ),
                 ) {
                     Text("Previous")
                 }
@@ -189,29 +191,27 @@ fun AddDealScreen(
                 Text("Open image picker")
             }
 
-            TextField(
+            OutlinedTextField(
                 value = itemName,
                 onValueChange = { itemName = it },
                 label = { Text("Item Name") },
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
             )
 
-            TextField(
+            OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text("Description") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
-                maxLines = 5 // Allows for a longer text input
             )
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
             ) {
-                TextField(
+                OutlinedTextField(
                     value = selectedDealType.toString(),
                     onValueChange = {},
                     readOnly = true,
@@ -240,7 +240,7 @@ fun AddDealScreen(
                 }
             }
             // TextField for displaying selected date
-            TextField(
+            OutlinedTextField(
                 value = expirySelectedDate,
                 onValueChange = {},
                 label = { Text("Expiry Date (optional)") },
@@ -258,49 +258,6 @@ fun AddDealScreen(
                     onClick = { uploadImage(uri) }
                 ) {
                     Text("Upload Image Test")
-                }
-            }
-            Row(
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                // previous button
-                Button(
-                    onClick = { prevStep() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Previous")
-                }
-                // submit button
-                Button(
-                    enabled = isSubmitButtonEnabled(),
-                    onClick = {
-                        addNewRestaurantDeal(
-                            RestaurantDealsResponse(
-                                id = "default_id",
-                                placeId = uiState.selectedRestaurant.placeId,
-                                coordinates = uiState.selectedRestaurant.coordinates,
-                                restaurantName = uiState.selectedRestaurant.restaurantName,
-                                displayAddress = "restaurant_addy",
-                                rawDeals = listOf(
-                                    RawDeal(
-                                        id = "default_deal_id",
-                                        item = itemName,
-                                        description = description,
-                                        type = selectedDealType,
-                                        expiryDate = getExpiryTimestamp(expirySelectedDate),
-                                        datePosted = System.currentTimeMillis(),
-                                        userId = "default_user_id",
-                                        restrictions = "None",
-                                        imageId = imageUri?.path, // idk if this is right
-                                    )
-                                )
-                            )
-                        )
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Submit")
                 }
             }
         }
