@@ -9,7 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.ui.addDealFlow.screens.AddDealScreen
+import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
 import com.google.android.gms.maps.model.LatLng
@@ -81,16 +81,13 @@ fun AddDealRoute(
         }
 
         Step.Step3 -> {
-            AddDealScreen(
+            AddDetailsScreen(
                 uiState = uiState,
                 navController = navController,
                 addNewRestaurantDeal = addNewRestaurantDeal,
-                searchNearbyRestaurants = searchNearbyRestaurants,
                 prevStep = prevStep,
-                nextStep = nextStep,
             )
         }
-        Step.Step4 -> {}
     }
 }
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
@@ -18,10 +19,12 @@ import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 /**
  * UI state for the SelectRestaurant route.
@@ -36,6 +39,7 @@ data class AddDealUiState(
     val selectedRestaurant: SimpleRestaurant,
     val restaurantSearchText: String,
     val imageUri: Uri?,
+    val addDealResult: Result<AddDealResponse>?,
     val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
@@ -50,13 +54,14 @@ private data class AddDealViewModelState(
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
+    val addDealResult: Result<AddDealResponse>? = null,
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult)
 }
 
 
@@ -121,7 +126,10 @@ class AddDealViewModel(
 
     fun addNewRestaurantDeal(deal: RestaurantDealsResponse) {
         viewModelScope.launch {
-            when (val result = dealsRepository.addRestaurantDeal(deal)) {
+            delay(2000) // Wait for 2 seconds, TODO: remove this
+            val result = dealsRepository.addRestaurantDeal(deal)
+            viewModelState.update { it.copy(addDealResult = result) }
+            when (result) {
                 is Result.Success -> {
                     // Handle success, e.g., update UI state or notify user
                     Log.d("AddDeal", "Deal added successfully")

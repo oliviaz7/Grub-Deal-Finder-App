@@ -1,9 +1,6 @@
 package com.example.grub.ui.addDealFlow.screens
 
 import android.app.DatePickerDialog
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -48,27 +45,22 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDealScreen(
+fun AddDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
-    searchNearbyRestaurants: (keyword: String, coordinates: LatLng, radius: Double) -> Unit,
     prevStep: () -> Unit,
-    nextStep: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     println("Select restaurant: ${uiState.deals}")
 
-//    var imageUri by remember { mutableStateOf<Uri?>(null) }
-//    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//        imageUri = uri
-//    }
+    var showDialog by remember { mutableStateOf(false) }
 
     var itemName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedDealType by remember { mutableStateOf(DealType.OTHER) }
-    val dealTypes = DealType.values().toList()
+    val dealTypes = DealType.entries.toList()
 
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
@@ -100,6 +92,14 @@ fun AddDealScreen(
                 && itemName.isNotEmpty()
                 && description.isNotEmpty()
                 && uiState.selectedRestaurant.placeId.isNotEmpty()
+    }
+
+    if (showDialog) {
+        ConfirmationDialog(
+            navController = navController,
+            result = uiState.addDealResult,
+            onDismiss = { showDialog = false }
+        )
     }
 
     Scaffold(
@@ -156,7 +156,7 @@ fun AddDealScreen(
                                 )
                             )
                         )
-                        nextStep()
+                        showDialog = true
                     },
                 ) {
                     Text("Submit")
