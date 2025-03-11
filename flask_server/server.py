@@ -99,7 +99,7 @@ def get_restaurant_image_url(place_id):
 			return None
 
 		domain = website.replace("https://", "").replace("http://", "").split("/")[0]
-		favicon_url = f"https://www.google.com/s2/favicons?sz=64&domain={domain}"
+		favicon_url = f"https://www.google.com/s2/favicons?sz=128&domain={domain}"
 		return favicon_url
 
 	except Exception as e:
