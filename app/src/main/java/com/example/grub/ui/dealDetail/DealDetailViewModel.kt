@@ -37,7 +37,8 @@ import kotlinx.coroutines.launch
  */
 data class DealDetailUiState(
     val deal: Deal?,
-    val restaurantName: String?
+    val restaurantName: String?,
+    val restaurantAddress: String?,
 )
 
 /**
@@ -46,14 +47,15 @@ data class DealDetailUiState(
  */
 private data class DealDetailViewModelState(
     val deal: Deal?,
-    val restaurantName: String?
+    val restaurantName: String?,
+    val restaurantAddress: String?
 ) {
 
     /**
      * Converts this [DealDetailViewModelState] into a more strongly typed [DealDetailUiState] for driving
      * the ui.
      */
-    fun toUiState(): DealDetailUiState = DealDetailUiState(deal, restaurantName)
+    fun toUiState(): DealDetailUiState = DealDetailUiState(deal, restaurantName, restaurantAddress)
 }
 
 /**
@@ -62,13 +64,15 @@ private data class DealDetailViewModelState(
 @RequiresApi(Build.VERSION_CODES.O)
 class DealDetailViewModel(
     private val deal: Deal?,
-    private val restaurantName: String?
+    private val restaurantName: String?,
+    private val restaurantAddress: String?
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
         DealDetailViewModelState(
             deal = null,
-            restaurantName = ""
+            restaurantName = "",
+            restaurantAddress = ""
         )
     )
 
@@ -84,7 +88,7 @@ class DealDetailViewModel(
     init {
         viewModelScope.launch {
             // Deserialize the JSON string back to the Deal object
-            viewModelState.update { it.copy(deal = deal, restaurantName = restaurantName) }
+            viewModelState.update { it.copy(deal = deal, restaurantName = restaurantName, restaurantAddress = restaurantAddress) }
         }
     }
 
@@ -94,11 +98,12 @@ class DealDetailViewModel(
     companion object {
         fun provideFactory(
             deal: Deal?,
-            restaurantName: String?
+            restaurantName: String?,
+            restaurantAddress: String?
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return DealDetailViewModel(deal, restaurantName) as T
+                return DealDetailViewModel(deal, restaurantName, restaurantAddress) as T
             }
         }
     }

@@ -14,9 +14,8 @@ import java.time.ZonedDateTime
 object RestaurantDealMapper {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun mapResponseToRestaurantDeals(response: RestaurantDealsResponse): RestaurantDeal {
+        fun mapResponseToRestaurantDeals(response: RestaurantDealsResponse): RestaurantDeal {
         val zoneId = ZoneId.of("EST") // hardcoded time zone for now
-
         val deals = response.rawDeals.map { rawDeal ->
             Deal(
                 id = rawDeal.id,
@@ -38,7 +37,9 @@ object RestaurantDealMapper {
             placeId = response.placeId,
             restaurantName = response.restaurantName,
             coordinates = response.coordinates,
-            deals = deals
+            deals = deals,
+            displayAddress = response.displayAddress,
+            imageUrl = response.imageUrl,
         )
     }
 
@@ -51,7 +52,9 @@ object RestaurantDealMapper {
             placeId = response.placeId,
             restaurantName = response.restaurantName,
             coordinates = response.coordinates,
-            deals = emptyList()
+            deals = emptyList(),
+            displayAddress = response.displayAddress,
+            imageUrl = response.imageUrl,
         )
     }
 }
