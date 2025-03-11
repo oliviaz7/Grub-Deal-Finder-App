@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +44,8 @@ import com.google.android.gms.maps.model.LatLng
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.compose.foundation.layout.Row
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +63,7 @@ fun AddDetailsScreen(
     var itemName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var selectedDealType by remember { mutableStateOf(DealType.OTHER) }
+    var selectedDealType: DealType? by remember { mutableStateOf(null) }
     val dealTypes = DealType.entries.toList()
 
     // State variables for Date Picker and selected date
@@ -90,8 +94,8 @@ fun AddDetailsScreen(
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
                 && itemName.isNotEmpty()
-                && description.isNotEmpty()
                 && uiState.selectedRestaurant.placeId.isNotEmpty()
+                && selectedDealType !== null
     }
 
     if (showDialog) {
@@ -114,10 +118,10 @@ fun AddDetailsScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.popBackStack() },
+                        onClick = prevStep,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Close,
+                            imageVector = Icons.Filled.ArrowBackIosNew,
                             contentDescription = null,
                         )
                     }
@@ -146,7 +150,7 @@ fun AddDetailsScreen(
                                         id = "default_deal_id",
                                         item = itemName,
                                         description = description,
-                                        type = selectedDealType,
+                                        type = selectedDealType!!,
                                         expiryDate = getExpiryTimestamp(expirySelectedDate),
                                         datePosted = System.currentTimeMillis(),
                                         userId = "default_user_id",
@@ -161,17 +165,6 @@ fun AddDetailsScreen(
                 ) {
                     Text("Submit")
                 }
-                Button(
-                    onClick = { prevStep() },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.primary
-                    ),
-                ) {
-                    Text("Previous")
-                }
             }
         },
         containerColor = Color.White,
@@ -183,18 +176,22 @@ fun AddDetailsScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
         ) {
-
-            OutlinedTextField(
+            TitledOutlinedTextField(
                 value = itemName,
                 onValueChange = { itemName = it },
-                label = { Text("Item Name") },
-                modifier = Modifier.fillMaxWidth(),
+                label = "Item Name",
+                text = null,
+                placeholder = "E.g. Whopper Deal",
+                optional = false,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
+            TitledOutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
+                label = "Description",
+                text = null,
+                placeholder = "E.g. Whopper deal includes whopper, fries and drink",
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
@@ -204,18 +201,21 @@ fun AddDetailsScreen(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
             ) {
-                OutlinedTextField(
-                    value = selectedDealType.toString(),
+                TitledOutlinedTextField(
+                    value = selectedDealType?.toString() ?: "",
                     onValueChange = {},
+                    label = "Deal Type",
+                    text = null,
+                    placeholder = "Select a deal type",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
                     readOnly = true,
-                    label = { Text("Deal Type") },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(), // Make TextField clickable,
                     maxLines = 1,
+                    optional = false,
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -233,17 +233,20 @@ fun AddDetailsScreen(
                 }
             }
             // TextField for displaying selected date
-            OutlinedTextField(
+            TitledOutlinedTextField(
                 value = expirySelectedDate,
                 onValueChange = {},
-                label = { Text("Expiry Date (optional)") },
+                label = "Expiry Date",
+                text = null,
+                placeholder = "DD/MM/YYYY",
+                modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
                     IconButton(onClick = { expiryIsDialogOpen = true }) {
                         Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                maxLines = 1,
             )
 
 //            imageUri?.let { uri ->
@@ -263,5 +266,45 @@ fun getExpiryTimestamp(expirySelectedDate: String): Long? {
         return dateFormat.parse(expirySelectedDate)?.time
     } catch (e : Exception) {
         return null
+    }
+}
+
+@Composable
+fun TitledOutlinedTextField (
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    text: String?,
+    placeholder: String,
+    optional: Boolean = true,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    maxLines: Int = Int.MAX_VALUE,
+) {
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    )
+    {
+        Row {
+            Text(text = label)
+            if (!optional) {
+                Text(text = " *", color = Color.Red)
+            }
+        }
+        text?.let {
+            Text(text = text)
+        }
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder) },
+            modifier = modifier,
+            trailingIcon = trailingIcon,
+            maxLines = maxLines,
+            readOnly = readOnly,
+        )
     }
 }

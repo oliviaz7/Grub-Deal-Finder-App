@@ -17,7 +17,7 @@ sealed class Step {
         return when (this) {
             is Step1 -> Step1
             is Step2 -> Step1
-            is Step3 -> Step3
+            is Step3 -> Step2
         }
     }
 }

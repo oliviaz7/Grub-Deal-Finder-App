@@ -46,6 +46,10 @@ import com.example.grub.ui.addDealFlow.AddDealUiState
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.layout.ContentScale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -77,10 +81,10 @@ fun AddImagesScreen (
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.popBackStack() },
+                        onClick = prevStep,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Close,
+                            imageVector = Icons.Filled.ArrowBackIosNew,
                             contentDescription = null,
                         )
                     }
@@ -93,6 +97,19 @@ fun AddImagesScreen (
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
+                OutlinedButton (
+                    onClick = {
+                        updateImageUri(null)
+                        nextStep()
+                              },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                ) {
+                    Text("Skip")
+                }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
@@ -101,19 +118,9 @@ fun AddImagesScreen (
                         }
                         nextStep()
                     },
+                    enabled = uiState.imageUri != null
                 ) {
                     Text("Next")
-                }
-                Button(
-                    onClick = { prevStep() },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.primary
-                    ),
-                ) {
-                    Text("Previous")
                 }
             }
         },
