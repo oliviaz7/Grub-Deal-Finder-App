@@ -1,6 +1,26 @@
 package com.example.grub.ui.addDealFlow
 
 sealed class Step {
-    object StepOne : Step()
-    object StepTwo : Step()
+    object Step1 : Step() // Select Restaurant
+    object Step2 : Step() // Add images
+    object Step3 : Step() // Add deal details
+    object Step4 : Step() // Confirmation
+
+    fun nextStep() : Step {
+        return when (this) {
+            is Step1 -> Step2
+            is Step2 -> Step3
+            is Step3 -> Step4
+            is Step4 -> Step4
+        }
+    }
+
+    fun prevStep() : Step {
+        return when (this) {
+            is Step1 -> Step1
+            is Step2 -> Step1
+            is Step3 -> Step2
+            is Step4 -> Step3
+        }
+    }
 }

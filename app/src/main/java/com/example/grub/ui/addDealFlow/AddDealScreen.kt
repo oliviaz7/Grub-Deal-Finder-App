@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -124,6 +125,53 @@ fun AddDealScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isSubmitButtonEnabled(),
+                    onClick = {
+                        addNewRestaurantDeal(
+                            RestaurantDealsResponse(
+                                id = "default_id",
+                                placeId = uiState.selectedRestaurant.placeId,
+                                coordinates = uiState.selectedRestaurant.coordinates,
+                                restaurantName = uiState.selectedRestaurant.restaurantName,
+                                displayAddress = "restaurant_addy",
+                                rawDeals = listOf(
+                                    RawDeal(
+                                        id = "default_deal_id",
+                                        item = itemName,
+                                        description = description,
+                                        type = selectedDealType,
+                                        expiryDate = getExpiryTimestamp(expirySelectedDate),
+                                        datePosted = System.currentTimeMillis(),
+                                        userId = "default_user_id",
+                                        restrictions = "None",
+                                        imageId = imageUri?.path, // idk if this is right
+                                    )
+                                )
+                            )
+                        )
+                        nextStep()
+                    },
+                ) {
+                    Text("Submit")
+                }
+                Button(
+                    onClick = { prevStep() },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text("Previous")
+                }
+            }
         },
         containerColor = Color.White,
     ) { innerPadding ->

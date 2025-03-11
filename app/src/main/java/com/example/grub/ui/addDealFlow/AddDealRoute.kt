@@ -52,7 +52,32 @@ fun AddDealRoute(
     nextStep: () -> Unit,
     onSearchTextChange: (String) -> Unit,
 ) {
-    if (uiState.step == Step.StepOne) {
+    when (uiState.step) {
+        Step.Step1 -> {
+            SelectRestaurantScreen(
+                uiState = uiState,
+                navController = navController,
+                searchNearbyRestaurants = searchNearbyRestaurants,
+                updateRestaurant = updateRestaurant,
+                nextStep = nextStep,
+                onSearchTextChange = onSearchTextChange,
+            )
+        }
+        Step.Step2 -> {
+            AddDealScreen(
+                uiState = uiState,
+                navController = navController,
+                uploadImage = uploadTest,
+                addNewRestaurantDeal = addNewRestaurantDeal,
+                searchNearbyRestaurants = searchNearbyRestaurants,
+                prevStep = prevStep,
+                nextStep = nextStep,
+            )
+        }
+        Step.Step3 -> {}
+        Step.Step4 -> {}
+    }
+    if (uiState.step == Step.Step1) {
         SelectRestaurantScreen(
             uiState = uiState,
             navController = navController,

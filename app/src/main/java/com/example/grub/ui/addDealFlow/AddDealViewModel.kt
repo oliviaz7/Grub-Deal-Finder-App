@@ -45,7 +45,7 @@ data class AddDealUiState(
 private data class AddDealViewModelState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>,
-    val step: Step = Step.StepOne,
+    val step: Step = Step.Step1,
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
 ) {
@@ -152,14 +152,14 @@ class AddDealViewModel(
     }
 
     fun nextStep() {
-        if (uiState.value.step == Step.StepOne) {
-            viewModelState.update { it.copy(step = Step.StepTwo) }
+        viewModelState.update {
+            it.copy(step = uiState.value.step.nextStep())
         }
     }
 
     fun prevStep() {
-        if (uiState.value.step == Step.StepTwo) {
-            viewModelState.update { it.copy(step = Step.StepOne) }
+        viewModelState.update {
+            it.copy(step = uiState.value.step.prevStep())
         }
     }
 
