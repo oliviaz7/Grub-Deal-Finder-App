@@ -149,7 +149,7 @@ fun AddDetailsScreen(
                                 restaurantName = uiState.selectedRestaurant.restaurantName,
                                 displayAddress = "restaurant_addy",
                                 rawDeals = listOf(
-                                    RawDeal(
+                                    RawDeal( // TODO: add price to raw deal obj
                                         id = "default_deal_id",
                                         item = itemName,
                                         description = description,

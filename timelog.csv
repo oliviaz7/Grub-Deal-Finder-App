@@ -38,4 +38,4 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-07, 2, 0, 0, 0, 0, 0, synchronize getDeals and observed results across different VM
 2025-03-08, 0, 0, 0, 0, 0, 4, ui fixes, be-fe integrations
 2025-03-09, 0, 0, 0, 0, 0, 3, sorting ui + mock impl
-
+2025-03-11, 0, 6, 0, 0, 0, 2, add deal flow
