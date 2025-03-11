@@ -51,7 +51,6 @@ import java.util.Locale
 fun AddDealScreen(
     uiState: AddDealUiState,
     navController: NavController,
-    uploadImage: (imageUri: Uri) -> Unit,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
     searchNearbyRestaurants: (keyword: String, coordinates: LatLng, radius: Double) -> Unit,
     prevStep: () -> Unit,
@@ -60,10 +59,10 @@ fun AddDealScreen(
 ) {
     println("Select restaurant: ${uiState.deals}")
 
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        imageUri = uri
-    }
+//    var imageUri by remember { mutableStateOf<Uri?>(null) }
+//    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+//        imageUri = uri
+//    }
 
     var itemName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -152,7 +151,7 @@ fun AddDealScreen(
                                         datePosted = System.currentTimeMillis(),
                                         userId = "default_user_id",
                                         restrictions = "None",
-                                        imageId = imageUri?.path, // idk if this is right
+                                        imageId = uiState.imageUri?.path, // idk if this is right
                                     )
                                 )
                             )
@@ -184,12 +183,6 @@ fun AddDealScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
         ) {
-            Text(text = uiState.selectedRestaurant.restaurantName)
-            Button(
-                onClick = { launcher.launch("image/*") }
-            ) {
-                Text("Open image picker")
-            }
 
             OutlinedTextField(
                 value = itemName,
@@ -253,13 +246,13 @@ fun AddDealScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            imageUri?.let { uri ->
-                Button(
-                    onClick = { uploadImage(uri) }
-                ) {
-                    Text("Upload Image Test")
-                }
-            }
+//            imageUri?.let { uri ->
+//                Button(
+//                    onClick = uploadImage
+//                ) {
+//                    Text("Upload Image Test")
+//                }
+//            }
         }
     }
 }

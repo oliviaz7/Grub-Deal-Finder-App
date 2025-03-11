@@ -39,6 +39,7 @@ fun AddDealRoute(
         nextStep = addDealViewModel::nextStep,
         prevStep = addDealViewModel::prevStep,
         onSearchTextChange = addDealViewModel::onSearchTextChange,
+        updateImageUri = addDealViewModel::updateImageUri,
     )
 }
 
@@ -54,6 +55,7 @@ fun AddDealRoute(
     prevStep: () -> Unit,
     nextStep: () -> Unit,
     onSearchTextChange: (String) -> Unit,
+    updateImageUri: (Uri?) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -72,6 +74,7 @@ fun AddDealRoute(
                 uiState = uiState,
                 navController = navController,
                 uploadImage = uploadTest,
+                updateImageUri = updateImageUri,
                 prevStep = prevStep,
                 nextStep = nextStep,
             )
@@ -81,7 +84,6 @@ fun AddDealRoute(
             AddDealScreen(
                 uiState = uiState,
                 navController = navController,
-                uploadImage = uploadTest,
                 addNewRestaurantDeal = addNewRestaurantDeal,
                 searchNearbyRestaurants = searchNearbyRestaurants,
                 prevStep = prevStep,

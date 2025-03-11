@@ -35,6 +35,7 @@ data class AddDealUiState(
     val step: Step,
     val selectedRestaurant: SimpleRestaurant,
     val restaurantSearchText: String,
+    val imageUri: Uri?,
     val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
@@ -48,13 +49,14 @@ private data class AddDealViewModelState(
     val step: Step = Step.Step1,
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
+    val imageUri: Uri? = null,
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText)
+    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri)
 }
 
 
@@ -85,6 +87,7 @@ class AddDealViewModel(
         )
 
     val uploadImage = { androidUri: Uri ->
+        Log.d("uploadImage", "UPLOADING IMAGE: ${androidUri}")
         storageService.uploadDealImage(
             dealId = "deal_" + System.currentTimeMillis(), // TODO: come up with a better ID
             fileUri = androidUri,
@@ -169,6 +172,10 @@ class AddDealViewModel(
 
     fun onSearchTextChange(searchText: String) {
         viewModelState.update { it.copy(restaurantSearchText = searchText) }
+    }
+
+    fun updateImageUri(uri: Uri?) {
+        viewModelState.update { it.copy(imageUri = uri) }
     }
 
     /**
