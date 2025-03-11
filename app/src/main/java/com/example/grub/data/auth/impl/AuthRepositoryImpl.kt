@@ -1,6 +1,9 @@
 package com.example.grub.data.auth.impl
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import com.example.grub.data.auth.AuthRepository
 import com.example.grub.model.User
 import com.example.grub.data.Result
@@ -9,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 // I hate dependencies I'll remove when i figure out which ones I need
+import android.content.Context
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
@@ -19,11 +23,15 @@ import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
+import kotlinx.coroutines.launch
+import java.security.MessageDigest
+import java.util.UUID
 
 
 class AuthRepositoryImpl : AuthRepository {
@@ -35,49 +43,47 @@ class AuthRepositoryImpl : AuthRepository {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    val googleIdOption = GetGoogleIdOption.Builder()
-        .setServerClientId("337271635901-53e9n1oenq2gfjhgvhcbbk0ue4l1969q.apps.googleusercontent.com")
-        .setFilterByAuthorizedAccounts(true)
-        .setAutoSelectEnabled(true)
-        .build()
+    override suspend fun googleSignInButton(context: Context, rawNonce: String) {
+            val credentialManager = CredentialManager.create(context)
 
-    val request: GetCredentialRequest = GetCredentialRequest.Builder()
-        .addCredentialOption(googleIdOption)
-        .build()
+            val bytes = rawNonce.toByteArray()
+            val md = MessageDigest.getInstance("SHA-256")
+            val digest = md.digest(bytes)
+            val hashedNonce = digest.fold("", { str, it -> str + "%02x".format(it) })
 
-    override suspend fun handleSignIn(credential: Credential) {
-        if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                .setServerClientId("337271635901-53e9n1oenq2gfjhgvhcbbk0ue4l1969q.apps.googleusercontent.com")
+                .setFilterByAuthorizedAccounts(true)
+                .setAutoSelectEnabled(true)
+                .setNonce(hashedNonce)
+                .build()
 
-            firebaseAuthWithGoogle(googleIdTokenCredential.idToken)
-        } else {
-            Log.w("AuthRepository", "Credential is not of type Google ID!")
-        }
-    }
+            val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
 
-     private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("AuthRepository", "signInWithCredential:success")
-                    val user = auth.currentUser
-                    updateUI(user)
-                } else {
-                    Log.d("AuthRepository", "signInWithCredential:failure", task.exception)
-                    updateUI(null)
-                }
+            try {
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = context,
+                )
+
+                val credential = result.credential
+
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+                val googleIdToken = googleIdTokenCredential.idToken
+
+                Log.w("GoogleSignInButton", "Google ID Token: $googleIdToken")
+
+                Toast.makeText(context, "You are signed in YIPPIE!!", Toast.LENGTH_SHORT).show()
+            } catch (e: GetCredentialException) {
+                Toast.makeText(context, e.message + ": Credential Problem", Toast.LENGTH_SHORT)
+                    .show()
+            } catch (e: GoogleIdTokenParsingException) {
+                Toast.makeText(context, e.message + ": GoogleIdTaken Problem", Toast.LENGTH_SHORT)
+                    .show()
             }
-    }
-
-    // idk what to do about this yet
-    private fun updateUI(user: FirebaseUser?) {
-        if (user != null) {
-            // Navigate to another screen or update UI with user info
-            Log.d("AuthRepository", "Logged in as: ${user.displayName}")
-        } else {
-            Log.d("AuthRepository", "User is not logged in")
-        }
     }
 
     override suspend fun login(username: String, password: String): Result<String> {

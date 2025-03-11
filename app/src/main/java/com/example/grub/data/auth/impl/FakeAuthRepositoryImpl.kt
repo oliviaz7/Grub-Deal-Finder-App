@@ -1,5 +1,6 @@
 package com.example.grub.data.auth.impl
 
+import android.content.Context
 import android.util.Log
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
@@ -60,7 +61,7 @@ class FakeAuthRepositoryImpl : AuthRepository {
         }
     }
 
-    override suspend fun handleSignIn(credential: Credential) {
-        Log.w("AuthRepository", "tmp HandleSignIn")
+    override suspend fun googleSignInButton(context: Context, rawNonce: String) {
+        Result.Error(Exception("Not implemented"))
     }
 }

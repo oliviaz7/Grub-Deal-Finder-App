@@ -1,5 +1,5 @@
 package com.example.grub.data.auth
-import androidx.credentials.Credential
+import android.content.Context
 import com.example.grub.data.Result
 import com.example.grub.model.User
 import kotlinx.coroutines.flow.StateFlow
@@ -13,5 +13,5 @@ interface AuthRepository {
     suspend fun login(username: String, password: String): Result<String> // Returns token
     suspend fun logout()
     val loggedInUser: StateFlow<User?>
-    suspend fun handleSignIn(credential: Credential)
+    suspend fun googleSignInButton(context: Context, rawNonce: String)
 }
