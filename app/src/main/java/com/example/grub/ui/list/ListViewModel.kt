@@ -18,22 +18,23 @@ package com.example.grub.ui.list
 
 import CustomFilter
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.grub.data.Result
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * UI state for the List route.
@@ -45,7 +46,8 @@ data class ListUiState(
     val selectedFilter: String = "All",
     val showFilterDialog: Boolean = false,
     val selectedCustomFilter: CustomFilter = CustomFilter(),
-    val searchText: String = ""
+    val searchText: String = "",
+    val selectedSort: String = "",
 )
 
 /**
@@ -64,22 +66,19 @@ class ListViewModel(
 
     init {
         viewModelScope.launch {
-            restaurantDealsRepository.getRestaurantDeals(LatLng(43.5315, -79.6131))
-                .let { result -> // TODO: REPLACE LATLNG WITH VALID CURR LOCATION VALUES
-                    when (result) {
-                        is Result.Success -> {
-                            val deals = result.data.map(dealMapper::mapResponseToRestaurantDeals)
-                            viewModelState.update {
-                                it.copy(
-                                    restaurantDeals = deals,
-                                    filteredDeals = deals
-                                )
-                            }
-                        }
-
-                        else -> Log.e("FetchingError", "ListViewModel, initial request failed")
-                    }
+            // List view model just needs to subscribe to accumulated deals,
+            // don't need to worry about making the call to getRestaurantDeals
+            // since map view model handles that
+            restaurantDealsRepository.accumulatedDeals().collect { accumulatedDeals ->
+                val mappedDeals =
+                    accumulatedDeals.map { dealMapper.mapResponseToRestaurantDeals(it) }
+                viewModelState.update {
+                    it.copy(
+                        restaurantDeals = mappedDeals,
+                    )
                 }
+                onFilter()
+            }
         }
     }
 
@@ -90,6 +89,17 @@ class ListViewModel(
     }
 
     fun onFilter() {
+        val sortedDeals: List<RestaurantDeal> = when (uiState.value.selectedSort) {
+            "Distance" -> sortByDistance(uiState.value.restaurantDeals) //todo: figure out curr coords
+            "Date Posted" -> uiState.value.restaurantDeals.sortedByDescending { it.deals.firstOrNull()?.datePosted }
+            "Up Votes" -> uiState.value.restaurantDeals // todo: need upvotes from be first
+            else -> uiState.value.restaurantDeals
+        }
+        viewModelState.update { currentState ->
+            currentState.copy(
+                restaurantDeals = sortedDeals,
+            )
+        }
         val query = uiState.value.searchText.trim()
         val searchFilteredList = if (query.isBlank()) {
             uiState.value.restaurantDeals
@@ -172,6 +182,46 @@ class ListViewModel(
 
     fun onShowFilterDialog(bool: Boolean) {
         viewModelState.update { it.copy(showFilterDialog = bool) }
+    }
+
+    fun onSortOptionSelected(option: String) {
+        viewModelState.update { it.copy(selectedSort = option) }
+        onFilter()
+    }
+
+    private fun sortByDistance(deals: List<RestaurantDeal>): List<RestaurantDeal> {
+        //TODO: i need to get current coords in my viewModel, or maybe this can be extracted to another layer
+        val userLat = null
+        val userLon = null
+
+        return if (userLat != null && userLon != null) {
+            deals.sortedBy { restaurant ->
+                calculateDistance(
+                    userLat,
+                    userLon,
+                    restaurant.coordinates.latitude,
+                    restaurant.coordinates.longitude
+                )
+            }
+        } else {
+            deals
+        }
+    }
+
+    private fun calculateDistance(
+        lat1: Double, lon1: Double,
+        lat2: Double, lon2: Double
+    ): Double {
+        val R = 6371 // Radius of the Earth in km
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return R * c // Distance in km
     }
 
     /**

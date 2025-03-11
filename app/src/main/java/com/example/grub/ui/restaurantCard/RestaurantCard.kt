@@ -1,4 +1,5 @@
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -98,14 +99,13 @@ fun RestaurantItem(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             ) {
-                val image =
-                    painterResource(R.drawable.post_1_thumb)
-                Image(
-                    painter = image,
-                    contentDescription = "${restaurant.restaurantName} Image",
-                    modifier = Modifier
-                        .size(48.dp)
+                DealImage(
+                    restaurant.imageUrl,
+                    Modifier
+                        .weight(0.3f)
+                        .aspectRatio(1f)
                 )
+
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(2f)) {
@@ -114,17 +114,23 @@ fun RestaurantItem(
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.Black
                     )
-                    Text(
-                        text = restaurant.placeId,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Black
-                    )
+                    if (restaurant.displayAddress != null && restaurant.displayAddress != "")
+                        Text(
+                            text = restaurant.displayAddress,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Black
+                        )
                 }
             }
 
             Column() {
                 restaurant.deals.forEach { deal ->
-                    DealItem(restaurantName = restaurant.restaurantName, deal = deal, navController = navController)
+                    DealItem(
+                        restaurantName = restaurant.restaurantName,
+                        restaurantAddress = restaurant.displayAddress,
+                        deal = deal,
+                        navController = navController
+                    )
                 }
             }
         }
@@ -137,6 +143,7 @@ fun RestaurantItem(
 @Composable
 fun DealItem(
     restaurantName: String,
+    restaurantAddress: String?,
     deal: Deal,
     navController: NavController
 ) {
@@ -168,7 +175,14 @@ fun DealItem(
                         key = "deal",
                         value = deal
                     )
-                    navController.currentBackStackEntry?.savedStateHandle?.set("restaurantName", restaurantName)
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "restaurantName",
+                        restaurantName
+                    )
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "restaurantAddress",
+                        restaurantAddress
+                    )
                     navController.navigate(Destinations.DEAL_DETAIL_ROUTE)
                 }
         ) {
@@ -176,22 +190,22 @@ fun DealItem(
                 deal.imageUrl,
                 Modifier
                     .weight(0.3f)
-                    .aspectRatio(5f/4f)
+                    .aspectRatio(5f / 4f)
                     .clip(MaterialTheme.shapes.small)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Column (
+            Column(
                 Modifier.weight(0.7f)
-            ){
+            ) {
                 Text(
-                    text = deal.type.toString() + " "+ deal.item,
+                    text = deal.type.toString() + " " + deal.item,
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(start = 2.dp)
                 )
-                if(!deal.description.isNullOrBlank()){
+                if (!deal.description.isNullOrBlank()) {
                     Text(
                         text = deal.description,
                         style = MaterialTheme.typography.bodySmall,
@@ -201,8 +215,8 @@ fun DealItem(
                         modifier = Modifier.padding(start = 2.dp)
                     )
                 }
-                if(deal.expiryDate!=null){
-                    Row(){
+                if (deal.expiryDate != null) {
+                    Row() {
                         Icon(
                             Icons.Filled.CalendarMonth,
                             contentDescription = "expiryIcon",
@@ -213,7 +227,11 @@ fun DealItem(
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "Valid Until: " + deal.expiryDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
+                            text = "Valid Until: " + deal.expiryDate.format(
+                                DateTimeFormatter.ofPattern(
+                                    "MMMM dd, yyyy"
+                                )
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -242,6 +260,7 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
     } ?: Image(
         painter = painterResource(R.drawable.placeholder_1_1),
         contentDescription = null,
-        modifier = modifier
+        modifier = modifier,
+        contentScale = ContentScale.Crop
     )
 }

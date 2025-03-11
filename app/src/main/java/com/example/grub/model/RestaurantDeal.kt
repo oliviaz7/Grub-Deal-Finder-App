@@ -8,4 +8,6 @@ data class RestaurantDeal (
     val restaurantName: String,
     val coordinates: LatLng,
     val deals: List<Deal>,
+    val displayAddress: String?,
+    val imageUrl: String?,
 )
