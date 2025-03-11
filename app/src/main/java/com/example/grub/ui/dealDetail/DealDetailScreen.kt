@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,17 +20,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,6 +42,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -59,10 +59,31 @@ fun DealDetailScreen(
 ) {
     val scrollState = rememberScrollState()
     Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                SmallFloatingActionButton(
+                    onClick = { navController.popBackStack() },
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
     ) { innerPadding ->
         val screenModifier = Modifier.padding(innerPadding)
         val deal = uiState.deal!!
         val restaurantName = uiState.restaurantName!!
+        val restaurantAddress = uiState.restaurantAddress!!
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -80,6 +101,7 @@ fun DealDetailScreen(
                     Modifier
                         .fillMaxSize()
                 )
+
             }
 
 
@@ -101,14 +123,14 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.LocationOn,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "address",
+                            text = restaurantAddress,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -117,7 +139,7 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.Schedule,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(24.dp)
@@ -150,13 +172,13 @@ fun DealDetailScreen(
                     Row() {
                         Icon(
                             Icons.Filled.Star,
-                            contentDescription = "expiryIcon",
+                            contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier
                                 .padding(top = 8.dp)
                                 .size(40.dp)
                         )
-                        Spacer(modifier = Modifier.width(2.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "${deal.type}",
                             style = MaterialTheme.typography.displayMedium,
@@ -176,7 +198,7 @@ fun DealDetailScreen(
                         Row() {
                             Icon(
                                 Icons.Filled.CalendarMonth,
-                                contentDescription = "expiryIcon",
+                                contentDescription = null,
                                 tint = Color.White,
                                 modifier = Modifier
                                     .size(18.dp)
@@ -265,7 +287,7 @@ fun DealDetailScreen(
                                 ),
                                 color = Color.Black
                             )
-                            if (deal.description != null) {
+                            if (deal.description != null && deal.description != "") {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = deal.description,
@@ -288,7 +310,9 @@ fun DealDetailScreen(
                     Text(
                         text = "Posted By: ${deal.userId}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = "Posted On: ${
@@ -304,30 +328,30 @@ fun DealDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Button(
-                        onClick = { navController.popBackStack() },
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.background,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.background,
-                            disabledContentColor = MaterialTheme.colorScheme.primary,
-                        ),
-                        contentPadding = PaddingValues(12.dp, 0.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(
-                            text = "Return to Deals",
-                            style = defaultTextStyle.copy(
-                                fontSize = 20.sp,
-                                lineHeight = 20.sp,
-                                letterSpacing = 0.15.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                lineBreak = LineBreak.Heading
-                            )
-                        )
-                    }
+//                    Button(
+//                        onClick = { navController.popBackStack() },
+//                        colors = ButtonColors(
+//                            containerColor = MaterialTheme.colorScheme.background,
+//                            contentColor = MaterialTheme.colorScheme.primary,
+//                            disabledContainerColor = MaterialTheme.colorScheme.background,
+//                            disabledContentColor = MaterialTheme.colorScheme.primary,
+//                        ),
+//                        contentPadding = PaddingValues(12.dp, 0.dp),
+//                        shape = MaterialTheme.shapes.medium,
+//                        modifier = Modifier
+//                            .align(Alignment.CenterHorizontally)
+//                    ) {
+//                        Text(
+//                            text = "Return to Deals",
+//                            style = defaultTextStyle.copy(
+//                                fontSize = 20.sp,
+//                                lineHeight = 20.sp,
+//                                letterSpacing = 0.15.sp,
+//                                fontWeight = FontWeight.SemiBold,
+//                                lineBreak = LineBreak.Heading
+//                            )
+//                        )
+//                    }
                 }
             }
         }

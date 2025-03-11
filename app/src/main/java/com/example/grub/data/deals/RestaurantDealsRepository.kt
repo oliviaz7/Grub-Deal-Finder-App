@@ -4,6 +4,7 @@ import com.example.grub.data.Result
 import com.example.grub.model.DealType
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.flow.StateFlow
 
 // Mirrors what we expect to receive from the server, unprocessed
 data class RestaurantDealsResponse(
@@ -47,6 +48,12 @@ data class SimpleRestaurant(
  * Interface to the RestaurantDealsRepository data layer.
  */
 interface RestaurantDealsRepository {
+    /**
+     * Reactive paradigm
+     * getRestaurantDeals acts as a publisher (triggers updates to _accumulatedDeals),
+     * and accumulatedDeals() is the subscription point for consumers.
+     */
+    fun accumulatedDeals(): StateFlow<List<RestaurantDealsResponse>>
 
     /**
      * Get restaurant deals based on user location and radius
@@ -55,7 +62,7 @@ interface RestaurantDealsRepository {
     suspend fun getRestaurantDeals(
         coordinates: LatLng,
         radius: Double = 1000.0
-    ): Result<List<RestaurantDealsResponse>>
+    ): Result<Unit>
 
      /**
      * Add a new restaurant deal

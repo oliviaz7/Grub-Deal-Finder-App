@@ -11,7 +11,6 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-11, 0, 0, 0, 0, 0, 2, setting up deal details
 2025-02-11, 2, 0, 0, 0, 0, 0, location permissions
 2025-02-11, 4, 0, 0, 0, 0, 0, set up firebase and integrate
-2025-02-13, 0, 0, 0, 0, 1, 0, Design of list view
 2025-02-20, 0, 0, 0, 0, 0, 3, icons, ui changes
 2025-02-20, 0, 0, 3, 0, 0, 0, More Supabase and Flask integrations
 2025-02-20, 1, 0, 0, 0, 0, 0, actually load the images
@@ -24,15 +23,19 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-24, 0, 0, 0, 0, 0, 2, refactoring ui components
 2025-02-25, 2, 0, 2, 2, 2, 2, product meeting and goals for p2
 2025-02-27, 0, 0, 0, 0, 0, 2, search bar ui
-2025-02-28, 0, 0, 0, 0, 2, 0, design of deals detail, restaurant detail, icon, and profile page
 2025-03-01, 0, 0, 0, 0, 0, 4, search bar functionality & error msg
 2025-03-01, 0, 0, 0, 0, 0, 4, add more api endpoints, added to RestaurantDealsResponse
 2025-03-01, 0, 3, 0, 0, 0, 0, prettify add deal flow
-2025-03-01, 0, 0, 0, 5, 0, 0, get radius to send to backend based on cameraview
-2025-03-02, 0, 0, 0, 3, 0, 0, use radius with supabase
+2025-03-01 0, 0, 0, 5, 0, 0, get radius to send to backend based on cameraview
+2025-03-02 0, 0, 0, 3, 0, 0, use radius with supabase
 2025-03-02, 4, 0, 0, 0, 0, 0, app organization for auth and user profile
 2025-03-03, 0, 0, 0, 0, 0, 5, deal details ui
-2025-03-03 0, 0, 0, 5, 0, 0, debug random marker disappearing, bottom sheet
-2025-03-03 2, 2, 2, 2, 2, 2, demo and team meeting and bug bash
-2025-03-03, 1, 0, 0, 0, 0, 0, refactor some login/user logic
-2025-03-05, 0, 0, 0, 0, 8, 0, Setup Auth Functions in AuthImpl
+2025-03-03, 0, 0, 0, 5, 0, 0, debug random marker disappearing, bottom sheet
+2025-03-03, 2, 2, 2, 2, 2, 2, demo and team meeting and bug bash
+2025-03-02, 1, 0, 0, 0, 0, 0, refactor some login/user logic
+2025-03-06 2, 2, 2, 2, 2, 2, team meeting on deal restrictions and filters
+2025-03-07, 2, 0, 0, 0, 0, 0, thinking about product UX and add deal flow
+2025-03-07, 2, 0, 0, 0, 0, 0, synchronize getDeals and observed results across different VM
+2025-03-08, 0, 0, 0, 0, 0, 4, ui fixes, be-fe integrations
+2025-03-09, 0, 0, 0, 0, 0, 3, sorting ui + mock impl
+
