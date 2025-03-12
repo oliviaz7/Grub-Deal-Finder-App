@@ -1,5 +1,6 @@
 package com.example.grub.data.deals.impl
 
+import android.util.Log
 import com.example.grub.data.Result
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
@@ -40,6 +41,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
 
             Result.Success(Unit)
         } catch (e: Exception) {
+            Log.d("marker-location", e.toString())
             Result.Error(e)
         }
     }
