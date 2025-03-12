@@ -18,9 +18,6 @@ package com.example.grub.ui.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,13 +33,13 @@ import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
-import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.profile.ProfileRoute
 import com.example.grub.ui.profile.ProfileViewModel
+import com.example.grub.ui.screenWithScaffold.ScreenWithScaffold
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -80,7 +77,11 @@ fun AppNavHost(
                     fusedLocationProviderClient = appContainer.fusedLocationProviderClient
                 )
             )
-            ScreenWithScaffold(navController) {
+            ScreenWithScaffold(
+                navController,
+                authRepository = appContainer.authRepository,
+                appViewModel = appViewModel
+            ) {
                 MapRoute(mapViewModel = mapViewModel, navController)
             }
         }
@@ -91,7 +92,11 @@ fun AppNavHost(
                     dealMapper = RestaurantDealMapper,
                 )
             )
-            ScreenWithScaffold(navController) {
+            ScreenWithScaffold(
+                navController,
+                authRepository = appContainer.authRepository,
+                appViewModel = appViewModel
+            ) {
                 ListRoute(listViewModel = listViewModel, navController)
             }
         }
@@ -136,13 +141,13 @@ fun AppNavHost(
         ) { backStackEntry ->
             val deal = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<Deal>("deal") ?:null
+                ?.get<Deal>("deal") ?: null
             val restaurantName = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<String>("restaurantName") ?:null
+                ?.get<String>("restaurantName") ?: null
             val restaurantAddress = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<String>("restaurantAddress") ?:null
+                ?.get<String>("restaurantAddress") ?: null
 
             val dealDetailViewModel: DealDetailViewModel = viewModel(
                 factory = DealDetailViewModel.provideFactory(
@@ -161,31 +166,6 @@ fun AppNavHost(
                     navController
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun ScreenWithScaffold(
-    navController: NavHostController,
-    showBottomNavItem: Boolean = true,
-    showFloatingActionButton: Boolean = true,
-    content: @Composable () -> Unit,
-) {
-    Scaffold(
-        floatingActionButton = {
-            if (showFloatingActionButton) {
-                Fab(onclick = { navController.navigate(Destinations.ADD_DEAL_ROUTE) })
-            }
-        },
-        bottomBar = {
-            if (showBottomNavItem) {
-                BottomNavigation(navController)
-            }
-        }
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
-            content()
         }
     }
 }

@@ -38,10 +38,6 @@ class ProfileViewModel(
         // TODO: lol remove me once auth is implemented
         // this is just a stub to force login so we can create the profile UI
         viewModelScope.launch {
-            authRepository.login("any_username", "any_pwd")
-        }
-
-        viewModelScope.launch {
             appViewModel.currentUser.collect { currentUser: User? ->
                 _uiState.update {
                     // if currentUser is null, means no one is logged in
