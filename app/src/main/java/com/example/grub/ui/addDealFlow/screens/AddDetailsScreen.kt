@@ -59,54 +59,18 @@ fun AddDetailsScreen(
     updateDescription: (String?) -> Unit,
     updatePrice: (String?) -> Unit,
     updateDealType: (DealType) -> Unit,
-    updateExpiryDate: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     println("Select restaurant: ${uiState.deals}")
 
-    var showDialog by remember { mutableStateOf(false) }
-
     var expanded by remember { mutableStateOf(false) }
     val dealTypes = DealType.entries.toList()
-
-    // State variables for Date Picker and selected date
-    val expiryCalendar = Calendar.getInstance()
-    var expiryIsDialogOpen by remember { mutableStateOf(false) }
-
-    // Trigger to show DatePickerDialog
-    if (expiryIsDialogOpen) {
-        DatePickerDialog(
-            LocalContext.current,
-            { _, year, month, dayOfMonth ->
-                // Format selected date
-                val expirySelectedDate = String.format(
-                    "%02d/%02d/%04d",
-                    dayOfMonth,
-                    month + 1,
-                    year
-                ) // tell Joyce the new date format
-                updateExpiryDate(expirySelectedDate)
-                expiryIsDialogOpen = false
-            },
-            expiryCalendar.get(Calendar.YEAR),
-            expiryCalendar.get(Calendar.MONTH),
-            expiryCalendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
 
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
                 && uiState.dealState.itemName.isNotEmpty()
                 && uiState.selectedRestaurant.placeId.isNotEmpty()
                 && uiState.dealState.dealType !== null
-    }
-
-    if (showDialog) {
-        ConfirmationDialog(
-            navController = navController,
-            result = uiState.addDealResult,
-            onDismiss = { showDialog = false }
-        )
     }
 
     Scaffold(
@@ -224,32 +188,8 @@ fun AddDetailsScreen(
                     }
                 }
             }
-
-            // TextField for displaying selected date
-            TitledOutlinedTextField(
-                value = uiState.dealState.expiryDate ?: "",
-                onValueChange = {},
-                label = "Expiry Date",
-                text = null,
-                placeholder = "DD/MM/YYYY",
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { expiryIsDialogOpen = true }) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
-                    }
-                },
-                maxLines = 1,
-            )
         }
     }
 }
 
-fun getExpiryTimestamp(expirySelectedDate: String): Long? {
-    try {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return dateFormat.parse(expirySelectedDate)?.time
-    } catch (e : Exception) {
-        return null
-    }
-}
+

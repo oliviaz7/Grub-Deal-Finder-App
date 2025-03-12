@@ -75,21 +75,13 @@ fun AddDealRoute(
 ) {
     when (uiState.step) {
         Step.Step1 -> {
-//            SelectRestaurantScreen(
-//                uiState = uiState,
-//                navController = navController,
-//                searchNearbyRestaurants = searchNearbyRestaurants,
-//                updateRestaurant = updateRestaurant,
-//                nextStep = nextStep,
-//                onSearchTextChange = onSearchTextChange,
-//            )
-            AddExtraDetailsScreen(
+            SelectRestaurantScreen(
                 uiState = uiState,
                 navController = navController,
-                addNewRestaurantDeal = addNewRestaurantDeal,
-                prevStep = prevStep,
-                updateStartTimes = updateStartTimes,
-                updateEndTimes = updateEndTimes,
+                searchNearbyRestaurants = searchNearbyRestaurants,
+                updateRestaurant = updateRestaurant,
+                nextStep = nextStep,
+                onSearchTextChange = onSearchTextChange,
             )
         }
 
@@ -114,7 +106,6 @@ fun AddDealRoute(
                 updateDescription = updateDescription,
                 updatePrice = updatePrice,
                 updateDealType = updateDealType,
-                updateExpiryDate = updateExpiryDate,
             )
         }
 
@@ -126,6 +117,7 @@ fun AddDealRoute(
                 prevStep = prevStep,
                 updateStartTimes = updateStartTimes,
                 updateEndTimes = updateEndTimes,
+                updateExpiryDate = updateExpiryDate,
             )
         }
     }

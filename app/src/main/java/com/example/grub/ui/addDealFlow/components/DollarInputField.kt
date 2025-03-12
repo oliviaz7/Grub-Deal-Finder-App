@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +36,7 @@ fun DollarInputField(
             .padding(16.dp)
     ) {
         Row {
-            Text(text = label)
+            Text(text = label, style = MaterialTheme.typography.titleLarge)
             if (!optional) {
                 Text(text = " *", color = Color.Red)
             }

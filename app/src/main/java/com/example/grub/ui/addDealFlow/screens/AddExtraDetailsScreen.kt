@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
@@ -26,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -38,10 +40,13 @@ import com.example.grub.ui.addDealFlow.AddDealUiState
 import java.util.Calendar
 import com.example.grub.ui.addDealFlow.components.TimeSelector
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
+import com.example.grub.ui.addDealFlow.components.CustomCheckBox
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,47 +57,21 @@ fun AddExtraDetailsScreen(
     prevStep: () -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
+    updateExpiryDate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    var itemName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-    var selectedDealType: DealType? by remember { mutableStateOf(null) }
-    val dealTypes = DealType.entries.toList()
 
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
-    var expirySelectedDate by remember { mutableStateOf("") } // expiry date is empty string or DD/MM/YYYY
     var expiryIsDialogOpen by remember { mutableStateOf(false) }
-
-    // Trigger to show DatePickerDialog
-    if (expiryIsDialogOpen) {
-        DatePickerDialog(
-            LocalContext.current,
-            { _, year, month, dayOfMonth ->
-                // Format selected date
-                expirySelectedDate = String.format(
-                    "%02d/%02d/%04d",
-                    dayOfMonth,
-                    month + 1,
-                    year
-                ) // tell Joyce the new date format
-                expiryIsDialogOpen = false
-            },
-            expiryCalendar.get(Calendar.YEAR),
-            expiryCalendar.get(Calendar.MONTH),
-            expiryCalendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
 
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
-                && itemName.isNotEmpty()
+                && uiState.dealState.itemName.isNotEmpty()
                 && uiState.selectedRestaurant.placeId.isNotEmpty()
-                && selectedDealType !== null
+                && uiState.dealState.dealType !== null
     }
 
     if (showDialog) {
@@ -101,6 +80,27 @@ fun AddExtraDetailsScreen(
             result = uiState.addDealResult,
             onDismiss = { showDialog = false }
         )
+    }
+
+    // Trigger to show DatePickerDialog
+    if (expiryIsDialogOpen) {
+        DatePickerDialog(
+            LocalContext.current,
+            { _, year, month, dayOfMonth ->
+                // Format selected date
+                val expirySelectedDate = String.format(
+                    "%02d/%02d/%04d",
+                    dayOfMonth,
+                    month + 1,
+                    year
+                ) // tell Joyce the new date format
+                updateExpiryDate(expirySelectedDate)
+                expiryIsDialogOpen = false
+            },
+            expiryCalendar.get(Calendar.YEAR),
+            expiryCalendar.get(Calendar.MONTH),
+            expiryCalendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     Scaffold(
@@ -145,10 +145,10 @@ fun AddExtraDetailsScreen(
                                 rawDeals = listOf(
                                     RawDeal( // TODO: add price to raw deal obj
                                         id = "default_deal_id",
-                                        item = itemName,
-                                        description = description,
-                                        type = selectedDealType!!,
-                                        expiryDate = getExpiryTimestamp(expirySelectedDate),
+                                        item = uiState.dealState.itemName,
+                                        description = uiState.dealState.description,
+                                        type = uiState.dealState.dealType!!,
+                                        expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
                                         datePosted = System.currentTimeMillis(),
                                         userId = "default_user_id",
                                         restrictions = "None",
@@ -179,6 +179,8 @@ fun AddExtraDetailsScreen(
                 content = {
                     TimeSelector(
                         labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
+                        updateStartTime = updateStartTimes,
+                        updateEndTime = updateEndTimes,
                     )
                 },
                 showContentWhenChecked = false,
@@ -191,66 +193,61 @@ fun AddExtraDetailsScreen(
                 modifier = Modifier
             )
 
-            // textfield for description
-            TitledOutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = "Description",
-                text = null,
-                placeholder = "E.g. Whopper deal includes whopper, fries and drink",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 100.dp),
-            )
-
-            // TextField for price
-            DollarInputField(
-                value = price,
-                onValueChange = { price = it },
-                label = "Price",
-                text = null,
-                placeholder = "0.00",
-            )
-
-            // selecting deal type
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-            ) {
-                TitledOutlinedTextField(
-                    value = selectedDealType?.toString() ?: "",
-                    onValueChange = {},
-                    label = "Deal Type",
-                    text = null,
-                    placeholder = "Select a deal type",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    maxLines = 1,
-                    optional = false,
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    dealTypes.forEach { dealType ->
-                        DropdownMenuItem(
-                            text = { Text(dealType.name) },
-                            onClick = {
-                                selectedDealType = dealType
-                                expanded = false
-                            }
+            HidableSection(
+                content = {
+                    Column (
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        CustomCheckBox(
+                            label = "Students"
+                        )
+                        CustomCheckBox(
+                            label = "Children"
+                        )
+                        CustomCheckBox(
+                            label = "Seniors"
+                        )
+                        CustomCheckBox(
+                            label = "New customers"
                         )
                     }
-                }
-            }
 
-
+                },
+                showContentWhenChecked = false,
+                isChecked = true,
+                title = "Who can get the deal?",
+                label = "Open to all!",
+            )
+            // TextField for displaying selected date
+            TitledOutlinedTextField(
+                value = uiState.dealState.expiryDate ?: "",
+                onValueChange = {},
+                label = "Expiry Date",
+                text = null,
+                placeholder = "DD/MM/YYYY",
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(onClick = { expiryIsDialogOpen = true }) {
+                        Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
+                    }
+                },
+                maxLines = 1,
+            )
         }
+    }
+}
+
+fun getExpiryTimestamp(expirySelectedDate: String?): Long? {
+    expirySelectedDate ?: return null
+    try {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return dateFormat.parse(expirySelectedDate)?.time
+    } catch (e : Exception) {
+        return null
     }
 }
 

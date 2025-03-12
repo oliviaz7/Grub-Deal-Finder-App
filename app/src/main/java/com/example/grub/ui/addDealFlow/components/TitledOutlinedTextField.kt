@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +32,10 @@ fun TitledOutlinedTextField (
     )
     {
         Row {
-            Text(text = label)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleLarge
+            )
             if (!optional) {
                 Text(text = " *", color = Color.Red)
             }
