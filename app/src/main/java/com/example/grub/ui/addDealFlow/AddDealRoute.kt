@@ -10,7 +10,7 @@ import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
-import com.example.grub.ui.addDealFlow.screens.AddDetails2Screen
+import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
@@ -47,6 +47,8 @@ fun AddDealRoute(
         updatePrice = addDealViewModel::updatePrice,
         updateDealType = addDealViewModel::updateDealType,
         updateExpiryDate = addDealViewModel::updateExpiryDate,
+        updateStartTimes = addDealViewModel::updateStartTimes,
+        updateEndTimes = addDealViewModel::updateEndTimes,
     )
 }
 
@@ -68,16 +70,26 @@ fun AddDealRoute(
     updatePrice: (String?) -> Unit,
     updateDealType: (DealType) -> Unit,
     updateExpiryDate: (String?) -> Unit,
+    updateStartTimes: (List<Int>) -> Unit,
+    updateEndTimes: (List<Int>) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
-            SelectRestaurantScreen(
+//            SelectRestaurantScreen(
+//                uiState = uiState,
+//                navController = navController,
+//                searchNearbyRestaurants = searchNearbyRestaurants,
+//                updateRestaurant = updateRestaurant,
+//                nextStep = nextStep,
+//                onSearchTextChange = onSearchTextChange,
+//            )
+            AddExtraDetailsScreen(
                 uiState = uiState,
                 navController = navController,
-                searchNearbyRestaurants = searchNearbyRestaurants,
-                updateRestaurant = updateRestaurant,
-                nextStep = nextStep,
-                onSearchTextChange = onSearchTextChange,
+                addNewRestaurantDeal = addNewRestaurantDeal,
+                prevStep = prevStep,
+                updateStartTimes = updateStartTimes,
+                updateEndTimes = updateEndTimes,
             )
         }
 
@@ -107,11 +119,13 @@ fun AddDealRoute(
         }
 
         Step.Step4 -> {
-            AddDetails2Screen(
+            AddExtraDetailsScreen(
                 uiState = uiState,
                 navController = navController,
                 addNewRestaurantDeal = addNewRestaurantDeal,
                 prevStep = prevStep,
+                updateStartTimes = updateStartTimes,
+                updateEndTimes = updateEndTimes,
             )
         }
     }

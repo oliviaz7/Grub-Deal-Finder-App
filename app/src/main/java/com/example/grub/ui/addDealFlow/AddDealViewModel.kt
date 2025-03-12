@@ -52,6 +52,8 @@ data class DealState(
     val price: String? = null,
     val dealType: DealType? = null,
     val expiryDate: String? = null,
+    val startTimes: List<Int> = List(7){-1}, // array of 7 integers, each representing a day of the week
+    val endTimes: List<Int> = List(7){-1}, // integers representing the end time for each day of the week, in the range [0, 24]
 )
 
 /**
@@ -217,6 +219,14 @@ class AddDealViewModel(
 
     fun updateExpiryDate(expirySelectedDate: String?) {
         viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expirySelectedDate)) }
+    }
+
+    fun updateStartTimes(startTimes: List<Int>) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
+    }
+
+    fun updateEndTimes(endTimes: List<Int>) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
     }
 
     /**

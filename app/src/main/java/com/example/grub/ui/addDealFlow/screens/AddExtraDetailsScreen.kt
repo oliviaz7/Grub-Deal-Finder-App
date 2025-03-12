@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
@@ -19,7 +18,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -37,28 +35,25 @@ import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.AddDealUiState
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.layout.widthIn
+import com.example.grub.ui.addDealFlow.components.TimeSelector
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
+import com.example.grub.ui.addDealFlow.components.HidableSection
+import com.example.grub.ui.addDealFlow.components.SectionDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDetails2Screen(
+fun AddExtraDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
     prevStep: () -> Unit,
+    updateStartTimes: (List<Int>) -> Unit,
+    updateEndTimes: (List<Int>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("Select restaurant: ${uiState.deals}")
-
     var showDialog by remember { mutableStateOf(false) }
 
     var itemName by remember { mutableStateOf("") }
@@ -177,15 +172,23 @@ fun AddDetails2Screen(
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
+                .padding(top = 30.dp)
         ) {
-            TitledOutlinedTextField(
-                value = itemName,
-                onValueChange = { itemName = it },
-                label = "Item Name",
-                text = null,
-                placeholder = "E.g. Whopper Deal",
-                optional = false,
-                modifier = Modifier.fillMaxWidth()
+
+            HidableSection(
+                content = {
+                    TimeSelector(
+                        labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
+                    )
+                },
+                showContentWhenChecked = false,
+                isChecked = true,
+                title = "When can you get the deal?",
+                label = "Anytime, anyday!",
+            )
+
+            SectionDivider(
+                modifier = Modifier
             )
 
             // textfield for description

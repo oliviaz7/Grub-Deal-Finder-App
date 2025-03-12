@@ -154,6 +154,8 @@ fun AddDetailsScreen(
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
+                .padding(top = 40.dp)
+
         ) {
             TitledOutlinedTextField(
                 value = uiState.dealState.itemName,
