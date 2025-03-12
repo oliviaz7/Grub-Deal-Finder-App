@@ -58,14 +58,65 @@ def get_all_restaurant_deals():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
-def get_restaurants_given_filters(user_lat, user_long, radius):
+
+def get_all_restaurant_deals_with_user_details(user_id=None):
+	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
+	try:
+		# the query, get_all_restaurant_deals, can be viewed in supabase terminal using `SELECT pg_get_functiondef('get_all_restaurant_deals'::regproc);`
+		# NOTE: if you want to change what it returns, you need to modify `get_all_restaurant_deals`, ask joyce if you need help
+		response = supabase.rpc('get_all_restaurant_deals', params={"target_user_id": user_id}).execute()
+		data = response.data
+
+		# Group deals by restaurant
+		restaurant_map = {}
+
+		for deal in data:
+			rest_id = deal["restaurant_id"]
+
+			# initialize restaurant
+			restaurant = restaurant_map.setdefault(rest_id, {
+				"id": rest_id,
+				"place_id": deal["place_id"],
+				"coordinates": {
+					"latitude": deal["latitude"],
+					"longitude": deal["longitude"]
+					},
+				"restaurant_name": deal["restaurant_name"],
+				"display_address": deal["display_address"],
+				"image_url": deal["image_url"],
+				"Deal": []
+			})
+
+			# Append deal details to restaurant
+			restaurant["Deal"].append({
+				"id": deal["id"],
+				"item": deal["item"],
+				"description": deal["description"],
+				"type": deal["type"],
+				"expiry_date": deal["expiry_date"],
+				"date_posted": deal["date_posted"],
+				"user_id": deal["user_id"],
+				"restrictions": deal["restrictions"],
+				"image_id": deal["image_id"],
+				"user_saved": deal["user_saved"],
+				"user_vote": deal["user_vote"],
+				"applicable_group": deal["applicable_group"],
+			})
+
+		return list(restaurant_map.values())
+
+	except Exception as e:
+		logger.error(f"Failed to fetch data: {str(e)}", exc_info=True)
+		return []
+
+def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 	"""Filter restaurants based on user location and radius."""
-	restaurant_deals = get_all_restaurant_deals()
+	restaurant_deals = get_all_restaurant_deals_with_user_details(user_id)
 	filtered_restaurants = []
 
 	for restaurant in restaurant_deals:
-		res_lat = restaurant["latitude"]
-		res_long = restaurant["longitude"]
+		res_lat = restaurant["coordinates"]["latitude"]
+		res_long = restaurant["coordinates"]["longitude"]
 		distance = haversine(res_lat, res_long, user_lat, user_long)
 
 		# check if restaurant distance is within user location
@@ -77,11 +128,6 @@ def get_restaurants_given_filters(user_lat, user_long, radius):
 def format_restaurant_data(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
 	for restaurant in restaurants:
-		restaurant['coordinates'] = {
-			"latitude": restaurant["latitude"],
-			"longitude": restaurant["longitude"]
-		}
-
 		for deal in restaurant["Deal"]:
 			deal['date_posted'] = iso_to_unix(deal['date_posted'])
 			if deal.get('expiry_date'):
@@ -117,10 +163,11 @@ def get_deals():
 		latitude = float(request.args.get('latitude'))
 		longitude = float(request.args.get('longitude'))
 		radius = float(request.args.get('radius'))
-		logger.info(f"Fetching deals for lat: {latitude}, long: {longitude}, radius: {radius}")
+		user_id = request.args.get('user_id')
+		logger.info(f"Fetching deals for lat: {latitude}, long: {longitude}, radius: {radius}, user: {user_id}")
 
 		# Filter restaurants based on coords and radius
-		filtered_restaurants = get_restaurants_given_filters(latitude, longitude, radius)
+		filtered_restaurants = get_restaurants_given_filters(latitude, longitude, radius, user_id)
 
 		# Format the restaurant data
 		formatted_restaurants = format_restaurant_data(filtered_restaurants)
@@ -214,6 +261,8 @@ def nearby_search():
 
 @app.route('/')
 def index():
+	rest = get_all_restaurant_deals_with_user_details("74bb4a2e-d629-4325-8c04-e5e52826c9d0")
+	return jsonify(rest)
 	return "Successfully connected "
 
 # Run the Flask app
