@@ -21,15 +21,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HidableSection(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
     title: String? = null,
     label: String = "",
     showContentWhenChecked: Boolean = true,
     isChecked: Boolean = false,
+    content: @Composable () -> Unit,
 ) {
     var checked by remember { mutableStateOf(isChecked) }
     Column (
-        modifier = Modifier
+        modifier = modifier
     ) {
         title?.let {
             Text(

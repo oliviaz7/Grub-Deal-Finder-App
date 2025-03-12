@@ -179,52 +179,54 @@ fun AddExtraDetailsScreen(
         ) {
 
             HidableSection(
-                content = {
-                    TimeSelector(
-                        labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
-                        updateStartTime = updateStartTimes,
-                        updateEndTime = updateEndTimes,
-                    )
-                },
                 showContentWhenChecked = false,
                 isChecked = true,
                 title = "When can you get the deal?",
                 label = "Anytime, anyday!",
-            )
+            ) {
+                TimeSelector(
+                    labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
+                    updateStartTime = updateStartTimes,
+                    updateEndTime = updateEndTimes,
+                )
+            }
 
             SectionDivider(
                 modifier = Modifier
             )
 
             HidableSection(
-                content = {
-                    Column (
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        CustomCheckBox(
-                            label = "Students"
-                        )
-                        CustomCheckBox(
-                            label = "Children"
-                        )
-                        CustomCheckBox(
-                            label = "Seniors"
-                        )
-                        CustomCheckBox(
-                            label = "New customers"
-                        )
-                    }
-
-                },
                 showContentWhenChecked = false,
                 isChecked = true,
                 title = "Who can get the deal?",
                 label = "Open to all!",
+            ) {
+                Column (
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    CustomCheckBox(
+                        label = "Students"
+                    )
+                    CustomCheckBox(
+                        label = "Children"
+                    )
+                    CustomCheckBox(
+                        label = "Seniors"
+                    )
+                    CustomCheckBox(
+                        label = "New customers"
+                    )
+                }
+            }
+
+            SectionDivider(
+                modifier = Modifier
             )
-            // TextField for displaying selected date
+
+            // TextField for displaying expiry date
             TitledOutlinedTextField(
                 value = uiState.dealState.expiryDate ?: "",
                 onValueChange = {},

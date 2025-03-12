@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,9 +32,7 @@ fun DollarInputField(
         if (value.matches(regex)) value else value.dropLast(1)
     }
     Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier = modifier.padding(8.dp)
     ) {
         Row {
             Text(text = label, style = MaterialTheme.typography.titleLarge)

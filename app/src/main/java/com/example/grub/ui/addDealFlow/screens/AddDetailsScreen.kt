@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
@@ -122,8 +123,10 @@ fun AddDetailsScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .padding(top = 40.dp)
-                .verticalScroll(scrollState)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // text field for item name
             TitledOutlinedTextField(
                 value = uiState.dealState.itemName,
                 onValueChange = updateItemName,
@@ -153,6 +156,7 @@ fun AddDetailsScreen(
                 label = "Price",
                 text = null,
                 placeholder = "0.00",
+                modifier = Modifier.align(Alignment.Start)
             )
 
             // selecting deal type

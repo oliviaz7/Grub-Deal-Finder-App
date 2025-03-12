@@ -1,6 +1,7 @@
 package com.example.grub.ui.addDealFlow.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,12 +70,30 @@ fun TimeSelector(
             }
         }
         HidableSection(
-            content = {
-                // TODO: Add time picker
-            },
             showContentWhenChecked = false,
             isChecked = true,
             label = "All day",
-        )
+        ) {
+            // TODO: Add time picker
+            Row () {
+                Box() {
+                    Column {
+                        Text(
+                            text = "Start Time"
+                        )
+                    }
+                }
+                Text(
+                    text = "-"
+                )
+                Box() {
+                    Column {
+                        Text(
+                            text = "End Time"
+                        )
+                    }
+                }
+            }
+        }
     }
 }
