@@ -60,7 +60,16 @@ fun ProfileScreen(
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(150.dp)
-                        .background(Color.Gray, shape = CircleShape)
+               Image(
+                    painter = rememberAsyncImagePainter(R.drawable.grub),
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .shadow(8.dp, CircleShape, clip = false)
+                        .clip(CircleShape)
+
+              )
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
