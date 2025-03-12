@@ -10,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
@@ -40,7 +42,16 @@ data class AddDealUiState(
     val restaurantSearchText: String,
     val imageUri: Uri?,
     val addDealResult: Result<AddDealResponse>?,
+    val dealState: DealState,
     val coordinates: LatLng = LatLng(43.4712, -80.5440),
+)
+
+data class DealState(
+    val itemName: String = "",
+    val description: String? = null,
+    val price: String? = null,
+    val dealType: DealType? = null,
+    val expiryDate: String? = null,
 )
 
 /**
@@ -55,13 +66,15 @@ private data class AddDealViewModelState(
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
     val addDealResult: Result<AddDealResponse>? = null,
+    val dealState: DealState = DealState(),
 ) {
 
     /**
      * Converts this [AddDealViewModelState] into a more strongly typed [AddDealUiState] for driving
      * the ui.
      */
-    fun toUiState(): AddDealUiState = AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult)
+    fun toUiState(): AddDealUiState =
+        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, dealState)
 }
 
 
@@ -184,6 +197,26 @@ class AddDealViewModel(
 
     fun updateImageUri(uri: Uri?) {
         viewModelState.update { it.copy(imageUri = uri) }
+    }
+
+    fun updateItemName(itemName: String) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(itemName = itemName)) }
+    }
+
+    fun updateDescription(description: String?) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(description = description)) }
+    }
+
+    fun updatePrice(price: String?) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(price = price)) }
+    }
+
+    fun updateDealType(dealType: DealType) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(dealType = dealType)) }
+    }
+
+    fun updateExpiryDate(expirySelectedDate: String?) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expirySelectedDate)) }
     }
 
     /**

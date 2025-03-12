@@ -9,6 +9,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.DealType
+import com.example.grub.ui.addDealFlow.screens.AddDetails2Screen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
@@ -40,6 +42,11 @@ fun AddDealRoute(
         prevStep = addDealViewModel::prevStep,
         onSearchTextChange = addDealViewModel::onSearchTextChange,
         updateImageUri = addDealViewModel::updateImageUri,
+        updateItemName = addDealViewModel::updateItemName,
+        updateDescription = addDealViewModel::updateDescription,
+        updatePrice = addDealViewModel::updatePrice,
+        updateDealType = addDealViewModel::updateDealType,
+        updateExpiryDate = addDealViewModel::updateExpiryDate,
     )
 }
 
@@ -56,6 +63,11 @@ fun AddDealRoute(
     nextStep: () -> Unit,
     onSearchTextChange: (String) -> Unit,
     updateImageUri: (Uri?) -> Unit,
+    updateItemName: (String) -> Unit,
+    updateDescription: (String?) -> Unit,
+    updatePrice: (String?) -> Unit,
+    updateDealType: (DealType) -> Unit,
+    updateExpiryDate: (String?) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -82,6 +94,20 @@ fun AddDealRoute(
 
         Step.Step3 -> {
             AddDetailsScreen(
+                uiState = uiState,
+                navController = navController,
+                prevStep = prevStep,
+                nextStep = nextStep,
+                updateItemName = updateItemName,
+                updateDescription = updateDescription,
+                updatePrice = updatePrice,
+                updateDealType = updateDealType,
+                updateExpiryDate = updateExpiryDate,
+            )
+        }
+
+        Step.Step4 -> {
+            AddDetails2Screen(
                 uiState = uiState,
                 navController = navController,
                 addNewRestaurantDeal = addNewRestaurantDeal,

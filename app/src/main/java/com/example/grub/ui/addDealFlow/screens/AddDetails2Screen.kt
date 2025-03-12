@@ -50,27 +50,27 @@ import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDetailsScreen(
+fun AddDetails2Screen(
     uiState: AddDealUiState,
     navController: NavController,
+    addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
     prevStep: () -> Unit,
-    nextStep: () -> Unit,
-    updateItemName: (String) -> Unit,
-    updateDescription: (String?) -> Unit,
-    updatePrice: (String?) -> Unit,
-    updateDealType: (DealType) -> Unit,
-    updateExpiryDate: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     println("Select restaurant: ${uiState.deals}")
 
     var showDialog by remember { mutableStateOf(false) }
 
+    var itemName by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+    var selectedDealType: DealType? by remember { mutableStateOf(null) }
     val dealTypes = DealType.entries.toList()
 
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
+    var expirySelectedDate by remember { mutableStateOf("") } // expiry date is empty string or DD/MM/YYYY
     var expiryIsDialogOpen by remember { mutableStateOf(false) }
 
     // Trigger to show DatePickerDialog
@@ -79,13 +79,12 @@ fun AddDetailsScreen(
             LocalContext.current,
             { _, year, month, dayOfMonth ->
                 // Format selected date
-                val expirySelectedDate = String.format(
+                expirySelectedDate = String.format(
                     "%02d/%02d/%04d",
                     dayOfMonth,
                     month + 1,
                     year
                 ) // tell Joyce the new date format
-                updateExpiryDate(expirySelectedDate)
                 expiryIsDialogOpen = false
             },
             expiryCalendar.get(Calendar.YEAR),
@@ -96,9 +95,9 @@ fun AddDetailsScreen(
 
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
-                && uiState.dealState.itemName.isNotEmpty()
+                && itemName.isNotEmpty()
                 && uiState.selectedRestaurant.placeId.isNotEmpty()
-                && uiState.dealState.dealType !== null
+                && selectedDealType !== null
     }
 
     if (showDialog) {
@@ -140,9 +139,33 @@ fun AddDetailsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isSubmitButtonEnabled(),
-                    onClick = nextStep,
+                    onClick = {
+                        addNewRestaurantDeal(
+                            RestaurantDealsResponse(
+                                id = "default_id",
+                                placeId = uiState.selectedRestaurant.placeId,
+                                coordinates = uiState.selectedRestaurant.coordinates,
+                                restaurantName = uiState.selectedRestaurant.restaurantName,
+                                displayAddress = "restaurant_addy",
+                                rawDeals = listOf(
+                                    RawDeal( // TODO: add price to raw deal obj
+                                        id = "default_deal_id",
+                                        item = itemName,
+                                        description = description,
+                                        type = selectedDealType!!,
+                                        expiryDate = getExpiryTimestamp(expirySelectedDate),
+                                        datePosted = System.currentTimeMillis(),
+                                        userId = "default_user_id",
+                                        restrictions = "None",
+                                        imageId = uiState.imageUri?.path, // idk if this is right
+                                    )
+                                )
+                            )
+                        )
+                        showDialog = true
+                    },
                 ) {
-                    Text("Next")
+                    Text("Submit")
                 }
             }
         },
@@ -156,8 +179,8 @@ fun AddDetailsScreen(
                 .padding(horizontal = 20.dp)
         ) {
             TitledOutlinedTextField(
-                value = uiState.dealState.itemName,
-                onValueChange = updateItemName,
+                value = itemName,
+                onValueChange = { itemName = it },
                 label = "Item Name",
                 text = null,
                 placeholder = "E.g. Whopper Deal",
@@ -167,8 +190,8 @@ fun AddDetailsScreen(
 
             // textfield for description
             TitledOutlinedTextField(
-                value = uiState.dealState.description ?: "",
-                onValueChange = updateDescription,
+                value = description,
+                onValueChange = { description = it },
                 label = "Description",
                 text = null,
                 placeholder = "E.g. Whopper deal includes whopper, fries and drink",
@@ -179,8 +202,8 @@ fun AddDetailsScreen(
 
             // TextField for price
             DollarInputField(
-                value = uiState.dealState.price ?: "",
-                onValueChange = updatePrice,
+                value = price,
+                onValueChange = { price = it },
                 label = "Price",
                 text = null,
                 placeholder = "0.00",
@@ -192,7 +215,7 @@ fun AddDetailsScreen(
                 onExpandedChange = { expanded = !expanded },
             ) {
                 TitledOutlinedTextField(
-                    value = uiState.dealState.dealType?.toString() ?: "",
+                    value = selectedDealType?.toString() ?: "",
                     onValueChange = {},
                     label = "Deal Type",
                     text = null,
@@ -215,7 +238,7 @@ fun AddDetailsScreen(
                         DropdownMenuItem(
                             text = { Text(dealType.name) },
                             onClick = {
-                                updateDealType(dealType)
+                                selectedDealType = dealType
                                 expanded = false
                             }
                         )
@@ -223,31 +246,8 @@ fun AddDetailsScreen(
                 }
             }
 
-            // TextField for displaying selected date
-            TitledOutlinedTextField(
-                value = uiState.dealState.expiryDate ?: "",
-                onValueChange = {},
-                label = "Expiry Date",
-                text = null,
-                placeholder = "DD/MM/YYYY",
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { expiryIsDialogOpen = true }) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
-                    }
-                },
-                maxLines = 1,
-            )
+
         }
     }
 }
 
-fun getExpiryTimestamp(expirySelectedDate: String): Long? {
-    try {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return dateFormat.parse(expirySelectedDate)?.time
-    } catch (e : Exception) {
-        return null
-    }
-}
