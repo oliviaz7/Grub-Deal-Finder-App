@@ -8,6 +8,7 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-06, 3, 3, 3, 3, 3, 3, Team meeting and large design talks
 2025-02-10, 1, 0, 0, 0, 0, 0, Deals repo and object
 2025-02-10, 6, 6, 4, 4, 6, 6, Overall grind sesh and prep for demo
+2025-02-11, 0, 0, 0, 0, 2, 0, Design of List View
 2025-02-11, 0, 0, 0, 0, 0, 2, setting up deal details
 2025-02-11, 2, 0, 0, 0, 0, 0, location permissions
 2025-02-11, 4, 0, 0, 0, 0, 0, set up firebase and integrate
@@ -20,22 +21,27 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
 2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
 2025-02-23, 0, 5, 0, 0, 0, 0, add deal flow
+2025-02-23, 0, 0, 0, 0, 3, 0, Design of Restaurant Details + Deals Details 
 2025-02-24, 0, 0, 0, 0, 0, 2, refactoring ui components
 2025-02-25, 2, 0, 2, 2, 2, 2, product meeting and goals for p2
 2025-02-27, 0, 0, 0, 0, 0, 2, search bar ui
 2025-03-01, 0, 0, 0, 0, 0, 4, search bar functionality & error msg
 2025-03-01, 0, 0, 0, 0, 0, 4, add more api endpoints, added to RestaurantDealsResponse
 2025-03-01, 0, 3, 0, 0, 0, 0, prettify add deal flow
-2025-03-01 0, 0, 0, 5, 0, 0, get radius to send to backend based on cameraview
-2025-03-02 0, 0, 0, 3, 0, 0, use radius with supabase
+2025-03-01, 0, 0, 0, 5, 0, 0, get radius to send to backend based on cameraview
+2025-03-02, 0, 0, 0, 3, 0, 0, use radius with supabase
+2025-03-02, 0, 0, 0, 0, 1, 0, Design of profile page
 2025-03-02, 4, 0, 0, 0, 0, 0, app organization for auth and user profile
 2025-03-03, 0, 0, 0, 0, 0, 5, deal details ui
 2025-03-03, 0, 0, 0, 5, 0, 0, debug random marker disappearing, bottom sheet
 2025-03-03, 2, 2, 2, 2, 2, 2, demo and team meeting and bug bash
 2025-03-02, 1, 0, 0, 0, 0, 0, refactor some login/user logic
-2025-03-06 2, 2, 2, 2, 2, 2, team meeting on deal restrictions and filters
+2025-03-05, 0, 0, 0, 0, 6, 0, Auth Setup - Dependencies and Auth Functions
+2025-03-06, 2, 2, 2, 2, 2, 2, team meeting on deal restrictions and filters
 2025-03-07, 2, 0, 0, 0, 0, 0, thinking about product UX and add deal flow
 2025-03-07, 2, 0, 0, 0, 0, 0, synchronize getDeals and observed results across different VM
+2025-03-07, 0, 0, 0, 0, 1, 0, Setup Google Sign in Button for Profile Screen
 2025-03-08, 0, 0, 0, 0, 0, 4, ui fixes, be-fe integrations
 2025-03-09, 0, 0, 0, 0, 0, 3, sorting ui + mock impl
-
+2025-03-11, 0, 10, 0, 0, 0, 2, add deal flow
+2025-03-11, 0, 0, 0, 0, 4, 0, Profile Screen UI + Debugging GoogleCredentials Error
