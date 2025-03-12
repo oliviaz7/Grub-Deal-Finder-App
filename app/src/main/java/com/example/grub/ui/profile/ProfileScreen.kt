@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 fun ProfileScreen(
     uiState: ProfileUiState,
     modifier: Modifier = Modifier,
+    profileViewModel: ProfileViewModel = viewModel()
 ) {
     val scrollState = rememberScrollState()
 
@@ -102,7 +103,11 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                GoogleSignInButton()
+                Button(
+                    onClick = {profileViewModel.onSignOut()}
+                ){
+                    Text("Sign Out")
+                }
             }
 
         } else {
