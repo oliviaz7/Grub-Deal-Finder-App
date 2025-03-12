@@ -1,8 +1,14 @@
 package com.example.grub.data.auth.impl
 
+import android.content.Context
+import android.util.Log
+import androidx.credentials.Credential
+import androidx.credentials.CustomCredential
 import com.example.grub.data.Result
 import com.example.grub.data.auth.AuthRepository
 import com.example.grub.model.User
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,5 +59,9 @@ class FakeAuthRepositoryImpl : AuthRepository {
         } else {
             Result.Error(Exception("User not logged in"))
         }
+    }
+
+    override suspend fun googleSignInButton(context: Context, rawNonce: String) {
+        Result.Error(Exception("Not implemented"))
     }
 }
