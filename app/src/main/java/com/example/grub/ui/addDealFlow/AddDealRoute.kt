@@ -9,6 +9,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.DealType
+import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
+import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
+import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
+import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
 import com.google.android.gms.maps.model.LatLng
 
 /**
@@ -36,6 +41,14 @@ fun AddDealRoute(
         nextStep = addDealViewModel::nextStep,
         prevStep = addDealViewModel::prevStep,
         onSearchTextChange = addDealViewModel::onSearchTextChange,
+        updateImageUri = addDealViewModel::updateImageUri,
+        updateItemName = addDealViewModel::updateItemName,
+        updateDescription = addDealViewModel::updateDescription,
+        updatePrice = addDealViewModel::updatePrice,
+        updateDealType = addDealViewModel::updateDealType,
+        updateExpiryDate = addDealViewModel::updateExpiryDate,
+        updateStartTimes = addDealViewModel::updateStartTimes,
+        updateEndTimes = addDealViewModel::updateEndTimes,
     )
 }
 
@@ -51,26 +64,62 @@ fun AddDealRoute(
     prevStep: () -> Unit,
     nextStep: () -> Unit,
     onSearchTextChange: (String) -> Unit,
+    updateImageUri: (Uri?) -> Unit,
+    updateItemName: (String) -> Unit,
+    updateDescription: (String?) -> Unit,
+    updatePrice: (String?) -> Unit,
+    updateDealType: (DealType) -> Unit,
+    updateExpiryDate: (String?) -> Unit,
+    updateStartTimes: (List<Int>) -> Unit,
+    updateEndTimes: (List<Int>) -> Unit,
 ) {
-    if (uiState.step == Step.StepOne) {
-        SelectRestaurantScreen(
-            uiState = uiState,
-            navController = navController,
-            searchNearbyRestaurants = searchNearbyRestaurants,
-            updateRestaurant = updateRestaurant,
-            nextStep = nextStep,
-            onSearchTextChange = onSearchTextChange,
-        )
-    } else {
-        AddDealScreen(
-            uiState = uiState,
-            navController = navController,
-            uploadImage = uploadTest,
-            addNewRestaurantDeal = addNewRestaurantDeal,
-            searchNearbyRestaurants = searchNearbyRestaurants,
-            prevStep = prevStep,
-            nextStep = nextStep,
-        )
+    when (uiState.step) {
+        Step.Step1 -> {
+            SelectRestaurantScreen(
+                uiState = uiState,
+                navController = navController,
+                searchNearbyRestaurants = searchNearbyRestaurants,
+                updateRestaurant = updateRestaurant,
+                nextStep = nextStep,
+                onSearchTextChange = onSearchTextChange,
+            )
+        }
+
+        Step.Step2 -> {
+            AddImagesScreen(
+                uiState = uiState,
+                navController = navController,
+                uploadImage = uploadTest,
+                updateImageUri = updateImageUri,
+                prevStep = prevStep,
+                nextStep = nextStep,
+            )
+        }
+
+        Step.Step3 -> {
+            AddDetailsScreen(
+                uiState = uiState,
+                navController = navController,
+                prevStep = prevStep,
+                nextStep = nextStep,
+                updateItemName = updateItemName,
+                updateDescription = updateDescription,
+                updatePrice = updatePrice,
+                updateDealType = updateDealType,
+            )
+        }
+
+        Step.Step4 -> {
+            AddExtraDetailsScreen(
+                uiState = uiState,
+                navController = navController,
+                addNewRestaurantDeal = addNewRestaurantDeal,
+                prevStep = prevStep,
+                updateStartTimes = updateStartTimes,
+                updateEndTimes = updateEndTimes,
+                updateExpiryDate = updateExpiryDate,
+            )
+        }
     }
 }
 
