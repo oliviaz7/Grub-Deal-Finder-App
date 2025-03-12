@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,16 +22,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.graphics.graphicsLayer
 import com.example.grub.R
-import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 
 
 @Composable
 fun ProfileScreen(
     uiState: ProfileUiState,
     modifier: Modifier = Modifier,
-    profileViewModel: ProfileViewModel = viewModel(),
 ) {
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -49,18 +53,16 @@ fun ProfileScreen(
 
         if (uiState.isLoggedIn && uiState.currentUser != null) {
             Column(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(30.dp))
 
+
                 Image(
-                    painter = rememberAsyncImagePainter(R.drawable.grub),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(150.dp)
-               Image(
                     painter = rememberAsyncImagePainter(R.drawable.grub),
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Crop,
@@ -69,8 +71,8 @@ fun ProfileScreen(
                         .shadow(8.dp, CircleShape, clip = false)
                         .clip(CircleShape)
 
-              )
                 )
+
 
                 Spacer(modifier = Modifier.height(30.dp))
 
