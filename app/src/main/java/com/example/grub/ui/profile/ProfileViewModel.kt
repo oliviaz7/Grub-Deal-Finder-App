@@ -1,7 +1,5 @@
 package com.example.grub.ui.profile
 
-import com.example.grub.data.auth.impl.AuthRepositoryImpl
-
 import java.util.UUID
 
 import androidx.lifecycle.ViewModel
@@ -31,7 +29,7 @@ data class ProfileUiState(
 
 class ProfileViewModel(
     private val appViewModel: AppViewModel,
-    private val authRepository: AuthRepositoryImpl
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -64,7 +62,6 @@ class ProfileViewModel(
 
         val rawNonce = UUID.randomUUID().toString()
 
-        // Call the AuthRepository to handle Google Sign-In
         viewModelScope.launch {
             try {
                 authRepository.googleSignInButton(context, rawNonce)
@@ -96,7 +93,7 @@ class ProfileViewModel(
     companion object {
         fun provideFactory(
             appViewModel: AppViewModel,
-            authRepository: AuthRepositoryImpl,
+            authRepository: AuthRepository,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
