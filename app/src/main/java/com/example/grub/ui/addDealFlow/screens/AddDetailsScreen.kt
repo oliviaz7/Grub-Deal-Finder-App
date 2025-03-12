@@ -44,6 +44,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
@@ -63,6 +65,7 @@ fun AddDetailsScreen(
 ) {
     println("Select restaurant: ${uiState.deals}")
 
+    val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
     val dealTypes = DealType.entries.toList()
 
@@ -119,7 +122,7 @@ fun AddDetailsScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .padding(top = 40.dp)
-
+                .verticalScroll(scrollState)
         ) {
             TitledOutlinedTextField(
                 value = uiState.dealState.itemName,

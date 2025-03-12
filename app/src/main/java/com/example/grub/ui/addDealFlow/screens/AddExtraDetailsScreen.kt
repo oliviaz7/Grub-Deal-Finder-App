@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
@@ -61,6 +63,7 @@ fun AddExtraDetailsScreen(
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
 
     // State variables for Date Picker and selected date
@@ -172,7 +175,7 @@ fun AddExtraDetailsScreen(
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
-                .padding(top = 30.dp)
+                .verticalScroll(scrollState)
         ) {
 
             HidableSection(
