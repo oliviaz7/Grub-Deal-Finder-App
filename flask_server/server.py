@@ -280,8 +280,6 @@ def nearby_search():
 
 @app.route('/')
 def index():
-	rest = get_all_restaurant_deals_with_user_details("74bb4a2e-d629-4325-8c04-e5e52826c9d0")
-	return jsonify(rest)
 	return "Successfully connected "
 
 # Run the Flask app
