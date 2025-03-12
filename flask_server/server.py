@@ -7,6 +7,7 @@ from supabase import create_client, Client
 import google_maps
 import math
 import logging
+import pytz
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
@@ -41,12 +42,14 @@ def haversine(lat1, lon1, lat2, lon2):
 	distance = R * c
 	return distance
 
-def iso_to_unix(iso_date):
+def iso_to_unix(iso_string):
+	"""Converts an ISO 8601 string to a Unix timestamp."""
 	try:
-		return int(datetime.fromisoformat(iso_date.replace("Z", "+00:00")).timestamp() * 1000)
-
-	except Exception as e:
-		logger.error(f"Error occurred at iso_to_unix: {str(e)}", exc_info=True)
+		dt = datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
+		utc_dt = dt.astimezone(pytz.UTC)
+		return int(utc_dt.timestamp())
+	except ValueError as e:
+		print(f"Error parsing ISO string: {e}")
 		return None
 
 def get_all_restaurant_deals():
@@ -58,6 +61,9 @@ def get_all_restaurant_deals():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
+def delete_deal(deal_id):
+	"""Delete deal from Supabase"""
+	supabase.from_('Deal').delete().eq('id', deal_id).execute()
 
 def get_all_restaurant_deals_with_user_details(user_id=None):
 	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
@@ -125,15 +131,28 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 
 	return filtered_restaurants
 
-def format_restaurant_data(restaurants):
+def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
-	for restaurant in restaurants:
-		for deal in restaurant["Deal"]:
-			deal['date_posted'] = iso_to_unix(deal['date_posted'])
-			if deal.get('expiry_date'):
-				deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
+	try:
+		for restaurant in restaurants:
+			for deal in restaurant["Deal"]:
+				deal['date_posted'] = iso_to_unix(deal['date_posted'])
+				if deal.get('expiry_date'):
+					deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
-	return restaurants
+					# Check if the deal is expired
+					expiry_date = datetime.fromtimestamp(deal['expiry_date'], tz=pytz.UTC)
+					today = datetime.now(tz=pytz.UTC)
+
+					# If expiry date is in the past, delete the deal from Supabase
+					if expiry_date < today:
+						delete_deal(deal['id'])
+						logger.info(f"Deal {deal['id']} expired and was deleted.")
+
+		return restaurants
+
+	except Exception as e:
+		logger.error(f"Error processing deal: {e}", exc_info=True)
 
 def get_restaurant_image_url(place_id):
 	"""Fetches restaurant image URL using Google Favicon API."""
@@ -170,7 +189,7 @@ def get_deals():
 		filtered_restaurants = get_restaurants_given_filters(latitude, longitude, radius, user_id)
 
 		# Format the restaurant data
-		formatted_restaurants = format_restaurant_data(filtered_restaurants)
+		formatted_restaurants = process_and_filter_restaurant_deals(filtered_restaurants)
 
 		return jsonify(formatted_restaurants)
 
