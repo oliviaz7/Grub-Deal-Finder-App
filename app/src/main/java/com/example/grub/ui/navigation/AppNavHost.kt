@@ -62,7 +62,8 @@ fun AppNavHost(
 ) {
     val appViewModel: AppViewModel = viewModel(
         factory = AppViewModel.provideFactory(
-            authRepository = appContainer.authRepository
+            authRepository = appContainer.authRepository,
+            fusedLocationProviderClient = appContainer.fusedLocationProviderClient,
         )
     )
     NavHost(
@@ -77,7 +78,7 @@ fun AppNavHost(
                 factory = MapViewModel.provideFactory(
                     restaurantDealsRepository = appContainer.restaurantDealsRepository,
                     dealMapper = RestaurantDealMapper,
-                    fusedLocationProviderClient = appContainer.fusedLocationProviderClient
+                    appViewModel = appViewModel,
                 )
             )
             ScreenWithScaffold(navController) {
@@ -88,6 +89,7 @@ fun AppNavHost(
             val listViewModel: ListViewModel = viewModel(
                 factory = ListViewModel.provideFactory(
                     restaurantDealsRepository = appContainer.restaurantDealsRepository,
+                    appViewModel = appViewModel,
                     dealMapper = RestaurantDealMapper,
                 )
             )

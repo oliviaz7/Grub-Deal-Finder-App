@@ -1,6 +1,5 @@
 package com.example.grub.ui.map
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -10,8 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority
+import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,7 +46,7 @@ data class MapUiState(
 class MapViewModel(
     private val restaurantDealsRepository: RestaurantDealsRepository,
     private val dealMapper: RestaurantDealMapper,
-    private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val appViewModel: AppViewModel,
 ) : ViewModel() {
 
     // Mutable state that view model operations should update
@@ -83,6 +81,7 @@ class MapViewModel(
     }
 
     init {
+        // subscribe to changes in the accumulated restaurant deals
         viewModelScope.launch {
             getRestaurantDeals()
             restaurantDealsRepository.accumulatedDeals().collect { accumulatedDeals ->
@@ -91,44 +90,32 @@ class MapViewModel(
                 _uiState.update { it.copy(restaurantDeals = mappedDeals) }
             }
         }
-    }
-
-    /**
-     * Update our own state when we detect a change in location permissions
-     */
-    fun onPermissionsChanged(hasLocationPermission: Boolean) {
-        Log.i("location-permission", "location granted: $hasLocationPermission")
-        _uiState.update {
-            it.copy(hasLocationPermission = hasLocationPermission)
-        }
-
-        if (hasLocationPermission) { // and there was no previous location?
-            getCurrentUserLocation()  // get the user location if permission is granted
-        }
-    }
-
-    /**
-     * Fetches the last known location and updates the UI state.
-     */
-    @SuppressLint("MissingPermission")
-    fun getCurrentUserLocation() {
-        if (!_uiState.value.hasLocationPermission) {
-            Log.e("user-location", "Permission denied, cannot fetch location")
-            return
-        }
-
-        fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-            .addOnSuccessListener { location ->
-                location?.let {
-                    val latLng = LatLng(it.latitude, it.longitude)
-                    _uiState.update { state -> state.copy(userLocation = latLng) }
-                    Log.d("user-location", "Current user location: $latLng")
-                } ?: Log.e("user-location", "Failed to get current location")
+        // subscribe to changes in the users location
+        viewModelScope.launch {
+            appViewModel.currentUserLocation.collect { coordinates: LatLng? ->
+                if (coordinates != _uiState.value.userLocation) {
+                    _uiState.update {
+                        _uiState.value.copy(userLocation = coordinates)
+                    }
+                }
             }
+        }
+        // subscribe to changes in the users location permission
+        viewModelScope.launch {
+            appViewModel.hasLocationPermission.collect { permissionGranted: Boolean ->
+                if (permissionGranted != _uiState.value.hasLocationPermission) {
+                    _uiState.update {
+                        _uiState.value.copy(hasLocationPermission = permissionGranted)
+                    }
+                }
+            }
+        }
     }
 
     fun onMapEvent(event: MapEvent) {
         when (event) {
+            // TODO: DEBOUNCE THE CAMERA VIEW STATE AND ONLY UPDATE ONCE THE USER STOPS MOVING
+            // TODO: ADD A FUNCTION TO APP VIEW MODEL TO KEEP THE CURRENT FOCAL CAMERA POV
             is MapEvent.UpdateCameraViewState -> {
                 Log.d("marker-location", "event.visibleRadius: ${event.visibleRadius}")
                 Log.d("marker-location", "event.cameraCoordinate: ${event.cameraCoordinate}")
@@ -145,8 +132,15 @@ class MapViewModel(
                     _uiState.update { current -> current.copy(restaurantDeals = emptyList()) }
                     Log.i("marker-location", "Zoom too low, skipping backend query")
                 }
+
+                // update the global state with the current camera coordinates
+                appViewModel.updateCameraCentroidCoordinates(event.cameraCoordinate)
             }
         }
+    }
+
+    fun onPermissionsChanged(permissionGranted: Boolean) {
+        appViewModel.onPermissionsChanged(permissionGranted)
     }
 
     // https://developer.android.com/training/location/receive-location-updates
@@ -157,14 +151,14 @@ class MapViewModel(
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,
             dealMapper: RestaurantDealMapper,
-            fusedLocationProviderClient: FusedLocationProviderClient
+            appViewModel: AppViewModel
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MapViewModel(
                     restaurantDealsRepository,
                     dealMapper,
-                    fusedLocationProviderClient
+                    appViewModel,
                 ) as T
             }
         }

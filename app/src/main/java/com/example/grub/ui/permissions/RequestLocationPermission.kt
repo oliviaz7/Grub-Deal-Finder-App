@@ -17,27 +17,26 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RequestLocationPermission(onPermissionResult: (Boolean) -> Unit) {
+    var showRationale by remember { mutableStateOf(false) }
+    var anyPermissionGranted by remember { mutableStateOf(false) }
+
     val locationPermissionState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
         )
-    )
-
-    var showRationale by remember { mutableStateOf(false) }
+    ) { permissionsResult ->
+        anyPermissionGranted = permissionsResult.values.any { it }
+        onPermissionResult(anyPermissionGranted)
+    }
 
     LaunchedEffect(Unit) {
-        println("RequestLocationPermission\n")
-        // Check if permissions are already granted
-        if (locationPermissionState.allPermissionsGranted) {
-            onPermissionResult(true)
+        // if we don't have any permissions granted, and haven't shown the dialog
+        // show the request rational dialog
+        if (!anyPermissionGranted && locationPermissionState.shouldShowRationale) {
+            showRationale = true
         } else {
-            // If not, request permissions
-            if (locationPermissionState.shouldShowRationale) {
-                showRationale = true
-            } else {
-                locationPermissionState.launchMultiplePermissionRequest()
-            }
+            locationPermissionState.launchMultiplePermissionRequest()
         }
     }
 
