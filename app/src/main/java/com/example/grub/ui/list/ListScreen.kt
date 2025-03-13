@@ -118,10 +118,9 @@ fun ListScreen(
         },
         containerColor = Color.White,
     ) { innerPadding ->
-
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(top = 48.dp)
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
@@ -163,6 +162,7 @@ fun ListScreen(
                             navController = navController,
                         )
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
@@ -237,12 +237,8 @@ fun SortingOptions(
                     )
                 }
             }
-
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -277,7 +273,8 @@ fun ListFilterButtons(
     val showFilterDialog = uiState.showFilterDialog
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(top = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween // Space buttons evenly
     ) {
         // All button
