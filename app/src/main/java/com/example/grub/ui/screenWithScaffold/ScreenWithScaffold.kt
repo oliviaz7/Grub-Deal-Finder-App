@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -87,7 +88,8 @@ fun ScreenWithScaffold(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 24.dp, start = 24.dp, end = 24.dp)
+                        .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Sign in to post a deal", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -107,7 +109,7 @@ fun ScreenWithScaffold(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Sign In")
+                        Text("Sign in with Google")
                     }
                 }
             }

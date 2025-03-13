@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 
 
 @Composable
@@ -56,11 +57,11 @@ fun ProfileScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollState)
+                    .padding(vertical = 32.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.height(30.dp))
 
 
                 Image(
@@ -75,47 +76,76 @@ fun ProfileScreen(
                 )
 
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Username
                 Text(
-                    text = uiState.currentUser.username ?: "User",
+                    text = uiState.currentUser.username,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Centered Options
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     ProfileOption(Icons.Default.Favorite, "Favorite Deals")
                     ProfileOption(Icons.Default.Person, "Account Details")
                     ProfileOption(Icons.Default.Info, "About Grub")
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(text = "version 1.0.0.0", fontSize = 12.sp, color = Color.Gray)
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 Button(
-                    onClick = {profileViewModel.onSignOut()}
-                ){
+                    onClick = { profileViewModel.onSignOut() }
+                ) {
                     Text("Sign Out")
                 }
             }
 
         } else {
             Column(
+                modifier = modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Box(
+                    modifier = Modifier.weight(6f)
+                ) {
+                    Column(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(modifier = Modifier.weight(2f))
+                        Text(
+                            text = "Welcome to Grub!",
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.weight(0.4f))
+                        Text(
+                            text = "Sign in to save deals, manage your profile, and more.",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.weight(4f))
+                    }
+                }
                 GoogleSignInButton()
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -130,7 +160,7 @@ fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
     }
 
     Button(onClick = onClick) {
-        Text("Sign in with Google")
+        Text("Sign in with Google", style = MaterialTheme.typography.titleMedium, color = Color.Black)
     }
 }
 
