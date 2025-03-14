@@ -61,10 +61,6 @@ def get_all_restaurant_deals():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
-def delete_deal(deal_id):
-	"""Delete deal from Supabase"""
-	supabase.from_('Deal').delete().eq('id', deal_id).execute()
-
 def get_all_restaurant_deals_with_user_details(user_id=None):
 	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
 	try:
@@ -135,6 +131,8 @@ def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
 	try:
 		for restaurant in restaurants:
+			valid_deals = []
+
 			for deal in restaurant["Deal"]:
 				deal['date_posted'] = iso_to_unix(deal['date_posted'])
 				if deal.get('expiry_date'):
@@ -144,10 +142,13 @@ def process_and_filter_restaurant_deals(restaurants):
 					expiry_date = datetime.fromtimestamp(deal['expiry_date'], tz=pytz.UTC)
 					today = datetime.now(tz=pytz.UTC)
 
-					# If expiry date is in the past, delete the deal from Supabase
-					if expiry_date < today:
-						delete_deal(deal['id'])
-						logger.info(f"Deal {deal['id']} expired and was deleted.")
+					# Only keep non-expired deals
+					if expiry_date >= today:
+						valid_deals.append(deal)
+					else:
+						logger.info(f"Deal {deal['id']} expired and was removed from the list.")
+
+			restaurant["Deal"] = valid_deals
 
 		return restaurants
 
