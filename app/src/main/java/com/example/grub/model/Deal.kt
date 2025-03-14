@@ -22,28 +22,7 @@ enum class DealType {
     DISCOUNT,
     FREE,
     OTHER;
-
     // TODO: add more.
     // NOTE: whenever you add a DealType, please add the enum in supabase as well.
     //       Go to Database > DATABASE MANAGEMENT > Enumerated Types > Update type (for DealType) > add value for new enum
-}
-
-enum class VoteType(val value: Int) {
-    NEUTRAL(0),
-    UPVOTE(1),
-    DOWNVOTE(-1)
-}
-
-enum class ApplicableGroup {
-    NONE,
-    UNDER_18,
-    SENIOR,
-    STUDENT,
-    LOYALTY_MEMBER,
-    NEW_USER,
-    BIRTHDAY,
-
-    // TODO: add more.
-    // NOTE: whenever you add a ApplicableGroup, please add the enum in supabase as well.
-    //       Go to Database > DATABASE MANAGEMENT > Enumerated Types > Update type (for ApplicableGroup) > add value for new enum
 }
