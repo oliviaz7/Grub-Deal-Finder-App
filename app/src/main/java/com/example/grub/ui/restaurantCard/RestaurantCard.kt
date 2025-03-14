@@ -250,7 +250,7 @@ fun DealItem(
 fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
     Log.d("deal image", imageUrl.toString())
     AsyncImage(
-        model = imageUrl ?: R.drawable.hot_deals,
+        model = imageUrl,
         modifier = modifier,
         contentDescription = "Deal Image",
         // TODO: replace with a better loading placeholder
@@ -265,12 +265,12 @@ fun RestaurantImage(imageUrl: String?, modifier: Modifier = Modifier) {
     Log.d("restaurant image", imageUrl.toString())
 
     AsyncImage(
-        model = imageUrl ?: ImageUrlHelper.getFullUrl("deal_1740033.jpg"),
+        model = imageUrl,
         modifier = modifier,
         contentDescription = "restaurant Image",
         // TODO: replace with a better loading placeholder
-        placeholder = painterResource(R.drawable.placeholder_4_3),
-        error = painterResource(R.drawable.placeholder_4_3),
+        placeholder = painterResource(R.drawable.restaurant_placeholder),
+        error = painterResource(R.drawable.restaurant_placeholder),
         contentScale = ContentScale.Crop
     )
 }
