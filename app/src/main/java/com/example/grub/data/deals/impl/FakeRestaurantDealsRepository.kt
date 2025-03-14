@@ -202,17 +202,20 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
             SimpleRestaurant(
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
-                restaurantName = "MCD"
+                restaurantName = "MCD",
+                displayAddress = "123 Philip St",
             ),
             SimpleRestaurant(
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
-                restaurantName = "Chef Signature"
+                restaurantName = "Chef Signature",
+                displayAddress = "Your moms house"
             ),
             SimpleRestaurant(
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
-                restaurantName = "Mozy's Shawarma"
+                restaurantName = "Mozy's Shawarma",
+                displayAddress = "Missisauga"
             )
         )
     }
