@@ -15,7 +15,6 @@ import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
-import com.google.android.gms.maps.model.LatLng
 
 /**
  * Displays the SelectRestaurant route.
@@ -50,7 +49,7 @@ fun AddDealRoute(
         updateExpiryDate = addDealViewModel::updateExpiryDate,
         updateStartTimes = addDealViewModel::updateStartTimes,
         updateEndTimes = addDealViewModel::updateEndTimes,
-        updateApplicableGroups = addDealViewModel::updateApplicableGroups,
+        updateApplicableGroups = addDealViewModel::updateApplicableGroup,
     )
 }
 
@@ -74,7 +73,7 @@ fun AddDealRoute(
     updateExpiryDate: (String?) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
-    updateApplicableGroups: (ApplicableGroup, Boolean) -> Unit,
+    updateApplicableGroups: (ApplicableGroup) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {

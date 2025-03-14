@@ -1,6 +1,7 @@
 package com.example.grub.ui.addDealFlow.screens
 
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -39,7 +40,7 @@ import com.example.grub.ui.addDealFlow.AddDealUiState
 import java.util.Calendar
 import com.example.grub.ui.addDealFlow.components.TimeSelector
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
-import com.example.grub.ui.addDealFlow.components.CustomCheckBox
+import com.example.grub.ui.addDealFlow.components.CustomRadioButton
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
@@ -56,12 +57,16 @@ fun AddExtraDetailsScreen(
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateExpiryDate: (String) -> Unit,
-    updateApplicableGroups: (ApplicableGroup, Boolean) -> Unit,
+    updateApplicableGroups: (ApplicableGroup) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+
+    // hidable section states
+    var isTimeSelectorChecked by remember { mutableStateOf(true) }
+    var isApplicableGroupChecked by remember { mutableStateOf(true) }
 
 
     // State variables for Date Picker and selected date
@@ -135,16 +140,10 @@ fun AddExtraDetailsScreen(
         return true
     }
 
-    fun isValidApplicableGroups() : Boolean {
-        return uiState.dealState.applicableGroups.isNotEmpty()
-    }
-
     fun errorCheck() {
         if (!isValidTimeRange()) {
+            Log.d("AddExtraDetailsScreen", "Start time: ${uiState.dealState.startTimes}, End time: ${uiState.dealState.endTimes}")
             throw Exception("Invalid time range")
-        }
-        if (!isValidApplicableGroups()) {
-            throw Exception("Invalid applicable groups")
         }
     }
 
@@ -161,7 +160,7 @@ fun AddExtraDetailsScreen(
                 placeId = uiState.selectedRestaurant.placeId,
                 coordinates = uiState.selectedRestaurant.coordinates,
                 restaurantName = uiState.selectedRestaurant.restaurantName,
-                displayAddress = "restaurant_addy",
+                displayAddress = "restaurant_addy", // will be added in the BE
                 rawDeals = listOf(
                     RawDeal( // TODO: add price to raw deal obj
                         id = "default_deal_id",
@@ -172,7 +171,10 @@ fun AddExtraDetailsScreen(
                         datePosted = System.currentTimeMillis(),
                         userId = uiState.userId,
                         restrictions = "None",
-                        imageId = uiState.imageUri?.path, // idk if this is right
+                        imageId = uiState.imageUri?.path, // idk if this is right,
+                        applicableGroup = uiState.dealState.applicableGroup,
+                        dailyStartTimes = uiState.dealState.startTimes,
+                        dailyEndTimes = uiState.dealState.endTimes,
                     )
                 )
             )
@@ -231,13 +233,15 @@ fun AddExtraDetailsScreen(
                 .verticalScroll(scrollState)
         ) {
 
+            // time selector
             HidableSection(
                 showContentWhenChecked = false,
-                isChecked = true,
+                checked = isTimeSelectorChecked,
                 title = "When can you get the deal?",
                 label = "Anytime, anyday!",
-                onClick =
-                    { isChecked -> if (isChecked) {
+                onCheckedChanged =
+                    { isTimeSelectorChecked = it
+                      if (isTimeSelectorChecked) {
                         updateStartTimes(emptyList())
                         updateEndTimes(emptyList())
                         }
@@ -254,12 +258,19 @@ fun AddExtraDetailsScreen(
                 modifier = Modifier
             )
 
+            // applicable groups
             HidableSection(
                 showContentWhenChecked = false,
-                isChecked = true,
+                checked = isApplicableGroupChecked,
                 title = "Who can get the deal?",
                 label = "Open to all!",
-                onClick = { isChecked -> updateApplicableGroups(ApplicableGroup.ALL, isChecked) }
+                onCheckedChanged = {
+                    isApplicableGroupChecked = it
+                    if (isApplicableGroupChecked) {
+                        updateApplicableGroups(ApplicableGroup.ALL)
+                    } else {
+                        updateApplicableGroups(ApplicableGroup.UNDER_18)
+                    } },
             ) {
                 Column (
                     modifier = Modifier
@@ -268,9 +279,10 @@ fun AddExtraDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     applicableGroups.forEach { group ->
-                        CustomCheckBox(
+                        CustomRadioButton(
                             label = group.toString(),
-                            onChange = { isChecked -> updateApplicableGroups(group, isChecked) } // if isChecked -> add
+                            isChecked = uiState.dealState.applicableGroup == group,
+                            onChange = { updateApplicableGroups(group) } // if isChecked -> add
                         )
                     }
                 }

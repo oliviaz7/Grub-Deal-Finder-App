@@ -3,10 +3,6 @@ package com.example.grub.ui.addDealFlow.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,11 +20,10 @@ fun HidableSection(
     title: String? = null,
     label: String = "",
     showContentWhenChecked: Boolean = true,
-    isChecked: Boolean = false,
-    onClick: (Boolean) -> Unit = {},
+    checked: Boolean = false,
+    onCheckedChanged: (Boolean) -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    var checked by remember { mutableStateOf(isChecked) }
     Column (
         modifier = modifier
     ) {
@@ -47,8 +42,7 @@ fun HidableSection(
             Checkbox(
                 checked = checked,
                 onCheckedChange = {
-                    checked = it
-                    onClick(it)
+                    onCheckedChanged(it)
                 },
                 colors = CheckboxDefaults.colors(
 //                    checkedColor = Color.Blue,

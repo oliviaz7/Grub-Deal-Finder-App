@@ -3,27 +3,19 @@ package com.example.grub.ui.addDealFlow.components
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePickerColors
-import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Calendar
@@ -50,6 +41,7 @@ fun TimeSelector(
     updateEndTime: (List<Int>) -> Unit,
 ) {
     val isToggledList = remember { mutableStateListOf(*Array(labels.size) { false }) }
+    var isAllDayChecked by remember { mutableStateOf(true) }
 
     val currentTime = Calendar.getInstance()
 
@@ -65,29 +57,36 @@ fun TimeSelector(
         is24Hour = true,
     )
 
-    LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute) {
+    fun _updateStartTime(hour: Int, minute: Int) {
         val startTimes = isToggledList.map {
-            if (it) startTimePickerState.hour * 60 + startTimePickerState.minute else -1
+            if (it) hour * 60 + minute else -1
         }
+        Log.d("TimeSelector", "Start times: $startTimes")
         updateStartTime(startTimes)
     }
 
-    LaunchedEffect(endTimePickerState.hour, endTimePickerState.minute) {
+    fun _updateEndTime(hour: Int, minute: Int) {
         val endTimes = isToggledList.map {
-            if (it) endTimePickerState.hour * 60 + endTimePickerState.minute else -1
+            if (it) hour * 60 + minute else -1
         }
+        Log.d("TimeSelector", "End times: $endTimes")
         updateEndTime(endTimes)
     }
+    LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
+        _updateStartTime(startTimePickerState.hour, startTimePickerState.minute)
+        _updateEndTime(endTimePickerState.hour, endTimePickerState.minute)
+    }
 
-    // if the day is toggled, set the start time to 0 and end time to 24 * 60
-    // otherwise, make the deal unavailable all day (-1, -1)
-    fun allDayCheck(isChecked : Boolean) {
-        if (isChecked) {
-            val startTimes = isToggledList.map { if (it) 0 else -1 }
-            val endTimes = isToggledList.map { if (it) 24 * 60 else -1 }
-            updateStartTime(startTimes)
-            updateEndTime(endTimes)
+    fun onUpdateAllDayCheck(isChecked : Boolean) {
+        if (isChecked) { // if all day is checked, set the start time to 0 and end time to 24 * 60
+            _updateStartTime(0, 0)
+            _updateEndTime(24, 0)
+        } else { // set the time to the time picker state
+            _updateStartTime(startTimePickerState.hour, startTimePickerState.minute)
+            _updateEndTime(endTimePickerState.hour, endTimePickerState.minute)
         }
+
+        Log.d("TimeSelector", "All day checked: $isChecked")
     }
 
     Column {
@@ -97,7 +96,10 @@ fun TimeSelector(
         ) {
             for (i in labels.indices) {
                 Button(
-                    onClick = { isToggledList[i] = !isToggledList[i] },
+                    onClick = {
+                        isToggledList[i] = !isToggledList[i]
+                        onUpdateAllDayCheck(isAllDayChecked)
+                              },
                     modifier = Modifier
                         .weight(1f) // Distribute buttons evenly
                         .aspectRatio(1f) // Make the button circular
@@ -128,9 +130,12 @@ fun TimeSelector(
         }
         HidableSection(
             showContentWhenChecked = false,
-            isChecked = true,
+            checked = isAllDayChecked,
             label = "All day",
-            onClick = ::allDayCheck,
+            onCheckedChanged = {
+                isAllDayChecked = it
+                onUpdateAllDayCheck(isAllDayChecked)
+                },
         ) {
             // TODO: Add time picker
             Row (

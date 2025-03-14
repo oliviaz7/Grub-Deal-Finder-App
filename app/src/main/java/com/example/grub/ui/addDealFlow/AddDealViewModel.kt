@@ -54,7 +54,7 @@ data class DealState(
     val startTimes: List<Int> = List(7){0}, // array of 7 integers, each representing a day of the week
     val endTimes: List<Int> = List(7){24 * 60}, // integers representing the end time for each day of the week, in the range [0, 24]
     val restrictions: String? = null,
-    val applicableGroups: MutableSet<ApplicableGroup> = mutableSetOf(ApplicableGroup.ALL) // set of applicable groups
+    val applicableGroup: ApplicableGroup = ApplicableGroup.ALL // set of applicable groups
 )
 
 /**
@@ -133,6 +133,7 @@ class AddDealViewModel(
 
     fun addNewRestaurantDeal(deal: RestaurantDealsResponse) {
         viewModelScope.launch {
+            Log.d("AddDeal", "Adding deal: $deal")
             delay(2000) // Wait for 2 seconds, TODO: remove this
             val result = dealsRepository.addRestaurantDeal(deal)
             viewModelState.update { it.copy(addDealResult = result) }
@@ -235,19 +236,9 @@ class AddDealViewModel(
 
     }
 
-    fun updateApplicableGroups(group: ApplicableGroup, add: Boolean) {
+    fun updateApplicableGroup(applicableGroup: ApplicableGroup) {
         viewModelState.update { currentState ->
-            val newApplicableGroups = currentState.dealState.applicableGroups
-            newApplicableGroups.remove(ApplicableGroup.ALL) // remove ALL if we are adding a new group
-            if (group == ApplicableGroup.ALL && add) { // add ALL group and remove everything else
-                newApplicableGroups.clear()
-                newApplicableGroups.add(ApplicableGroup.ALL)
-            } else if (add) { // add the group, may already exist
-                newApplicableGroups.add(group)
-            } else { // remove the group, may not exist
-                newApplicableGroups.remove(group)
-            }
-            currentState.copy(dealState = currentState.dealState.copy(applicableGroups = newApplicableGroups))
+            currentState.copy(dealState = currentState.dealState.copy(applicableGroup = applicableGroup))
         }
     }
 
