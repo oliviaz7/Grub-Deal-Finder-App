@@ -111,7 +111,9 @@ fun SelectRestaurantScreen (
                                         SimpleRestaurant(
                                             restaurant.placeId,
                                             restaurant.coordinates,
-                                            restaurant.restaurantName
+                                            restaurant.restaurantName,
+                                            restaurant.displayAddress,
+                                            restaurant.imageUrl,
                                         )
                                     )
                                     nextStep()
