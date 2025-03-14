@@ -15,6 +15,7 @@ import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
+import java.time.ZonedDateTime
 
 /**
  * Displays the SelectRestaurant route.
@@ -70,7 +71,7 @@ fun AddDealRoute(
     updateDescription: (String?) -> Unit,
     updatePrice: (String?) -> Unit,
     updateDealType: (DealType) -> Unit,
-    updateExpiryDate: (String?) -> Unit,
+    updateExpiryDate: (ZonedDateTime) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateApplicableGroups: (ApplicableGroup) -> Unit,

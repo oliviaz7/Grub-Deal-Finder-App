@@ -84,6 +84,7 @@ fun TimeSelector(
         }
     }
 
+    // Update the start and end times when the time picker state changes
     LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
         onUpdateAllDayCheck(isAllDayChecked)
     }

@@ -1,5 +1,6 @@
 package com.example.grub.ui.addDealFlow.screens
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.util.Log
 import androidx.compose.foundation.background
@@ -45,6 +46,9 @@ import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +60,7 @@ fun AddExtraDetailsScreen(
     prevStep: () -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
-    updateExpiryDate: (String) -> Unit,
+    updateExpiryDate: (ZonedDateTime) -> Unit,
     updateApplicableGroups: (ApplicableGroup) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -72,6 +76,7 @@ fun AddExtraDetailsScreen(
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
     var expiryIsDialogOpen by remember { mutableStateOf(false) }
+    var expiryDateString by remember { mutableStateOf("") }
 
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
@@ -97,18 +102,21 @@ fun AddExtraDetailsScreen(
     }
 
     // Trigger to show DatePickerDialog
+    // updates uiState expiry date and expiryDateString
     if (expiryIsDialogOpen) {
         DatePickerDialog(
             LocalContext.current,
             { _, year, month, dayOfMonth ->
                 // Format selected date
-                val expirySelectedDate = String.format(
+                val localDate = LocalDate.of(year, month + 1, dayOfMonth)
+                val zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault())
+                expiryDateString = String.format(
                     "%02d/%02d/%04d",
                     dayOfMonth,
                     month + 1,
                     year
-                ) // tell Joyce the new date format
-                updateExpiryDate(expirySelectedDate)
+                )
+                updateExpiryDate(zonedDateTime)
                 expiryIsDialogOpen = false
             },
             expiryCalendar.get(Calendar.YEAR),
@@ -147,6 +155,7 @@ fun AddExtraDetailsScreen(
         }
     }
 
+    @SuppressLint("NewApi")
     fun tryAddNewRestaurantDeal () {
         try {
             errorCheck()
@@ -167,7 +176,7 @@ fun AddExtraDetailsScreen(
                         item = uiState.dealState.itemName,
                         description = uiState.dealState.description,
                         type = uiState.dealState.dealType!!,
-                        expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
+                        expiryDate = uiState.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                         datePosted = System.currentTimeMillis(),
                         userId = uiState.userId,
                         restrictions = "None",
@@ -294,7 +303,7 @@ fun AddExtraDetailsScreen(
 
             // TextField for displaying expiry date
             TitledOutlinedTextField(
-                value = uiState.dealState.expiryDate ?: "",
+                value = if (expiryDateString.isNotEmpty()) expiryDateString else "",
                 onValueChange = {},
                 label = "Expiry Date",
                 text = null,
@@ -311,14 +320,3 @@ fun AddExtraDetailsScreen(
         }
     }
 }
-
-fun getExpiryTimestamp(expirySelectedDate: String?): Long? {
-    expirySelectedDate ?: return null
-    try {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return dateFormat.parse(expirySelectedDate)?.time
-    } catch (e : Exception) {
-        return null
-    }
-}
-

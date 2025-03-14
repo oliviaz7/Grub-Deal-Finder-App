@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import java.time.ZonedDateTime
 
 /**
  * UI state for the SelectRestaurant route.
@@ -50,7 +51,7 @@ data class DealState(
     val description: String? = null,
     val price: String? = null,
     val dealType: DealType? = null,
-    val expiryDate: String? = null,
+    val expiryDate: ZonedDateTime? = null,
     val startTimes: List<Int> = List(7){0}, // array of 7 integers, each representing a day of the week
     val endTimes: List<Int> = List(7){24 * 60}, // integers representing the end time for each day of the week, in the range [0, 24]
     val restrictions: String? = null,
@@ -153,9 +154,9 @@ class AddDealViewModel(
 
     fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            val coordinates = appViewModel.currentUserLocation.value
+            val coordinates = appViewModel.currentUserLocation.value ?: appViewModel.mapCameraCentroidCoordinates.value
             if (coordinates == null) {
-                Log.e("searchNearbyRestaurants", "No user location available")
+                Log.e("searchNearbyRestaurants", "No location available")
                 return@launch
             }
             dealsRepository.searchNearbyRestaurants(keyword, coordinates!!, radius).let { result ->
@@ -215,8 +216,8 @@ class AddDealViewModel(
         viewModelState.update { it.copy(dealState = it.dealState.copy(dealType = dealType)) }
     }
 
-    fun updateExpiryDate(expirySelectedDate: String?) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expirySelectedDate)) }
+    fun updateExpiryDate(expiryDate: ZonedDateTime) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expiryDate)) }
     }
 
     fun updateStartTimes(startTimes: List<Int>) {
