@@ -25,6 +25,7 @@ fun HidableSection(
     label: String = "",
     showContentWhenChecked: Boolean = true,
     isChecked: Boolean = false,
+    onClick: (Boolean) -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     var checked by remember { mutableStateOf(isChecked) }
@@ -45,7 +46,10 @@ fun HidableSection(
         ) {
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    onClick(it)
+                },
                 colors = CheckboxDefaults.colors(
 //                    checkedColor = Color.Blue,
                     uncheckedColor = Color.Gray

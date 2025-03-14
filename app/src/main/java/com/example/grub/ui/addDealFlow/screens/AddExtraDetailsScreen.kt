@@ -175,6 +175,7 @@ fun AddExtraDetailsScreen(
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
+                .padding(top = 40.dp)
                 .verticalScroll(scrollState)
         ) {
 
