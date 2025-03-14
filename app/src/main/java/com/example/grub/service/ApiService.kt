@@ -13,7 +13,8 @@ interface ApiService {
     suspend fun getRestaurantDeals(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
-        @Query("radius") radius: Double
+        @Query("radius") radius: Double,
+        @Query("user_id") userId: String? = null
     ): List<RestaurantDealsResponse>
 
     @POST("add_restaurant_deal")
