@@ -40,7 +40,7 @@ fun TimeSelector(
     updateStartTime: (List<Int>) -> Unit,
     updateEndTime: (List<Int>) -> Unit,
 ) {
-    val isToggledList = remember { mutableStateListOf(*Array(labels.size) { false }) }
+    val isToggledList = remember { mutableStateListOf<Boolean>().apply { addAll(List(labels.size) { false }) } }
     var isAllDayChecked by remember { mutableStateOf(true) }
 
     val currentTime = Calendar.getInstance()
