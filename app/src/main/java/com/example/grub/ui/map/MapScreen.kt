@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -120,18 +121,22 @@ fun MapScreen(
 
         if (showBottomSheet && selectedRestaurant != null) {
             ModalBottomSheet(
+                containerColor = MaterialTheme.colorScheme.background.copy(alpha = 1f),
                 onDismissRequest = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         showBottomSheet = false
                         selectedRestaurant = null
                     }
                 },
+                dragHandle = null,
                 sheetState = sheetState
             ) {
                 selectedRestaurant?.let { restaurant ->
                     RestaurantItem(
                         restaurant = restaurant,
                         navController = navController,
+                        showBoxShadow = false,
+                        modifier = Modifier.padding(top = 16.dp)
                     )
                 }
             }

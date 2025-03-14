@@ -65,23 +65,26 @@ import java.time.format.DateTimeFormatter
 fun RestaurantItem(
     restaurant: RestaurantDeal,
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showBoxShadow: Boolean = true,
 ) {
     Box(
         modifier = modifier
             .padding(vertical = 8.dp)
             .fillMaxWidth()
             .drawBehind {
-                val shadowSize = 2.dp.toPx()
-                drawRoundRect(
-                    color = Color.Black.copy(alpha = 0.2f),
-                    size = size.copy(
-                        height = size.height + shadowSize,
-                        width = size.width + shadowSize,
-                    ),
-                    topLeft = Offset(8f, 8f),
-                    cornerRadius = CornerRadius(x = 20f, y = 20f)
-                )
+                if (showBoxShadow) {
+                    val shadowSize = 2.dp.toPx()
+                    drawRoundRect(
+                        color = Color.Black.copy(alpha = 0.2f),
+                        size = size.copy(
+                            height = size.height + shadowSize,
+                            width = size.width + shadowSize,
+                        ),
+                        topLeft = Offset(8f, 8f),
+                        cornerRadius = CornerRadius(x = 20f, y = 20f)
+                    )
+                }
             }
             .background(
                 MaterialTheme.colorScheme.background.copy(alpha = 1f),
