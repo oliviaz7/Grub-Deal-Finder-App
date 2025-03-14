@@ -1,7 +1,6 @@
 import requests
 import os
 import logging
-from server import get_restaurant_image_url
 
 logger = logging.getLogger('werkzeug')
 
@@ -56,16 +55,13 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
 
     nearby_restaurants = []
     for place in places.get("results", []):
-        place_id = place["place_id"]
         place_info = {
-            "place_id": place_id,
+            "place_id": place["place_id"],
             "restaurant_name": place["name"],
             "coordinates": {
                 "latitude": place["geometry"]["location"]["lat"],
                 "longitude": place["geometry"]["location"]["lng"]
             },
-            "display_address": place["vicinity"],
-            "image_url": get_restaurant_image_url(place_id)
         }
 
         nearby_restaurants.append(place_info)
