@@ -44,6 +44,7 @@ import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.CustomRadioButton
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
+import com.example.grub.ui.addDealFlow.components.NOT_AVAILABLE
 import com.example.grub.ui.addDealFlow.components.SectionDivider
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -125,7 +126,7 @@ fun AddExtraDetailsScreen(
         ).show()
     }
 
-
+    // this function might be buggy lolz
     fun isValidTimeRange() : Boolean {
         val startTimes = uiState.dealState.startTimes
         val endTimes = uiState.dealState.endTimes
@@ -133,8 +134,8 @@ fun AddExtraDetailsScreen(
             return false
         }
         for (i in startTimes.indices) {
-            // both must be -1 or both must be >= 0 and start time < end time
-            if (startTimes[i] == -1 && endTimes[i] == -1) {
+            // both must be NOT_AVAILABLE or both must be >= 0 and start time < end time
+            if (startTimes[i] == NOT_AVAILABLE && endTimes[i] == NOT_AVAILABLE) {
                 continue
             } else if (startTimes[i] < 0 || endTimes[i] < 0 || startTimes[i] > 24 * 60 || endTimes[i] > 24 * 60) {
                 return false
@@ -142,7 +143,7 @@ fun AddExtraDetailsScreen(
                 return false
             }
         }
-        if (startTimes.all {it == -1} && endTimes.all {it == -1}) {
+        if (startTimes.all {it == NOT_AVAILABLE} && endTimes.all {it == NOT_AVAILABLE}) {
             return false
         }
         return true

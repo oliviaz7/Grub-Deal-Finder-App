@@ -16,6 +16,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
+val MAX_MINUTES_IN_DAY = 24 * 60
+
 object RestaurantDealMapper {
 
     /**
@@ -41,14 +43,14 @@ object RestaurantDealMapper {
         }
 
         val hasTimeRestrictions =
-            startTimes.any { it != 0 } || endTimes.any { it != 1439 && it != 0 }
+            startTimes.any { it != 0 } || endTimes.any { it != MAX_MINUTES_IN_DAY && it != 0 }
 
         // if all times are either (0,0) or (0,1439), this means there are no specific
         // time restrictions, only day of week restrictions
         if (!hasTimeRestrictions) {
             val activeDays = startTimes.mapIndexedNotNull { index, startTime ->
                 val endTime = endTimes[index]
-                if (startTime == 0 && endTime == 1439) {
+                if (startTime == 0 && endTime == MAX_MINUTES_IN_DAY) {
                     DayOfWeek.fromInt(index)
                 } else {
                     null

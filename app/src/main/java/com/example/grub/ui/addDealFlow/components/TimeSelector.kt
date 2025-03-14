@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Calendar
 
+val NOT_AVAILABLE = 0
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeSelector(
@@ -59,7 +61,7 @@ fun TimeSelector(
 
     fun _updateStartTime(hour: Int, minute: Int) {
         val startTimes = isToggledList.map {
-            if (it) hour * 60 + minute else -1
+            if (it) hour * 60 + minute else NOT_AVAILABLE
         }
         Log.d("TimeSelector", "Start times: $startTimes")
         updateStartTime(startTimes)
@@ -67,7 +69,7 @@ fun TimeSelector(
 
     fun _updateEndTime(hour: Int, minute: Int) {
         val endTimes = isToggledList.map {
-            if (it) hour * 60 + minute else -1
+            if (it) hour * 60 + minute else NOT_AVAILABLE
         }
         Log.d("TimeSelector", "End times: $endTimes")
         updateEndTime(endTimes)
