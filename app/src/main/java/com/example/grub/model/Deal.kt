@@ -15,6 +15,10 @@ data class Deal(
     val userId: String,
     val restrictions: String, // TODO: figure out how we're handling
     val imageUrl: String?,
+    val userSaved: Boolean,
+    val userVote: VoteType,
+    val applicableGroup: ApplicableGroup,
+    val activeDayTime: DayOfWeekAndTimeRestriction,
 ) : Parcelable
 
 enum class DealType {
