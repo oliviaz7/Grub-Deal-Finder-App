@@ -49,6 +49,7 @@ fun AddDealRoute(
         updateExpiryDate = addDealViewModel::updateExpiryDate,
         updateStartTimes = addDealViewModel::updateStartTimes,
         updateEndTimes = addDealViewModel::updateEndTimes,
+        updateRestrictions = addDealViewModel::updateRestrictions,
     )
 }
 
@@ -72,6 +73,7 @@ fun AddDealRoute(
     updateExpiryDate: (String?) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
+    updateRestrictions: (String) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -91,6 +93,7 @@ fun AddDealRoute(
                 updateStartTimes = updateStartTimes,
                 updateEndTimes = updateEndTimes,
                 updateExpiryDate = updateExpiryDate,
+                updateRestrictions = updateRestrictions,
             )
         }
 
@@ -127,6 +130,7 @@ fun AddDealRoute(
                 updateStartTimes = updateStartTimes,
                 updateEndTimes = updateEndTimes,
                 updateExpiryDate = updateExpiryDate,
+                updateRestrictions = updateRestrictions,
             )
         }
     }

@@ -22,6 +22,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePickerColors
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,17 +66,17 @@ fun TimeSelector(
     )
 
     LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute) {
-        updateStartTime(listOf(startTimePickerState.hour, startTimePickerState.minute))
+        updateStartTime(List(7){startTimePickerState.hour * 60 + startTimePickerState.minute})
     }
 
     LaunchedEffect(endTimePickerState.hour, endTimePickerState.minute) {
-        updateEndTime(listOf(endTimePickerState.hour * 60 + endTimePickerState.minute))
+        updateEndTime(List(7){endTimePickerState.hour * 60 + endTimePickerState.minute})
     }
 
     fun allDayCheck(isChecked : Boolean) {
         if (isChecked) {
-            updateStartTime(listOf(0, 0))
-            updateEndTime(listOf(24 * 60))
+            updateStartTime(List(7){0})
+            updateEndTime(List(7){24 * 60})
         }
     }
 
@@ -128,16 +130,17 @@ fun TimeSelector(
 
                 Column (
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
-                        .padding(1.dp)
+                        .padding(0.dp),
                 ){
                     Text(
                         text = "Start Time"
                     )
                     TimeInput(
                         state = startTimePickerState,
-                        modifier = Modifier.scale(0.8f),
+                        modifier = Modifier.scale(0.75f),
                     )
 
                 }

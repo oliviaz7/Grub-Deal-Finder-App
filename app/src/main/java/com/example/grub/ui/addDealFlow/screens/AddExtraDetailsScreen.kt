@@ -60,6 +60,7 @@ fun AddExtraDetailsScreen(
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateExpiryDate: (String) -> Unit,
+    updateRestrictions: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -209,16 +210,20 @@ fun AddExtraDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     CustomCheckBox(
-                        label = "Students"
+                        label = "Students",
+                        onChange = {_ -> updateRestrictions("Students")}
                     )
                     CustomCheckBox(
-                        label = "Children"
+                        label = "Children",
+                        onChange = {_ -> updateRestrictions("Children")}
                     )
                     CustomCheckBox(
-                        label = "Seniors"
+                        label = "Seniors",
+                        onChange = {_ -> updateRestrictions("Seniors")}
                     )
                     CustomCheckBox(
-                        label = "New customers"
+                        label = "New customers",
+                        onChange = {_ -> updateRestrictions("New customers")}
                     )
                 }
             }

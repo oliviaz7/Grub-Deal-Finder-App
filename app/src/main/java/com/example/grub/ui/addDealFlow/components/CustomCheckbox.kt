@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 fun CustomCheckBox(
     modifier: Modifier = Modifier,
     label: String,
+    onChange: (Boolean) -> Unit  = {}
 ){
     var checked by remember { mutableStateOf(false) }
 
@@ -38,6 +39,7 @@ fun CustomCheckBox(
         .background(if (checked) MaterialTheme.colorScheme.primary else Color.White, RoundedCornerShape(5.dp))
         .clickable {
             checked = !checked
+            onChange(checked)
         },
 
         contentAlignment = Alignment.Center
