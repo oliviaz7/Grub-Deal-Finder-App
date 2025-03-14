@@ -1,9 +1,7 @@
 package com.example.grub.ui.map
 
-import MapScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,9 +16,8 @@ import androidx.navigation.NavController
 @Composable
 fun MapRoute(
     mapViewModel: MapViewModel,
-    navController: NavController, // we added a navController here
+    navController: NavController,
 ) {
-    // UiState of the HomeScreen
     val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
 
     MapRoute(
@@ -32,12 +29,9 @@ fun MapRoute(
 }
 
 /**
- * Displays the Home route.
- *
- * This composable is not coupled to any specific state management.
+ * Displays the Map route.
  *
  * @param uiState (state) the data to show on the screen
- * @param snackbarHostState (state) state for the [Scaffold] component on this screen
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -51,6 +45,6 @@ fun MapRoute(
         uiState = uiState,
         navController = navController,
         onPermissionsChanged = onPermissionsChanged,
-        onEvent = onEvent,
+        onMapEvent = onEvent,
     )
 }
