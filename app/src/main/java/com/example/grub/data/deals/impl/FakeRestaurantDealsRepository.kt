@@ -6,7 +6,9 @@ import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
+import com.example.grub.model.VoteType
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +38,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
-                        imageId = "deal_17400.jpg"
+                        imageId = "deal_17400.jpg",
+                        userSaved = false,
+                        userVote = VoteType.NEUTRAL,
+                        applicableGroup = ApplicableGroup.STUDENT
                     )
                 )
             ),
@@ -56,7 +61,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
-                        imageId = "deal_17400123.jpg"
+                        imageId = "deal_17400123.jpg",
+                        userSaved = true,
+                        userVote = VoteType.UPVOTE,
+                        applicableGroup = ApplicableGroup.STUDENT
                     ),
                     RawDeal(
                         id = "dealId_456",
@@ -67,7 +75,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "anhela",
                         restrictions = "Students only",
-                        imageId = "deal_1740033.jpg"
+                        imageId = "deal_1740033.jpg",
+                        userSaved = false,
+                        userVote = VoteType.DOWNVOTE,
+                        applicableGroup = ApplicableGroup.NEW_USER
                     )
                 )
             ),
@@ -88,6 +99,9 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         userId = "beetroot",
                         restrictions = "Students only",
                         imageId = null,
+                        userSaved = true,
+                        userVote = VoteType.UPVOTE,
+                        applicableGroup = ApplicableGroup.STUDENT
                     )
                 )
             ),
@@ -108,7 +122,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
-                        imageId = "deal_17400.jpg"
+                        imageId = "deal_17400.jpg",
+                        userSaved = true,
+                        userVote = VoteType.NEUTRAL,
+                        applicableGroup = ApplicableGroup.NONE
                     )
                 )
             ),
@@ -129,7 +146,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
-                        imageId = "deal_17400.jpg"
+                        imageId = "deal_17400.jpg",
+                        userSaved = false,
+                        userVote = VoteType.NEUTRAL,
+                        applicableGroup = ApplicableGroup.BIRTHDAY
                     )
                 )
             ),
@@ -150,7 +170,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
-                        imageId = "deal_17400.jpg"
+                        imageId = "deal_17400.jpg",
                     )
                 )
             ),
