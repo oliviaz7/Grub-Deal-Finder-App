@@ -35,3 +35,8 @@
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 
 -keep class androidx.compose.ui.platform.AndroidCompositionLocals_androidKt { *; }
+
+-if class androidx.credentials.CredentialManager
+-keep class androidx.credentials.playservices.** {
+  *;
+}

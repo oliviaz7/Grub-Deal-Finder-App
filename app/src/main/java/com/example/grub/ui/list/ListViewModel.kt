@@ -26,6 +26,7 @@ import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.ui.AppViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,6 +57,7 @@ data class ListUiState(
 @RequiresApi(Build.VERSION_CODES.O)
 class ListViewModel(
     private val restaurantDealsRepository: RestaurantDealsRepository,
+    private val appViewModel: AppViewModel,
     private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
 
@@ -190,15 +192,15 @@ class ListViewModel(
     }
 
     private fun sortByDistance(deals: List<RestaurantDeal>): List<RestaurantDeal> {
-        //TODO: i need to get current coords in my viewModel, or maybe this can be extracted to another layer
-        val userLat = null
-        val userLon = null
+        val cameraCoordinates = appViewModel.mapCameraCentroidCoordinates.value
+        val cameraLat = cameraCoordinates?.latitude
+        val cameraLng = cameraCoordinates?.longitude
 
-        return if (userLat != null && userLon != null) {
+        return if (cameraLat != null && cameraLng != null) {
             deals.sortedBy { restaurant ->
                 calculateDistance(
-                    userLat,
-                    userLon,
+                    cameraLat,
+                    cameraLng,
                     restaurant.coordinates.latitude,
                     restaurant.coordinates.longitude
                 )
@@ -230,11 +232,12 @@ class ListViewModel(
     companion object {
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,
+            appViewModel: AppViewModel,
             dealMapper: RestaurantDealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ListViewModel(restaurantDealsRepository, dealMapper) as T
+                return ListViewModel(restaurantDealsRepository, appViewModel, dealMapper) as T
             }
         }
     }
