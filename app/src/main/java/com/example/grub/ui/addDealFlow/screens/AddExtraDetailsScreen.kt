@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.grub.data.Result
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
@@ -64,6 +65,7 @@ fun AddExtraDetailsScreen(
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
 
@@ -86,6 +88,14 @@ fun AddExtraDetailsScreen(
         )
     }
 
+    if (showErrorDialog.isNotEmpty()) {
+        ConfirmationDialog(
+            navController = navController,
+            result = Result.Error(Exception(showErrorDialog)),
+            onDismiss = { showErrorDialog = "" }
+        )
+    }
+
     // Trigger to show DatePickerDialog
     if (expiryIsDialogOpen) {
         DatePickerDialog(
@@ -105,6 +115,59 @@ fun AddExtraDetailsScreen(
             expiryCalendar.get(Calendar.MONTH),
             expiryCalendar.get(Calendar.DAY_OF_MONTH)
         ).show()
+    }
+
+
+    fun isValidTimeRange() : Boolean {
+        val startTimes = uiState.dealState.startTimes
+        val endTimes = uiState.dealState.endTimes
+        if (startTimes.size != 7 || endTimes.size != 7) {
+            return false
+        }
+        for (i in startTimes.indices) {
+            // both must be -1 or both must be >= 0 and start time < end time
+            if (startTimes[i] == -1 && endTimes[i] == -1) {
+                continue
+            } else if (startTimes[i] < 0 || endTimes[i] < 0 || startTimes[i] > 24 * 60 || endTimes[i] > 24 * 60) {
+                return false
+            } else if (startTimes[i] >= endTimes[i]) {
+                return false
+            }
+        }
+        if (startTimes.all {it == -1} && endTimes.all {it == -1}) {
+            return false
+        }
+        return true
+    }
+
+    fun tryAddNewRestaurantDeal () {
+        if (!isValidTimeRange()) {
+            showErrorDialog = "Invalid time range"
+            return
+        }
+        addNewRestaurantDeal(
+            RestaurantDealsResponse(
+                id = "default_id",
+                placeId = uiState.selectedRestaurant.placeId,
+                coordinates = uiState.selectedRestaurant.coordinates,
+                restaurantName = uiState.selectedRestaurant.restaurantName,
+                displayAddress = "restaurant_addy",
+                rawDeals = listOf(
+                    RawDeal( // TODO: add price to raw deal obj
+                        id = "default_deal_id",
+                        item = uiState.dealState.itemName,
+                        description = uiState.dealState.description,
+                        type = uiState.dealState.dealType!!,
+                        expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
+                        datePosted = System.currentTimeMillis(),
+                        userId = "default_user_id",
+                        restrictions = "None",
+                        imageId = uiState.imageUri?.path, // idk if this is right
+                    )
+                )
+            )
+        )
+        showDialog = true
     }
 
     Scaffold(
@@ -138,31 +201,7 @@ fun AddExtraDetailsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isSubmitButtonEnabled(),
-                    onClick = {
-                        addNewRestaurantDeal(
-                            RestaurantDealsResponse(
-                                id = "default_id",
-                                placeId = uiState.selectedRestaurant.placeId,
-                                coordinates = uiState.selectedRestaurant.coordinates,
-                                restaurantName = uiState.selectedRestaurant.restaurantName,
-                                displayAddress = "restaurant_addy",
-                                rawDeals = listOf(
-                                    RawDeal( // TODO: add price to raw deal obj
-                                        id = "default_deal_id",
-                                        item = uiState.dealState.itemName,
-                                        description = uiState.dealState.description,
-                                        type = uiState.dealState.dealType!!,
-                                        expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
-                                        datePosted = System.currentTimeMillis(),
-                                        userId = "default_user_id",
-                                        restrictions = "None",
-                                        imageId = uiState.imageUri?.path, // idk if this is right
-                                    )
-                                )
-                            )
-                        )
-                        showDialog = true
-                    },
+                    onClick = { tryAddNewRestaurantDeal() },
                 ) {
                     Text("Submit")
                 }
@@ -185,6 +224,12 @@ fun AddExtraDetailsScreen(
                 isChecked = true,
                 title = "When can you get the deal?",
                 label = "Anytime, anyday!",
+                onClick =
+                    { isChecked -> if (isChecked) {
+                        updateStartTimes(emptyList())
+                        updateEndTimes(emptyList())
+                        }
+                    },
             ) {
                 TimeSelector(
                     labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),

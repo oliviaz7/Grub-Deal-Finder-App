@@ -224,11 +224,20 @@ class AddDealViewModel(
     }
 
     fun updateStartTimes(startTimes: List<Int>) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
+        if (startTimes.isEmpty()) { // reset to default - available every day 0-24
+            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = List(7){0})) }
+        } else {
+            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
+        }
     }
 
     fun updateEndTimes(endTimes: List<Int>) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
+        if (endTimes.isEmpty()) { // reset to default - available every day 0-24
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7){24 * 60})) }
+        } else {
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
+        }
+
     }
 
     fun updateRestrictions(restriction: String) {

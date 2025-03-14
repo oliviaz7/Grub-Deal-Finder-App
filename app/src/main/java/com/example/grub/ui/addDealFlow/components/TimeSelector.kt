@@ -66,17 +66,27 @@ fun TimeSelector(
     )
 
     LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute) {
-        updateStartTime(List(7){startTimePickerState.hour * 60 + startTimePickerState.minute})
+        val startTimes = isToggledList.map {
+            if (it) startTimePickerState.hour * 60 + startTimePickerState.minute else -1
+        }
+        updateStartTime(startTimes)
     }
 
     LaunchedEffect(endTimePickerState.hour, endTimePickerState.minute) {
-        updateEndTime(List(7){endTimePickerState.hour * 60 + endTimePickerState.minute})
+        val endTimes = isToggledList.map {
+            if (it) endTimePickerState.hour * 60 + endTimePickerState.minute else -1
+        }
+        updateEndTime(endTimes)
     }
 
+    // if the day is toggled, set the start time to 0 and end time to 24 * 60
+    // otherwise, make the deal unavailable all day (-1, -1)
     fun allDayCheck(isChecked : Boolean) {
         if (isChecked) {
-            updateStartTime(List(7){0})
-            updateEndTime(List(7){24 * 60})
+            val startTimes = isToggledList.map { if (it) 0 else -1 }
+            val endTimes = isToggledList.map { if (it) 24 * 60 else -1 }
+            updateStartTime(startTimes)
+            updateEndTime(endTimes)
         }
     }
 
