@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
@@ -49,7 +50,7 @@ fun AddDealRoute(
         updateExpiryDate = addDealViewModel::updateExpiryDate,
         updateStartTimes = addDealViewModel::updateStartTimes,
         updateEndTimes = addDealViewModel::updateEndTimes,
-        updateRestrictions = addDealViewModel::updateRestrictions,
+        updateApplicableGroups = addDealViewModel::updateApplicableGroups,
     )
 }
 
@@ -60,7 +61,7 @@ fun AddDealRoute(
     navController: NavController,
     uploadTest: (imageUri: Uri) -> Unit,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
-    searchNearbyRestaurants: (String, LatLng, Double) -> Unit,
+    searchNearbyRestaurants: (String, Double) -> Unit,
     updateRestaurant: (SimpleRestaurant) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
@@ -73,7 +74,7 @@ fun AddDealRoute(
     updateExpiryDate: (String?) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
-    updateRestrictions: (String) -> Unit,
+    updateApplicableGroups: (ApplicableGroup, Boolean) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -120,7 +121,7 @@ fun AddDealRoute(
                 updateStartTimes = updateStartTimes,
                 updateEndTimes = updateEndTimes,
                 updateExpiryDate = updateExpiryDate,
-                updateRestrictions = updateRestrictions,
+                updateApplicableGroups = updateApplicableGroups,
             )
         }
     }

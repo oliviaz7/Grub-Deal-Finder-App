@@ -51,7 +51,7 @@ fun ConfirmationDialog(
                 onDismissRequest = onDismiss,
                 title = { Text(text = "Error") },
                 text = {
-                    Text(text = "There was an error. Try again. \n $errorMessage")
+                    Text(text = "There was an error. Try again. \n Error: $errorMessage")
                        },
                 confirmButton = {
                     Button(onClick = onDismiss) {

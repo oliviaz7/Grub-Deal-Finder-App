@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,10 +13,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,13 +34,12 @@ import androidx.navigation.NavController
 import com.example.grub.data.Result
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.model.DealType
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.ui.addDealFlow.AddDealUiState
 import java.util.Calendar
 import com.example.grub.ui.addDealFlow.components.TimeSelector
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.CustomCheckBox
-import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
@@ -61,7 +56,7 @@ fun AddExtraDetailsScreen(
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateExpiryDate: (String) -> Unit,
-    updateRestrictions: (String) -> Unit,
+    updateApplicableGroups: (ApplicableGroup, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -140,9 +135,24 @@ fun AddExtraDetailsScreen(
         return true
     }
 
-    fun tryAddNewRestaurantDeal () {
+    fun isValidApplicableGroups() : Boolean {
+        return uiState.dealState.applicableGroups.isNotEmpty()
+    }
+
+    fun errorCheck() {
         if (!isValidTimeRange()) {
-            showErrorDialog = "Invalid time range"
+            throw Exception("Invalid time range")
+        }
+        if (!isValidApplicableGroups()) {
+            throw Exception("Invalid applicable groups")
+        }
+    }
+
+    fun tryAddNewRestaurantDeal () {
+        try {
+            errorCheck()
+        } catch (e: Exception) {
+            showErrorDialog = e.message ?: "Unknown error"
             return
         }
         addNewRestaurantDeal(
@@ -160,7 +170,7 @@ fun AddExtraDetailsScreen(
                         type = uiState.dealState.dealType!!,
                         expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
                         datePosted = System.currentTimeMillis(),
-                        userId = "default_user_id",
+                        userId = uiState.userId,
                         restrictions = "None",
                         imageId = uiState.imageUri?.path, // idk if this is right
                     )
@@ -169,6 +179,8 @@ fun AddExtraDetailsScreen(
         )
         showDialog = true
     }
+
+    val applicableGroups = ApplicableGroup.entries.filter { it.toString().isNotEmpty() }
 
     Scaffold(
         topBar = {
@@ -247,6 +259,7 @@ fun AddExtraDetailsScreen(
                 isChecked = true,
                 title = "Who can get the deal?",
                 label = "Open to all!",
+                onClick = { isChecked -> updateApplicableGroups(ApplicableGroup.ALL, isChecked) }
             ) {
                 Column (
                     modifier = Modifier
@@ -254,22 +267,12 @@ fun AddExtraDetailsScreen(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    CustomCheckBox(
-                        label = "Students",
-                        onChange = {_ -> updateRestrictions("Students")}
-                    )
-                    CustomCheckBox(
-                        label = "Children",
-                        onChange = {_ -> updateRestrictions("Children")}
-                    )
-                    CustomCheckBox(
-                        label = "Seniors",
-                        onChange = {_ -> updateRestrictions("Seniors")}
-                    )
-                    CustomCheckBox(
-                        label = "New customers",
-                        onChange = {_ -> updateRestrictions("New customers")}
-                    )
+                    applicableGroups.forEach { group ->
+                        CustomCheckBox(
+                            label = group.toString(),
+                            onChange = { isChecked -> updateApplicableGroups(group, isChecked) } // if isChecked -> add
+                        )
+                    }
                 }
             }
 

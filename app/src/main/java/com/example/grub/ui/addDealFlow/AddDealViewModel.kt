@@ -4,17 +4,16 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.AddDealResponse
-import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
@@ -22,7 +21,6 @@ import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -43,8 +41,8 @@ data class AddDealUiState(
     val restaurantSearchText: String,
     val imageUri: Uri?,
     val addDealResult: Result<AddDealResponse>?,
+    val userId: String,
     val dealState: DealState,
-    val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
 data class DealState(
@@ -55,7 +53,8 @@ data class DealState(
     val expiryDate: String? = null,
     val startTimes: List<Int> = List(7){0}, // array of 7 integers, each representing a day of the week
     val endTimes: List<Int> = List(7){24 * 60}, // integers representing the end time for each day of the week, in the range [0, 24]
-    val restrictions: MutableSet<String> = mutableSetOf() // set of restrictions
+    val restrictions: String? = null,
+    val applicableGroups: MutableSet<ApplicableGroup> = mutableSetOf(ApplicableGroup.ALL) // set of applicable groups
 )
 
 /**
@@ -69,6 +68,7 @@ private data class AddDealViewModelState(
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
+    val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
     val dealState: DealState = DealState(),
 ) {
@@ -78,7 +78,7 @@ private data class AddDealViewModelState(
      * the ui.
      */
     fun toUiState(): AddDealUiState =
-        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, dealState)
+        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, userId, dealState)
 }
 
 
@@ -121,23 +121,13 @@ class AddDealViewModel(
     init {
         println("ex. how to get the logged in user: ${appViewModel.currentUser.value}")
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants("", LatLng(43.4712, -80.5440))
-                .let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
-                    when (result) {
-                        is Result.Success -> {
-                            val restaurants =
-                                result.data.map(dealMapper::mapResponseToRestaurantDeals)
-
-                            Log.d("NEARBY OPTIONS", restaurants.toString())
-                            viewModelState.update { it.copy(restaurants = restaurants) }
-                        }
-
-                        else -> Log.e(
-                            "FetchingError",
-                            "SelectRestaurantViewModel, initial request failed"
-                        )
-                    }
-                }
+            if (appViewModel.currentUser.value?.id == null) {
+                Log.e("Add Deal Launch", "No user id")
+                return@launch
+            } else {
+                viewModelState.update { it.copy(userId = appViewModel.currentUser.value!!.id) }
+            }
+            searchNearbyRestaurants("", 1000.0)
         }
     }
 
@@ -160,9 +150,14 @@ class AddDealViewModel(
         }
     }
 
-    fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double) {
+    fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants(keyword, coordinates, radius).let { result ->
+            val coordinates = appViewModel.currentUserLocation.value
+            if (coordinates == null) {
+                Log.e("searchNearbyRestaurants", "No user location available")
+                return@launch
+            }
+            dealsRepository.searchNearbyRestaurants(keyword, coordinates!!, radius).let { result ->
                 when (result) {
                     is Result.Success -> {
                         val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
@@ -240,15 +235,19 @@ class AddDealViewModel(
 
     }
 
-    fun updateRestrictions(restriction: String) {
+    fun updateApplicableGroups(group: ApplicableGroup, add: Boolean) {
         viewModelState.update { currentState ->
-            val newRestrictions = currentState.dealState.restrictions
-            if (newRestrictions.contains(restriction)) {
-                newRestrictions.remove(restriction)
-            } else {
-                newRestrictions.add(restriction)
+            val newApplicableGroups = currentState.dealState.applicableGroups
+            newApplicableGroups.remove(ApplicableGroup.ALL) // remove ALL if we are adding a new group
+            if (group == ApplicableGroup.ALL && add) { // add ALL group and remove everything else
+                newApplicableGroups.clear()
+                newApplicableGroups.add(ApplicableGroup.ALL)
+            } else if (add) { // add the group, may already exist
+                newApplicableGroups.add(group)
+            } else { // remove the group, may not exist
+                newApplicableGroups.remove(group)
             }
-            currentState.copy(dealState = currentState.dealState.copy(restrictions = newRestrictions))
+            currentState.copy(dealState = currentState.dealState.copy(applicableGroups = newApplicableGroups))
         }
     }
 
