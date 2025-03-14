@@ -1,7 +1,9 @@
 package com.example.grub.data.deals
 
 import com.example.grub.data.Result
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
+import com.example.grub.model.VoteType
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +31,9 @@ data class RawDeal(
     @SerializedName("user_id") val userId: String,
     @SerializedName("restrictions") val restrictions: String, // TODO: figure out how we're handling
     @SerializedName("image_id") val imageId: String?,
+    @SerializedName("user_saved") val userSaved: Boolean = false,
+    @SerializedName("user_vote") val userVote: VoteType = VoteType.NEUTRAL,
+    @SerializedName("applicable_group") val applicableGroup: ApplicableGroup = ApplicableGroup.NONE,
 )
 
 // return type for when we add a deal
