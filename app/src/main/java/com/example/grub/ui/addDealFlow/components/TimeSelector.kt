@@ -72,10 +72,7 @@ fun TimeSelector(
         Log.d("TimeSelector", "End times: $endTimes")
         updateEndTime(endTimes)
     }
-    LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
-        _updateStartTime(startTimePickerState.hour, startTimePickerState.minute)
-        _updateEndTime(endTimePickerState.hour, endTimePickerState.minute)
-    }
+
 
     fun onUpdateAllDayCheck(isChecked : Boolean) {
         if (isChecked) { // if all day is checked, set the start time to 0 and end time to 24 * 60
@@ -85,8 +82,10 @@ fun TimeSelector(
             _updateStartTime(startTimePickerState.hour, startTimePickerState.minute)
             _updateEndTime(endTimePickerState.hour, endTimePickerState.minute)
         }
+    }
 
-        Log.d("TimeSelector", "All day checked: $isChecked")
+    LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
+        onUpdateAllDayCheck(isAllDayChecked)
     }
 
     Column {
