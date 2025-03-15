@@ -49,12 +49,64 @@ def iso_to_unix(iso_string):
 		utc_dt = dt.astimezone(pytz.UTC)
 		return int(utc_dt.timestamp())
 	except ValueError as e:
-		print(f"Error parsing ISO string: {e}")
+		logger.error(f"Error parsing ISO string: {str(e)}", exc_info=True)
 		return None
 
 def mark_deal_expired(deal_id):
 	"""Marks deal as expired given the deal id."""
-	supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+	try:
+		supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+
+	except Exception as e:
+		logger.error(f"Error marking deal as expired: {str(e)}", exc_info=True)
+
+def mark_deal_saved(deal_id, user_id):
+	"""Marks deal as saved given the deal id and user_id."""
+	try:
+		# Check if the deal is already saved
+		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if existing_entry.data:  # If the entry exists
+			return jsonify({"success": False, "message": "Deal is already saved"}), 409
+
+		# Insert into 'Saved' table
+		response = supabase.from_('Saved').insert({
+			"user_id": user_id,
+			"deal_id": deal_id
+		}).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Deal saved successfully"}), 201
+		else:
+			return jsonify({"success": False, "message": "Failed to save deal"}), 400
+
+	except Exception as e:
+		logger.error(f"Error marking deal as saved: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"}), 500
+
+def unmark_deal_saved(deal_id, user_id):
+	"""Removes a saved deal given the deal_id and user_id."""
+	try:
+		# Check if the deal is saved
+		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if not existing_entry.data:  # If the entry does NOT exist
+			return jsonify({"success": False, "message": "Deal is not saved in Supabase"}), 404
+
+		# Delete the saved deal
+		response = supabase.from_('Saved').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Deal unsaved successfully"}), 200
+		else:
+			logger.error(f"Error unsaving deal: {str(response)}", exc_info=True)
+			return jsonify({"success": False, "message": "Failed to unsave deal"}), 400
+
+	except Exception as e:
+		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"}), 500
 
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
@@ -278,7 +330,7 @@ def add_restaurant_deal():
 		return jsonify({"error": "An error occurred while adding the deal"}), 500
 
 
-@app.route('/search_nearby_restaurants')
+@app.route('/search_nearby_restaurants', methods=["GET"])
 def nearby_search():
 	try:
 		keyword = request.args.get('keyword')
@@ -300,6 +352,22 @@ def nearby_search():
 		error_message = str(e)
 		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
 		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
+
+
+@app.route('/save_deal', methods=["GET"])
+def save_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	return mark_deal_saved(deal_id, user_id)
+
+
+@app.route('/unsave_deal', methods=["GET"])
+def unsave_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	return unmark_deal_saved(deal_id, user_id)
 
 
 @app.route('/delete_deal', methods=["GET"])

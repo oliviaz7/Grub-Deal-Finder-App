@@ -29,6 +29,18 @@ interface ApiService {
         @Query("radius") radius: Double
     ): List<SimpleRestaurant>
 
+    @GET("save_deal")
+    suspend fun saveDeal(
+        @Query("deal_id") dealId: String,
+        @Query("user_id") userId: String
+    ): ApiResponse
+
+    @GET("unsave_deal")
+    suspend fun unsaveDeal(
+        @Query("deal_id") dealId: String,
+        @Query("user_id") userId: String
+    ): ApiResponse
+
     @GET("delete_deal")
     suspend fun deleteDeal(
         @Query("deal_id") dealId: String,
