@@ -52,15 +52,58 @@ def iso_to_unix(iso_string):
 		logger.error(f"Error parsing ISO string: {str(e)}", exc_info=True)
 		return None
 
-def mark_deal_expired(deal_id):
+def remove_vote_in_db(user_id, deal_id):
+	"""Remove vote for given deal and user in Supabase."""
+	try:
+		existing_entry = supabase.from_('Vote').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if not existing_entry.data:
+			return jsonify({"success": False, "message": "Vote is not saved in Supabase"}), 404
+
+		response = supabase.from_('Vote').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Vote deleted successfully"}), 201
+		else:
+			logger.error(f"Failed to delete vote", exc_info=True)
+			return jsonify({"success": False, "message": "Failed to delete vote"}), 400
+
+	except Exception as e:
+		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error deleting deal vote: {str(e)}"}), 500
+
+def update_vote_in_db(user_id, deal_id, vote_type):
+	"""Update vote for the given deal and user in Supabase."""
+	try:
+		response = supabase.from_('Vote').upsert({
+			'user_id': user_id,
+			'deal_id': deal_id,
+			'user_vote': vote_type
+		}).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": f"Vote updated successfully with {vote_type}"}), 201
+		else:
+			logger.error(f"Failed to update vote", exc_info=True)
+			return jsonify({"success": False, "message": f"Failed to update vote with {vote_type}"}), 400
+
+	except Exception as e:
+		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"}), 500
+
+def mark_deal_expired_in_db(deal_id):
 	"""Marks deal as expired given the deal id."""
 	try:
-		supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+		response = supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+
+		if not response.data:
+			logger.error("Error marking deal as expired")
 
 	except Exception as e:
 		logger.error(f"Error marking deal as expired: {str(e)}", exc_info=True)
 
-def mark_deal_saved(deal_id, user_id):
+def mark_deal_saved_in_db(deal_id, user_id):
 	"""Marks deal as saved given the deal id and user_id."""
 	try:
 		# Check if the deal is already saved
@@ -79,13 +122,14 @@ def mark_deal_saved(deal_id, user_id):
 		if response.data:
 			return jsonify({"success": True, "message": "Deal saved successfully"}), 201
 		else:
+			logger.error(f"Error saving deal in Supabase")
 			return jsonify({"success": False, "message": "Failed to save deal"}), 400
 
 	except Exception as e:
 		logger.error(f"Error marking deal as saved: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"}), 500
 
-def unmark_deal_saved(deal_id, user_id):
+def unmark_deal_saved_in_db(deal_id, user_id):
 	"""Removes a saved deal given the deal_id and user_id."""
 	try:
 		# Check if the deal is saved
@@ -116,13 +160,14 @@ def get_deal_by_id(deal_id):
 		if result.data:
 			return result.data[0]
 		else:
+			logger.error(f"No deal with id: {deal_id}")
 			return None
 
 	except Exception as e:
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
-def get_all_restaurant_deals():
+def get_all_restaurant_deals_in_db():
 	"""Fetches all restaurants and their deals from Supabase."""
 	try:
 		result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
@@ -131,7 +176,7 @@ def get_all_restaurant_deals():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
-def get_all_restaurant_deals_with_user_details(user_id=None):
+def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
 	try:
 		# the query, get_all_restaurant_deals, can be viewed in supabase terminal using `SELECT pg_get_functiondef('get_all_restaurant_deals'::regproc);`
@@ -183,7 +228,7 @@ def get_all_restaurant_deals_with_user_details(user_id=None):
 
 def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 	"""Filter restaurants based on user location and radius."""
-	restaurant_deals = get_all_restaurant_deals_with_user_details(user_id)
+	restaurant_deals = get_all_restaurant_deals_with_user_details_in_db(user_id)
 	filtered_restaurants = []
 
 	for restaurant in restaurant_deals:
@@ -218,7 +263,7 @@ def process_and_filter_restaurant_deals(restaurants):
 					else:
 						deal_id = deal['id']
 						logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
-						mark_deal_expired(deal_id)
+						mark_deal_expired_in_db(deal_id)
 
 				else:
 					valid_deals.append(deal)
@@ -306,14 +351,16 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
+			user_id = restaurant.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
+
 			deal_item = {
 				"restaurant_id": restaurant_id,
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal.get("type"),
-				"expiry_date": datetime.utcfromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
-				"date_posted": datetime.utcfromtimestamp(deal["date_posted"] / 1000).isoformat(),
-				"user_id": "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90", # guest account
+				"expiry_date": datetime(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
+				"date_posted": datetime(deal["date_posted"] / 1000).isoformat(),
+				"user_id": user_id,
 				"restrictions": deal.get("restrictions"),
 				"image_id": deal.get("imageId")
 			}
@@ -354,12 +401,23 @@ def nearby_search():
 		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
 
 
+@app.route('/update_vote', methods=["GET"])
+def update_vote():
+	user_id = request.args.get('user_id')
+	deal_id = request.args.get('deal_id')
+	vote_type = request.args.get('user_vote')
+
+	if vote_type == "NEUTRAL":
+		return remove_vote_in_db(user_id, deal_id)
+	else:
+		return update_vote_in_db(user_id, deal_id, vote_type)
+
 @app.route('/save_deal', methods=["GET"])
 def save_deal():
 	deal_id = request.args.get('deal_id')
 	user_id = request.args.get('user_id')
 
-	return mark_deal_saved(deal_id, user_id)
+	return mark_deal_saved_in_db(deal_id, user_id)
 
 
 @app.route('/unsave_deal', methods=["GET"])
@@ -367,7 +425,7 @@ def unsave_deal():
 	deal_id = request.args.get('deal_id')
 	user_id = request.args.get('user_id')
 
-	return unmark_deal_saved(deal_id, user_id)
+	return unmark_deal_saved_in_db(deal_id, user_id)
 
 
 @app.route('/delete_deal', methods=["GET"])
@@ -384,7 +442,7 @@ def delete_deal():
 		return jsonify({"error": "Unauthorized: You are not the creator of this deal"}), 403
 
 	try:
-		mark_deal_expired(deal_id)
+		mark_deal_expired_in_db(deal_id)
 		return jsonify({"success": True, "message": "Deal successfully marked as expired"}), 200
 
 	except Exception as e:
