@@ -9,12 +9,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
-import com.google.android.gms.maps.model.LatLng
+import java.time.ZonedDateTime
 
 /**
  * Displays the SelectRestaurant route.
@@ -49,6 +50,7 @@ fun AddDealRoute(
         updateExpiryDate = addDealViewModel::updateExpiryDate,
         updateStartTimes = addDealViewModel::updateStartTimes,
         updateEndTimes = addDealViewModel::updateEndTimes,
+        updateApplicableGroups = addDealViewModel::updateApplicableGroup,
     )
 }
 
@@ -59,7 +61,7 @@ fun AddDealRoute(
     navController: NavController,
     uploadTest: (imageUri: Uri) -> Unit,
     addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
-    searchNearbyRestaurants: (String, LatLng, Double) -> Unit,
+    searchNearbyRestaurants: (String, Double) -> Unit,
     updateRestaurant: (SimpleRestaurant) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
@@ -69,9 +71,10 @@ fun AddDealRoute(
     updateDescription: (String?) -> Unit,
     updatePrice: (String?) -> Unit,
     updateDealType: (DealType) -> Unit,
-    updateExpiryDate: (String?) -> Unit,
+    updateExpiryDate: (ZonedDateTime) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
+    updateApplicableGroups: (ApplicableGroup) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -118,6 +121,7 @@ fun AddDealRoute(
                 updateStartTimes = updateStartTimes,
                 updateEndTimes = updateEndTimes,
                 updateExpiryDate = updateExpiryDate,
+                updateApplicableGroups = updateApplicableGroups,
             )
         }
     }

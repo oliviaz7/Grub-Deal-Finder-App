@@ -46,6 +46,19 @@ enum class ApplicableGroup {
     LOYALTY_MEMBER,
     NEW_USER,
     BIRTHDAY,
+    ALL;
+
+    override fun toString(): String {
+        return when (this) {
+            UNDER_18 -> "Under 18"
+            SENIOR -> "Senior"
+            STUDENT -> "Student"
+            LOYALTY_MEMBER -> "Loyalty Member"
+            NEW_USER -> "New User"
+            BIRTHDAY -> "Birthday"
+            else -> ""
+        }
+    }
 
     // TODO: add more.
     // NOTE: whenever you add a ApplicableGroup, please add the enum in supabase as well.

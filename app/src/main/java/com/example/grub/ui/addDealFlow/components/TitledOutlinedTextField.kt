@@ -26,11 +26,8 @@ fun TitledOutlinedTextField (
     maxLines: Int = Int.MAX_VALUE,
 ) {
     Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    )
-    {
+        modifier = modifier.padding(8.dp)
+    ) {
         Row {
             Text(
                 text = label,
@@ -47,7 +44,7 @@ fun TitledOutlinedTextField (
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
-            modifier = modifier,
+            modifier = Modifier.padding(0.dp, 5.dp).fillMaxWidth(),
             trailingIcon = trailingIcon,
             maxLines = maxLines,
             readOnly = readOnly,
