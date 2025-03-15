@@ -49,6 +49,12 @@ data class SimpleRestaurant(
     @SerializedName("image_url") val imageUrl: String? =  null,
 )
 
+// for generic response
+data class ApiResponse(
+    val success: Boolean,
+    val message: String
+)
+
 /**
  * Interface to the RestaurantDealsRepository data layer.
  */

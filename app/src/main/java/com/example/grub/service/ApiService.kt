@@ -1,6 +1,7 @@
 package com.example.grub.service
 
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import retrofit2.http.Body
@@ -27,5 +28,11 @@ interface ApiService {
         @Query("longitude") longitude: Double,
         @Query("radius") radius: Double
     ): List<SimpleRestaurant>
+
+    @GET("delete_deal")
+    suspend fun deleteDeal(
+        @Query("deal_id") dealId: String,
+        @Query("user_id") userId: String
+    ): ApiResponse
 }
 

@@ -52,6 +52,24 @@ def iso_to_unix(iso_string):
 		print(f"Error parsing ISO string: {e}")
 		return None
 
+def mark_deal_expired(deal_id):
+	"""Marks deal as expired given the deal id."""
+	supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+
+def get_deal_by_id(deal_id):
+	"""Fetches the deal by the id from Supabase."""
+	try:
+		result = supabase.from_('Deal').select('*').eq('id', deal_id).execute()
+
+		if result.data:
+			return result.data[0]
+		else:
+			return None
+
+	except Exception as e:
+		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
+		return []
+
 def get_all_restaurant_deals():
 	"""Fetches all restaurants and their deals from Supabase."""
 	try:
@@ -146,7 +164,12 @@ def process_and_filter_restaurant_deals(restaurants):
 					if expiry_date >= today:
 						valid_deals.append(deal)
 					else:
-						logger.info(f"Deal {deal['id']} expired and was removed from the list.")
+						deal_id = deal['id']
+						logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
+						mark_deal_expired(deal_id)
+
+				else:
+					valid_deals.append(deal)
 
 			restaurant["Deal"] = valid_deals
 
@@ -278,6 +301,26 @@ def nearby_search():
 		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
 		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
 
+
+@app.route('/delete_deal', methods=["GET"])
+def delete_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	deal = get_deal_by_id(deal_id)
+
+	if not deal:
+		return jsonify({"error": "Deal not found. Incorrect deal_id"}), 404
+
+	if deal["user_id"] != user_id:
+		return jsonify({"error": "Unauthorized: You are not the creator of this deal"}), 403
+
+	try:
+		mark_deal_expired(deal_id)
+		return jsonify({"success": True, "message": "Deal successfully marked as expired"}), 200
+
+	except Exception as e:
+		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"}), 500
 
 @app.route('/')
 def index():
