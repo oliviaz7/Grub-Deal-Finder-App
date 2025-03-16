@@ -451,9 +451,6 @@ def unsave_deal():
 def get_saved_deals():
 	user_id = request.args.get("user_id")
 
-	if not user_id:
-		return jsonify({"error": "No user_id"})
-
 	saved_deals = get_saved_deals_by_user_id(user_id)
 
 	return jsonify(saved_deals)
@@ -466,10 +463,10 @@ def delete_deal():
 	deal = get_deal_by_id(deal_id)
 
 	if not deal:
-		return jsonify({"error": "Deal not found. Incorrect deal_id"})
+		return jsonify({"success": False, "message": "Deal not found. Incorrect deal_id"})
 
 	if deal["user_id"] != user_id:
-		return jsonify({"error": "Unauthorized: You are not the creator of this deal"})
+		return jsonify({"success": False, "message": "Unauthorized: You are not the creator of this deal"})
 
 	try:
 		mark_deal_expired_in_db(deal_id)
