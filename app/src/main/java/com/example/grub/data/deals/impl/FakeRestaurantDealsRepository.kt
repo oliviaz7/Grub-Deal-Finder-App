@@ -2,6 +2,7 @@ package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
@@ -37,7 +38,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = System.currentTimeMillis(),
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = "deal_17400.jpg",
                         userSaved = false,
                         userVote = VoteType.NEUTRAL,
@@ -63,7 +63,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = System.currentTimeMillis(),
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = "deal_17400123.jpg",
                         userSaved = true,
                         userVote = VoteType.UPVOTE,
@@ -80,7 +79,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "anhela",
-                        restrictions = "Students only",
                         imageId = "deal_1740033.jpg",
                         userSaved = false,
                         userVote = VoteType.DOWNVOTE,
@@ -106,7 +104,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = System.currentTimeMillis(),
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = null,
                         userSaved = true,
                         userVote = VoteType.UPVOTE,
@@ -133,7 +130,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = System.currentTimeMillis(),
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = "deal_17400.jpg",
                         userSaved = true,
                         userVote = VoteType.NEUTRAL,
@@ -160,7 +156,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = "deal_17400.jpg",
                         userSaved = false,
                         userVote = VoteType.NEUTRAL,
@@ -186,7 +181,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
-                        restrictions = "Students only",
                         imageId = "deal_17400.jpg",
                         dailyStartTimes = null,
                         dailyEndTimes = null,
@@ -241,5 +235,34 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         radius: Double
     ): Result<List<SimpleRestaurant>> {
         return Result.Success(fakeSimpleRestaurants)
+    }
+
+    override suspend fun updateVote(
+        dealId: String,
+        userId: String,
+        userVote: VoteType
+    ): Result<ApiResponse> {
+        return Result.Success(ApiResponse(success = true, message = "Vote updated"))
+    }
+
+    override suspend fun saveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return Result.Success(ApiResponse(success = true, message = "Deal saved"))
+    }
+
+    override suspend fun unsaveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return Result.Success(ApiResponse(success = true, message = "Deal unsaved"))
+    }
+
+    override suspend fun deleteDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return Result.Success(ApiResponse(success = true, message = "Deal deleted"))
     }
 }

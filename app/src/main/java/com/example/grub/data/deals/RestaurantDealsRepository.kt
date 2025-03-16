@@ -89,4 +89,25 @@ interface RestaurantDealsRepository {
         coordinates: LatLng,
         radius: Double = 1000.0
     ): Result<List<SimpleRestaurant>>
+
+    suspend fun updateVote(
+        dealId: String,
+        userId: String,
+        userVote: VoteType
+    ): Result<ApiResponse>
+
+    suspend fun saveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse>
+
+    suspend fun unsaveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse>
+
+    suspend fun deleteDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse>
 }

@@ -95,7 +95,6 @@ object RestaurantDealMapper {
                     zoneId
                 ),
                 userId = rawDeal.userId,
-                restrictions = rawDeal.restrictions,
                 imageUrl = ImageUrlHelper.getFullUrl(rawDeal.imageId),
                 userSaved = rawDeal.userSaved,
                 userVote = rawDeal.userVote,

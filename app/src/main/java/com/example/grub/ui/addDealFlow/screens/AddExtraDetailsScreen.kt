@@ -180,7 +180,6 @@ fun AddExtraDetailsScreen(
                         expiryDate = uiState.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                         datePosted = System.currentTimeMillis(),
                         userId = uiState.userId,
-                        restrictions = "None",
                         imageId = uiState.imageUri?.path, // idk if this is right,
                         applicableGroup = uiState.dealState.applicableGroup,
                         dailyStartTimes = uiState.dealState.startTimes,

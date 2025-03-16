@@ -217,8 +217,8 @@ def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 				"user_saved": deal["user_saved"],
 				"user_vote": deal["user_vote"],
 				"applicable_group": deal["applicable_group"],
-				"start_times": deal["start_times"],
-				"end_times": deal["end_times"]
+				"daily_start_times": deal["start_times"],
+				"daily_end_times": deal["end_times"]
 			})
 
 		return list(restaurant_map.values())
@@ -326,6 +326,7 @@ def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
 	try:
 		restaurant = request.json
+		logger.info(restaurant)
 		restaurant_place_id = restaurant.get("place_id")
 		logger.info(f"Received new add deal request for place_id: {restaurant_place_id}")
 
@@ -359,14 +360,13 @@ def add_restaurant_deal():
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal.get("type"),
-				"expiry_date": datetime(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
-				"date_posted": datetime(deal["date_posted"] / 1000).isoformat(),
+				"expiry_date": datetime.fromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
+				"date_posted": datetime.fromtimestamp(deal["date_posted"] / 1000).isoformat(),
 				"user_id": user_id,
 				"image_id": deal.get("image_id"),
 				"applicable_group": deal.get("applicable_group"),
-				"is_expired": deal.get("is_expired"),
-				"start_times": deal.get("start_times"),
-				"end_times": deal.get("end_times"),
+				"start_times": deal.get("daily_start_times"),
+				"end_times": deal.get("daily_end_times"),
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
@@ -404,7 +404,6 @@ def nearby_search():
 		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
 		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
 
-
 @app.route('/update_vote', methods=["GET"])
 def update_vote():
 	user_id = request.args.get('user_id')
@@ -423,14 +422,12 @@ def save_deal():
 
 	return mark_deal_saved_in_db(deal_id, user_id)
 
-
 @app.route('/unsave_deal', methods=["GET"])
 def unsave_deal():
 	deal_id = request.args.get('deal_id')
 	user_id = request.args.get('user_id')
 
 	return unmark_deal_saved_in_db(deal_id, user_id)
-
 
 @app.route('/delete_deal', methods=["GET"])
 def delete_deal():
