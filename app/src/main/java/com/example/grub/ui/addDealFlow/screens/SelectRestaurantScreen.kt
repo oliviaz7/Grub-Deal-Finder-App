@@ -39,7 +39,7 @@ import com.google.android.gms.maps.model.LatLng
 fun SelectRestaurantScreen (
     uiState: AddDealUiState,
     navController: NavController,
-    searchNearbyRestaurants: (String, LatLng, Double) -> Unit,
+    searchNearbyRestaurants: (String, Double) -> Unit,
     updateRestaurant: (SimpleRestaurant) -> Unit,
     nextStep : () -> Unit,
     onSearchTextChange: (String) -> Unit,
@@ -93,7 +93,6 @@ fun SelectRestaurantScreen (
                         onFilter = {
                             searchNearbyRestaurants(
                                 uiState.restaurantSearchText,
-                                uiState.coordinates,
                                 if (uiState.restaurantSearchText.isEmpty()) 1000.0 else 5000.0
                             )
                         }
@@ -111,7 +110,9 @@ fun SelectRestaurantScreen (
                                         SimpleRestaurant(
                                             restaurant.placeId,
                                             restaurant.coordinates,
-                                            restaurant.restaurantName
+                                            restaurant.restaurantName,
+                                            restaurant.displayAddress,
+                                            restaurant.imageUrl,
                                         )
                                     )
                                     nextStep()

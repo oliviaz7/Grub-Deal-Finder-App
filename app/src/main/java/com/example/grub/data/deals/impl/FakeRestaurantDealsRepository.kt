@@ -3,9 +3,9 @@ package com.example.grub.data.deals.impl
 import com.example.grub.data.Result
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.VoteType
@@ -41,7 +41,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_17400.jpg",
                         userSaved = false,
                         userVote = VoteType.NEUTRAL,
-                        applicableGroup = ApplicableGroup.STUDENT
+                        applicableGroup = ApplicableGroup.STUDENT,
+                        // means 4-7PM on Monday - Thursday
+                        dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
+                        dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
                     )
                 )
             ),
@@ -64,7 +67,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_17400123.jpg",
                         userSaved = true,
                         userVote = VoteType.UPVOTE,
-                        applicableGroup = ApplicableGroup.STUDENT
+                        applicableGroup = ApplicableGroup.STUDENT,
+                        // Friday only deal, from 0 - (23 * 60 + 59) minutes
+                        dailyStartTimes = listOf(0, 0, 0, 0, 0, 0, 0),
+                        dailyEndTimes = listOf(0, 0, 0, 1439, 0, 0, 0),
                     ),
                     RawDeal(
                         id = "dealId_456",
@@ -78,7 +84,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_1740033.jpg",
                         userSaved = false,
                         userVote = VoteType.DOWNVOTE,
-                        applicableGroup = ApplicableGroup.NEW_USER
+                        applicableGroup = ApplicableGroup.NEW_USER,
+                        // Monday only deal, from 0 - (23 * 60 + 59) minutes
+                        dailyStartTimes = listOf(0, 0, 0, 0, 0, 0, 0),
+                        dailyEndTimes = listOf(1439, 0, 0, 0, 0, 0, 0),
                     )
                 )
             ),
@@ -101,7 +110,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = null,
                         userSaved = true,
                         userVote = VoteType.UPVOTE,
-                        applicableGroup = ApplicableGroup.STUDENT
+                        applicableGroup = ApplicableGroup.STUDENT,
+                        // means 4-7PM on Monday - Thursday
+                        dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
+                        dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
                     )
                 )
             ),
@@ -116,7 +128,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                     RawDeal(
                         id = "dealId_123",
                         item = "Fries",
-                        description = "meow",
+                        description = "available 4-7PM on Monday - Thursday",
                         type = DealType.BOGO,
                         expiryDate = System.currentTimeMillis(),
                         datePosted = System.currentTimeMillis(),
@@ -125,7 +137,10 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_17400.jpg",
                         userSaved = true,
                         userVote = VoteType.NEUTRAL,
-                        applicableGroup = ApplicableGroup.NONE
+                        applicableGroup = ApplicableGroup.NONE,
+                        // means 4-7PM on Monday - Thursday
+                        dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
+                        dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
                     )
                 )
             ),
@@ -140,7 +155,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                     RawDeal(
                         id = "dealId_123",
                         item = "Fries",
-                        description = "meow",
+                        description = "available all day any day",
                         type = DealType.BOGO,
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
@@ -149,7 +164,9 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_17400.jpg",
                         userSaved = false,
                         userVote = VoteType.NEUTRAL,
-                        applicableGroup = ApplicableGroup.BIRTHDAY
+                        applicableGroup = ApplicableGroup.BIRTHDAY,
+                        dailyStartTimes = null,
+                        dailyEndTimes = null,
                     )
                 )
             ),
@@ -164,18 +181,20 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                     RawDeal(
                         id = "dealId_123",
                         item = "Fries",
-                        description = "meow",
+                        description = "available all day any day",
                         type = DealType.BOGO,
                         expiryDate = null,
                         datePosted = System.currentTimeMillis(),
                         userId = "beetroot",
                         restrictions = "Students only",
                         imageId = "deal_17400.jpg",
+                        dailyStartTimes = null,
+                        dailyEndTimes = null,
                     )
                 )
             ),
 
-        )
+            )
     }
 
     private val fakeSimpleRestaurants by lazy {
@@ -183,17 +202,20 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
             SimpleRestaurant(
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
-                restaurantName = "MCD"
+                restaurantName = "MCD",
+                displayAddress = "123 Philip St",
             ),
             SimpleRestaurant(
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
-                restaurantName = "Chef Signature"
+                restaurantName = "Chef Signature",
+                displayAddress = "Your moms house"
             ),
             SimpleRestaurant(
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
-                restaurantName = "Mozy's Shawarma"
+                restaurantName = "Mozy's Shawarma",
+                displayAddress = "Missisauga"
             )
         )
     }
@@ -213,7 +235,11 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         return Result.Success(fakeDealToAdd)
     }
 
-    override suspend fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double): Result<List<SimpleRestaurant>> {
+    override suspend fun searchNearbyRestaurants(
+        keyword: String,
+        coordinates: LatLng,
+        radius: Double
+    ): Result<List<SimpleRestaurant>> {
         return Result.Success(fakeSimpleRestaurants)
     }
 }

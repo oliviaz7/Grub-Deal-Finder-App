@@ -22,8 +22,11 @@ fun ConfirmationDialog(
     navController: NavController,
     result: Result<AddDealResponse>?,
     onDismiss: () -> Unit,
+    errorDialog: String = "",
     modifier: Modifier = Modifier,
 ) {
+    val errorMessage = (result as? Result.Error)?.exception?.message ?: "Unknown error"
+
     when (result) {
         is Result.Success -> {
             AlertDialog(
@@ -47,7 +50,9 @@ fun ConfirmationDialog(
             AlertDialog(
                 onDismissRequest = onDismiss,
                 title = { Text(text = "Error") },
-                text = { Text(text = "There was an error. Try again later.") },
+                text = {
+                    Text(text = "There was an error. Try again. \n Error: $errorMessage")
+                       },
                 confirmButton = {
                     Button(onClick = onDismiss) {
                         Text("OK")

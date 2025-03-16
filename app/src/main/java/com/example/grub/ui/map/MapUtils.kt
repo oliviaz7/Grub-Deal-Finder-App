@@ -9,11 +9,7 @@ import kotlin.math.sqrt
 
 // based off of: https://stackoverflow.com/questions/29222864/get-radius-of-visible-map-in-android
 
-fun getVisibleRadius(projection: Projection?): Double {
-    if (projection == null) {
-        Log.d("radius-projection", "Projection is NULL, radius is set to 0!")
-        return 0.0
-    }
+fun getVisibleRadius(projection: Projection): Double {
 
     val visibleRegion = projection.visibleRegion
     val farRight: LatLng = visibleRegion.farRight
@@ -43,5 +39,5 @@ fun getVisibleRadius(projection: Projection?): Double {
     val diagonal = sqrt(distanceWidth[0].toDouble().pow(2.0) + distanceHeight[0].toDouble().pow(2.0))
 
     Log.d("radius-projection", "diameter of circle: ${(diagonal / 2).toFloat()}")
-    return (diagonal / 2).toDouble()
+    return (diagonal / 2)
 }

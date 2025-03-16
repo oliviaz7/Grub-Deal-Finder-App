@@ -58,8 +58,8 @@ class AppViewModel(
         Log.i("location-permission", "location granted: $permissionGranted")
         _hasLocationPermission.value = permissionGranted
 
-        if (permissionGranted) { // and there was no previous location?
-            getCurrentUserLocation()  // get the user location if permission is granted
+        if (permissionGranted) {
+            getCurrentUserLocation()
         }
     }
 

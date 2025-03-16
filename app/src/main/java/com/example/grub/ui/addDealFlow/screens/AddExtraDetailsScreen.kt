@@ -1,11 +1,12 @@
 package com.example.grub.ui.addDealFlow.screens
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,10 +15,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,19 +33,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.grub.data.Result
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.model.DealType
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.ui.addDealFlow.AddDealUiState
 import java.util.Calendar
 import com.example.grub.ui.addDealFlow.components.TimeSelector
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
-import com.example.grub.ui.addDealFlow.components.CustomCheckBox
-import com.example.grub.ui.addDealFlow.components.DollarInputField
+import com.example.grub.ui.addDealFlow.components.CustomRadioButton
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
+import com.example.grub.ui.addDealFlow.components.NOT_AVAILABLE
 import com.example.grub.ui.addDealFlow.components.SectionDivider
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,16 +61,23 @@ fun AddExtraDetailsScreen(
     prevStep: () -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
-    updateExpiryDate: (String) -> Unit,
+    updateExpiryDate: (ZonedDateTime) -> Unit,
+    updateApplicableGroups: (ApplicableGroup) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+
+    // hidable section states
+    var isTimeSelectorChecked by remember { mutableStateOf(true) }
+    var isApplicableGroupChecked by remember { mutableStateOf(true) }
 
 
     // State variables for Date Picker and selected date
     val expiryCalendar = Calendar.getInstance()
     var expiryIsDialogOpen by remember { mutableStateOf(false) }
+    var expiryDateString by remember { mutableStateOf("") }
 
     fun isSubmitButtonEnabled(): Boolean {
         return uiState.selectedRestaurant.restaurantName.isNotEmpty()
@@ -85,19 +94,30 @@ fun AddExtraDetailsScreen(
         )
     }
 
+    if (showErrorDialog.isNotEmpty()) {
+        ConfirmationDialog(
+            navController = navController,
+            result = Result.Error(Exception(showErrorDialog)),
+            onDismiss = { showErrorDialog = "" }
+        )
+    }
+
     // Trigger to show DatePickerDialog
+    // updates uiState expiry date and expiryDateString
     if (expiryIsDialogOpen) {
         DatePickerDialog(
             LocalContext.current,
             { _, year, month, dayOfMonth ->
                 // Format selected date
-                val expirySelectedDate = String.format(
+                val localDate = LocalDate.of(year, month + 1, dayOfMonth)
+                val zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault())
+                expiryDateString = String.format(
                     "%02d/%02d/%04d",
                     dayOfMonth,
                     month + 1,
                     year
-                ) // tell Joyce the new date format
-                updateExpiryDate(expirySelectedDate)
+                )
+                updateExpiryDate(zonedDateTime)
                 expiryIsDialogOpen = false
             },
             expiryCalendar.get(Calendar.YEAR),
@@ -105,6 +125,74 @@ fun AddExtraDetailsScreen(
             expiryCalendar.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
+
+    // this function might be buggy lolz
+    fun isValidTimeRange() : Boolean {
+        val startTimes = uiState.dealState.startTimes
+        val endTimes = uiState.dealState.endTimes
+        if (startTimes.size != 7 || endTimes.size != 7) {
+            return false
+        }
+        for (i in startTimes.indices) {
+            // both must be NOT_AVAILABLE or both must be >= 0 and start time < end time
+            if (startTimes[i] == NOT_AVAILABLE && endTimes[i] == NOT_AVAILABLE) {
+                continue
+            } else if (startTimes[i] < 0 || endTimes[i] < 0 || startTimes[i] > 24 * 60 || endTimes[i] > 24 * 60) {
+                return false
+            } else if (startTimes[i] >= endTimes[i]) {
+                return false
+            }
+        }
+        if (startTimes.all {it == NOT_AVAILABLE} && endTimes.all {it == NOT_AVAILABLE}) {
+            return false
+        }
+        return true
+    }
+
+    fun errorCheck() {
+        if (!isValidTimeRange()) {
+            Log.d("AddExtraDetailsScreen", "Start time: ${uiState.dealState.startTimes}, End time: ${uiState.dealState.endTimes}")
+            throw Exception("Invalid time range")
+        }
+    }
+
+    @SuppressLint("NewApi")
+    fun tryAddNewRestaurantDeal () {
+        try {
+            errorCheck()
+        } catch (e: Exception) {
+            showErrorDialog = e.message ?: "Unknown error"
+            return
+        }
+        addNewRestaurantDeal(
+            RestaurantDealsResponse(
+                id = "default_id",
+                placeId = uiState.selectedRestaurant.placeId,
+                coordinates = uiState.selectedRestaurant.coordinates,
+                restaurantName = uiState.selectedRestaurant.restaurantName,
+                displayAddress = "restaurant_addy", // will be added in the BE
+                rawDeals = listOf(
+                    RawDeal( // TODO: add price to raw deal obj
+                        id = "default_deal_id",
+                        item = uiState.dealState.itemName,
+                        description = uiState.dealState.description,
+                        type = uiState.dealState.dealType!!,
+                        expiryDate = uiState.dealState.expiryDate?.toInstant()?.toEpochMilli(),
+                        datePosted = System.currentTimeMillis(),
+                        userId = uiState.userId,
+                        restrictions = "None",
+                        imageId = uiState.imageUri?.path, // idk if this is right,
+                        applicableGroup = uiState.dealState.applicableGroup,
+                        dailyStartTimes = uiState.dealState.startTimes,
+                        dailyEndTimes = uiState.dealState.endTimes,
+                    )
+                )
+            )
+        )
+        showDialog = true
+    }
+
+    val applicableGroups = ApplicableGroup.entries.filter { it.toString().isNotEmpty() }
 
     Scaffold(
         topBar = {
@@ -137,31 +225,7 @@ fun AddExtraDetailsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isSubmitButtonEnabled(),
-                    onClick = {
-                        addNewRestaurantDeal(
-                            RestaurantDealsResponse(
-                                id = "default_id",
-                                placeId = uiState.selectedRestaurant.placeId,
-                                coordinates = uiState.selectedRestaurant.coordinates,
-                                restaurantName = uiState.selectedRestaurant.restaurantName,
-                                displayAddress = "restaurant_addy",
-                                rawDeals = listOf(
-                                    RawDeal( // TODO: add price to raw deal obj
-                                        id = "default_deal_id",
-                                        item = uiState.dealState.itemName,
-                                        description = uiState.dealState.description,
-                                        type = uiState.dealState.dealType!!,
-                                        expiryDate = getExpiryTimestamp(uiState.dealState.expiryDate),
-                                        datePosted = System.currentTimeMillis(),
-                                        userId = "default_user_id",
-                                        restrictions = "None",
-                                        imageId = uiState.imageUri?.path, // idk if this is right
-                                    )
-                                )
-                            )
-                        )
-                        showDialog = true
-                    },
+                    onClick = { tryAddNewRestaurantDeal() },
                 ) {
                     Text("Submit")
                 }
@@ -175,58 +239,72 @@ fun AddExtraDetailsScreen(
                 .fillMaxHeight()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
+                .padding(top = 40.dp)
                 .verticalScroll(scrollState)
         ) {
 
+            // time selector
             HidableSection(
-                content = {
-                    TimeSelector(
-                        labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
-                        updateStartTime = updateStartTimes,
-                        updateEndTime = updateEndTimes,
-                    )
-                },
                 showContentWhenChecked = false,
-                isChecked = true,
+                checked = isTimeSelectorChecked,
                 title = "When can you get the deal?",
                 label = "Anytime, anyday!",
-            )
+                onCheckedChanged =
+                    { isTimeSelectorChecked = it
+                      if (isTimeSelectorChecked) {
+                        updateStartTimes(emptyList())
+                        updateEndTimes(emptyList())
+                        }
+                    },
+            ) {
+                TimeSelector(
+                    labels = listOf("M", "T", "W", "Th", "F", "S", "Sun"),
+                    updateStartTime = updateStartTimes,
+                    updateEndTime = updateEndTimes,
+                )
+            }
 
             SectionDivider(
                 modifier = Modifier
             )
 
+            // applicable groups
             HidableSection(
-                content = {
-                    Column (
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        CustomCheckBox(
-                            label = "Students"
-                        )
-                        CustomCheckBox(
-                            label = "Children"
-                        )
-                        CustomCheckBox(
-                            label = "Seniors"
-                        )
-                        CustomCheckBox(
-                            label = "New customers"
-                        )
-                    }
-
-                },
                 showContentWhenChecked = false,
-                isChecked = true,
+                checked = isApplicableGroupChecked,
                 title = "Who can get the deal?",
                 label = "Open to all!",
+                onCheckedChanged = {
+                    isApplicableGroupChecked = it
+                    if (isApplicableGroupChecked) {
+                        updateApplicableGroups(ApplicableGroup.ALL)
+                    } else {
+                        updateApplicableGroups(ApplicableGroup.UNDER_18)
+                    } },
+            ) {
+                Column (
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    applicableGroups.forEach { group ->
+                        CustomRadioButton(
+                            label = group.toString(),
+                            isChecked = uiState.dealState.applicableGroup == group,
+                            onChange = { updateApplicableGroups(group) } // if isChecked -> add
+                        )
+                    }
+                }
+            }
+
+            SectionDivider(
+                modifier = Modifier
             )
-            // TextField for displaying selected date
+
+            // TextField for displaying expiry date
             TitledOutlinedTextField(
-                value = uiState.dealState.expiryDate ?: "",
+                value = if (expiryDateString.isNotEmpty()) expiryDateString else "",
                 onValueChange = {},
                 label = "Expiry Date",
                 text = null,
@@ -243,14 +321,3 @@ fun AddExtraDetailsScreen(
         }
     }
 }
-
-fun getExpiryTimestamp(expirySelectedDate: String?): Long? {
-    expirySelectedDate ?: return null
-    try {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return dateFormat.parse(expirySelectedDate)?.time
-    } catch (e : Exception) {
-        return null
-    }
-}
-

@@ -10,10 +10,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.AddDealResponse
-import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
@@ -21,12 +21,12 @@ import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import java.time.ZonedDateTime
 
 /**
  * UI state for the SelectRestaurant route.
@@ -42,8 +42,8 @@ data class AddDealUiState(
     val restaurantSearchText: String,
     val imageUri: Uri?,
     val addDealResult: Result<AddDealResponse>?,
+    val userId: String,
     val dealState: DealState,
-    val coordinates: LatLng = LatLng(43.4712, -80.5440),
 )
 
 data class DealState(
@@ -51,9 +51,11 @@ data class DealState(
     val description: String? = null,
     val price: String? = null,
     val dealType: DealType? = null,
-    val expiryDate: String? = null,
-    val startTimes: List<Int> = List(7){-1}, // array of 7 integers, each representing a day of the week
-    val endTimes: List<Int> = List(7){-1}, // integers representing the end time for each day of the week, in the range [0, 24]
+    val expiryDate: ZonedDateTime? = null,
+    val startTimes: List<Int> = List(7){0}, // array of 7 integers, each representing a day of the week
+    val endTimes: List<Int> = List(7){24 * 60}, // integers representing the end time for each day of the week, in the range [0, 24]
+    val restrictions: String? = null,
+    val applicableGroup: ApplicableGroup = ApplicableGroup.ALL // set of applicable groups
 )
 
 /**
@@ -67,6 +69,7 @@ private data class AddDealViewModelState(
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
+    val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
     val dealState: DealState = DealState(),
 ) {
@@ -76,7 +79,7 @@ private data class AddDealViewModelState(
      * the ui.
      */
     fun toUiState(): AddDealUiState =
-        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, dealState)
+        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, userId, dealState)
 }
 
 
@@ -119,28 +122,19 @@ class AddDealViewModel(
     init {
         println("ex. how to get the logged in user: ${appViewModel.currentUser.value}")
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants("", LatLng(43.4712, -80.5440))
-                .let { result -> // TODO: REPLACE LATLNG WITH CURR LOCATION VALUES
-                    when (result) {
-                        is Result.Success -> {
-                            val restaurants =
-                                result.data.map(dealMapper::mapResponseToRestaurantDeals)
-
-                            Log.d("NEARBY OPTIONS", restaurants.toString())
-                            viewModelState.update { it.copy(restaurants = restaurants) }
-                        }
-
-                        else -> Log.e(
-                            "FetchingError",
-                            "SelectRestaurantViewModel, initial request failed"
-                        )
-                    }
-                }
+            if (appViewModel.currentUser.value?.id == null) {
+                Log.e("Add Deal Launch", "No user id")
+                return@launch
+            } else {
+                viewModelState.update { it.copy(userId = appViewModel.currentUser.value!!.id) }
+            }
+            searchNearbyRestaurants("", 1000.0)
         }
     }
 
     fun addNewRestaurantDeal(deal: RestaurantDealsResponse) {
         viewModelScope.launch {
+            Log.d("AddDeal", "Adding deal: $deal")
             delay(2000) // Wait for 2 seconds, TODO: remove this
             val result = dealsRepository.addRestaurantDeal(deal)
             viewModelState.update { it.copy(addDealResult = result) }
@@ -158,9 +152,14 @@ class AddDealViewModel(
         }
     }
 
-    fun searchNearbyRestaurants(keyword: String, coordinates: LatLng, radius: Double) {
+    fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            dealsRepository.searchNearbyRestaurants(keyword, coordinates, radius).let { result ->
+            val coordinates = appViewModel.currentUserLocation.value ?: appViewModel.mapCameraCentroidCoordinates.value
+            if (coordinates == null) {
+                Log.e("searchNearbyRestaurants", "No location available")
+                return@launch
+            }
+            dealsRepository.searchNearbyRestaurants(keyword, coordinates!!, radius).let { result ->
                 when (result) {
                     is Result.Success -> {
                         val restaurants = result.data.map(dealMapper::mapResponseToRestaurantDeals)
@@ -217,16 +216,31 @@ class AddDealViewModel(
         viewModelState.update { it.copy(dealState = it.dealState.copy(dealType = dealType)) }
     }
 
-    fun updateExpiryDate(expirySelectedDate: String?) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expirySelectedDate)) }
+    fun updateExpiryDate(expiryDate: ZonedDateTime) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(expiryDate = expiryDate)) }
     }
 
     fun updateStartTimes(startTimes: List<Int>) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
+        if (startTimes.isEmpty()) { // reset to default - available every day 0-24
+            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = List(7){0})) }
+        } else {
+            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
+        }
     }
 
     fun updateEndTimes(endTimes: List<Int>) {
-        viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
+        if (endTimes.isEmpty()) { // reset to default - available every day 0-24
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7){24 * 60})) }
+        } else {
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
+        }
+
+    }
+
+    fun updateApplicableGroup(applicableGroup: ApplicableGroup) {
+        viewModelState.update { currentState ->
+            currentState.copy(dealState = currentState.dealState.copy(applicableGroup = applicableGroup))
+        }
     }
 
     /**

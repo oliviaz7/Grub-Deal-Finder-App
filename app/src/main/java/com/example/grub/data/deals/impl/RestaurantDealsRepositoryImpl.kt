@@ -19,13 +19,31 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
     override fun accumulatedDeals(): StateFlow<List<RestaurantDealsResponse>> =
         _accumulatedDeals.asStateFlow()
 
+    /**
+     * This just combines the newDeals with the existing deal store.
+     * Should be called with removeFarawayDeals to ensure that the deal store
+     * is always relevant to the location of interest.
+     */
     private fun updateAccumulatedDeals(newDeals: List<RestaurantDealsResponse>) {
         _accumulatedDeals.update { currentDeals ->
             (currentDeals + newDeals).distinctBy { it.id }
         }
-        // OLIVIA TODO: add logic to check that accumulatedDeals does not blow up in size
-        // if _accumulatedDeals size exceeds a certain amount, add some logic to remove
-        // some items from the list
+    }
+
+    private fun removeFarawayDeals(coordinates: LatLng, radius: Double) {
+        _accumulatedDeals.update { currentDeals ->
+            currentDeals.filter { deal ->
+                val distance = FloatArray(1)
+                android.location.Location.distanceBetween(
+                    coordinates.latitude,
+                    coordinates.longitude,
+                    deal.coordinates.latitude,
+                    deal.coordinates.longitude,
+                    distance
+                )
+                distance[0] < radius
+            }
+        }
     }
 
     override suspend fun getRestaurantDeals(
@@ -37,7 +55,11 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             val longitude = coordinates.longitude
 
             val response = apiService.getRestaurantDeals(latitude, longitude, radius)
+            // add all the newly fetched deals to _accumulatedDeals
             updateAccumulatedDeals(response)
+
+            // remove any deals that are too far away now (beyond 3x the radius)
+            removeFarawayDeals(coordinates, radius * 3)
 
             Result.Success(Unit)
         } catch (e: Exception) {

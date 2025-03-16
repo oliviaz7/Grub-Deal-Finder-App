@@ -37,7 +37,9 @@ data class MapUiState(
     val cameraCoordinate: LatLng?,
     val cameraZoom: Float,
     val visibleRadius: Double?
-)
+) {
+    val loadingUserLocation = hasLocationPermission && userLocation == null
+}
 
 /**
  * ViewModel that handles the business logic of the Home screen
@@ -127,10 +129,6 @@ class MapViewModel(
                 )
                 if (event.zoom > 9f) { // turn this into a constant
                     viewModelScope.launch { getRestaurantDeals() }
-                } else {
-                    // Clear any existing deals when zoomed out too far
-                    _uiState.update { current -> current.copy(restaurantDeals = emptyList()) }
-                    Log.i("marker-location", "Zoom too low, skipping backend query")
                 }
 
                 // update the global state with the current camera coordinates

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.content.Context
-
+import android.util.Log
 
 
 /**
@@ -37,10 +37,6 @@ class ProfileViewModel(
     init {
         // TODO: lol remove me once auth is implemented
         // this is just a stub to force login so we can create the profile UI
-        viewModelScope.launch {
-            authRepository.login("any_username", "any_pwd")
-        }
-
         viewModelScope.launch {
             appViewModel.currentUser.collect { currentUser: User? ->
                 _uiState.update {
@@ -68,6 +64,16 @@ class ProfileViewModel(
                 _googleSignInState.value = GoogleSignInState.Success("Sign-in successful!")
             } catch (e: Exception) {
                 _googleSignInState.value = GoogleSignInState.Error("Sign-in failed: ${e.message}")
+            }
+        }
+    }
+
+    fun onSignOut() {
+        viewModelScope.launch {
+            try {
+                authRepository.logout()
+            } catch (e: Exception) {
+                Log.d("profile vm", "signout error ${e.message}")
             }
         }
     }

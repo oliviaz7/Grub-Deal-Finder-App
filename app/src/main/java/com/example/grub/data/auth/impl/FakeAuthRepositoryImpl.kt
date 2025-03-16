@@ -62,6 +62,6 @@ class FakeAuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun googleSignInButton(context: Context, rawNonce: String) {
-        Result.Error(Exception("Not implemented"))
+        login("username", "password")
     }
 }

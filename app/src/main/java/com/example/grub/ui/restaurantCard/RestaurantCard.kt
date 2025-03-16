@@ -1,7 +1,6 @@
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -37,6 +36,7 @@ import com.example.grub.R
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.navigation.Destinations
+import com.example.grub.utils.ImageUrlHelper
 import java.time.format.DateTimeFormatter
 
 
@@ -65,23 +65,26 @@ import java.time.format.DateTimeFormatter
 fun RestaurantItem(
     restaurant: RestaurantDeal,
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showBoxShadow: Boolean = true,
 ) {
     Box(
         modifier = modifier
             .padding(vertical = 8.dp)
             .fillMaxWidth()
             .drawBehind {
-                val shadowSize = 2.dp.toPx()
-                drawRoundRect(
-                    color = Color.Black.copy(alpha = 0.2f),
-                    size = size.copy(
-                        height = size.height + shadowSize,
-                        width = size.width + shadowSize,
-                    ),
-                    topLeft = Offset(8f, 8f),
-                    cornerRadius = CornerRadius(x = 20f, y = 20f)
-                )
+                if (showBoxShadow) {
+                    val shadowSize = 2.dp.toPx()
+                    drawRoundRect(
+                        color = Color.Black.copy(alpha = 0.2f),
+                        size = size.copy(
+                            height = size.height + shadowSize,
+                            width = size.width + shadowSize,
+                        ),
+                        topLeft = Offset(8f, 8f),
+                        cornerRadius = CornerRadius(x = 20f, y = 20f)
+                    )
+                }
             }
             .background(
                 MaterialTheme.colorScheme.background.copy(alpha = 1f),
@@ -99,7 +102,7 @@ fun RestaurantItem(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             ) {
-                DealImage(
+                RestaurantImage(
                     restaurant.imageUrl,
                     Modifier
                         .weight(0.3f)
@@ -248,19 +251,29 @@ fun DealItem(
 
 @Composable
 fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
-    imageUrl?.let { url ->
-        AsyncImage(
-            model = url,
-            modifier = modifier,
-            contentDescription = "Deal Image",
-            // TODO: replace with a better loading placeholder
-            placeholder = painterResource(R.drawable.placeholder_4_3),
-            contentScale = ContentScale.Crop
-        )
-    } ?: Image(
-        painter = painterResource(R.drawable.placeholder_1_1),
-        contentDescription = null,
+    Log.d("deal image", imageUrl.toString())
+    AsyncImage(
+        model = imageUrl,
         modifier = modifier,
+        contentDescription = "Deal Image",
+        // TODO: replace with a better loading placeholder
+        placeholder = painterResource(R.drawable.hot_deals),
+        error = painterResource(R.drawable.hot_deals),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+fun RestaurantImage(imageUrl: String?, modifier: Modifier = Modifier) {
+    Log.d("restaurant image", imageUrl.toString())
+
+    AsyncImage(
+        model = imageUrl,
+        modifier = modifier,
+        contentDescription = "restaurant Image",
+        // TODO: replace with a better loading placeholder
+        placeholder = painterResource(R.drawable.restaurant_placeholder),
+        error = painterResource(R.drawable.restaurant_placeholder),
         contentScale = ContentScale.Crop
     )
 }
