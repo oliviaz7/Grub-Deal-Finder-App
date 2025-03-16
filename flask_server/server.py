@@ -213,7 +213,6 @@ def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 				"expiry_date": deal["expiry_date"],
 				"date_posted": deal["date_posted"],
 				"user_id": deal["user_id"],
-				"restrictions": deal["restrictions"],
 				"image_id": deal["image_id"],
 				"user_saved": deal["user_saved"],
 				"user_vote": deal["user_vote"],
@@ -361,7 +360,6 @@ def add_restaurant_deal():
 				"expiry_date": datetime(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
 				"date_posted": datetime(deal["date_posted"] / 1000).isoformat(),
 				"user_id": user_id,
-				"restrictions": deal.get("restrictions"),
 				"image_id": deal.get("imageId")
 			}
 
