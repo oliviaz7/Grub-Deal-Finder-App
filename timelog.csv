@@ -56,7 +56,8 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-13, 2, 0, 0, 0, 0, 0, misc changes and map force re-centering bug
 2025-03-14, 0, 0, 3, 0, 0, 0,  updating backend endpoints
 2025-03-15, 0, 0, 6, 0, 0, 0,  updating SQL function and adding backend endpoints
-2025-03-16, 0, 0, 4, 0, 0, 0,  adding backend endpoints and testing
+2025-03-15, 0, 6, 0, 0, 0, 0,  working on add deals flow
+2025-03-16, 0, 0, 3, 0, 0, 0,  adding backend endpoints and testing
 2025-03-16, 0, 0, 0, 0, 0, 3,  restrictions ui
 2025-03-17, 0, 0, 0, 0, 0, 2,  restrictions filter
 2025-03-17, 3, 0, 0, 0, 0, 0, misc and debugging image uploading
