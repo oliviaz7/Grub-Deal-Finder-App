@@ -13,14 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.DealIdResponse
 import com.example.grub.data.Result
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmationDialog(
     navController: NavController,
-    result: Result<AddDealResponse>?,
+    result: Result<DealIdResponse>?,
     onDismiss: () -> Unit,
     errorDialog: String = "",
     modifier: Modifier = Modifier,

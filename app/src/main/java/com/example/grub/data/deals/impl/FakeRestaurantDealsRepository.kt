@@ -1,8 +1,8 @@
 package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
-import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.ApiResponse
+import com.example.grub.data.deals.DealIdResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
@@ -215,7 +215,14 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
     }
 
     private val fakeDealToAdd by lazy {
-        AddDealResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
+        DealIdResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
+    }
+
+    private val fakeSavedDeals by lazy {
+        listOf(
+            DealIdResponse("10796322-ab95-4aea-9a7c-a006cae8eaca"),
+            DealIdResponse("5073a84e-d3a9-4ae7-8194-03bb28ad3c21")
+        )
     }
 
     override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<Unit> {
@@ -225,7 +232,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         return Result.Success(Unit)
     }
 
-    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<DealIdResponse> {
         return Result.Success(fakeDealToAdd)
     }
 
@@ -257,6 +264,12 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         userId: String
     ): Result<ApiResponse> {
         return Result.Success(ApiResponse(success = true, message = "Deal unsaved"))
+    }
+
+    override suspend fun getSavedDeals(
+        userId: String
+    ): Result<List<DealIdResponse>>{
+        return Result.Success(fakeSavedDeals)
     }
 
     override suspend fun deleteDeal(

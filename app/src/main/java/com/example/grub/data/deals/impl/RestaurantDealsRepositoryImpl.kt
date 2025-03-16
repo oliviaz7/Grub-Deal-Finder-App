@@ -2,8 +2,8 @@ package com.example.grub.data.deals.impl
 
 import android.util.Log
 import com.example.grub.data.Result
-import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.ApiResponse
+import com.example.grub.data.deals.DealIdResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
@@ -70,7 +70,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         }
     }
 
-    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse> {
+    override suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<DealIdResponse> {
         return try {
             val response = apiService.addRestaurantDeal(deal)
             Result.Success(response)
@@ -136,6 +136,16 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             Result.Success(response)
         } catch (e: Exception) {
             Log.e("unsaveDeal", "Error unsaving deal", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun getSavedDeals(userId: String): Result<List<DealIdResponse>> {
+        return try {
+            val response = apiService.getSavedDeals(userId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("getSavedDeals", "Error fetching saved deals", e)
             Result.Error(e)
         }
     }

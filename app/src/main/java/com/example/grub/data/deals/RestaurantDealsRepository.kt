@@ -37,8 +37,7 @@ data class RawDeal(
     @SerializedName("daily_end_times") val dailyEndTimes: List<Int>? = null,
 )
 
-// return type for when we add a deal
-data class AddDealResponse(
+data class DealIdResponse(
     val dealId: String
 )
 
@@ -79,7 +78,7 @@ interface RestaurantDealsRepository {
      /**
      * Add a new restaurant deal
      */
-    suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<AddDealResponse>
+    suspend fun addRestaurantDeal(deal: RestaurantDealsResponse): Result<DealIdResponse>
 
     /**
      * searchNearbyRestaurants
@@ -105,6 +104,10 @@ interface RestaurantDealsRepository {
         dealId: String,
         userId: String
     ): Result<ApiResponse>
+
+    suspend fun getSavedDeals(
+        userId: String
+    ): Result<List<DealIdResponse>>
 
     suspend fun deleteDeal(
         dealId: String,
