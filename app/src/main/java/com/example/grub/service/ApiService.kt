@@ -1,7 +1,7 @@
 package com.example.grub.service
 
 import com.example.grub.data.deals.ApiResponse
-import com.example.grub.data.deals.DealIdResponse
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.VoteType
@@ -22,7 +22,7 @@ interface ApiService {
     @POST("add_restaurant_deal")
     suspend fun addRestaurantDeal(
         @Body deal: RestaurantDealsResponse
-    ): DealIdResponse
+    ): AddDealResponse
 
     @GET("search_nearby_restaurants")
     suspend fun searchNearbyRestaurants(
@@ -54,7 +54,7 @@ interface ApiService {
     @GET("get_saved_deals")
     suspend fun getSavedDeals(
         @Query("user_id") userId: String
-    ): List<DealIdResponse>
+    ): List<String>
 
     @GET("delete_deal")
     suspend fun deleteDeal(

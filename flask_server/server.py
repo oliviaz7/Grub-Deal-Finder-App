@@ -59,19 +59,19 @@ def remove_vote_in_db(user_id, deal_id):
 			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
 
 		if not existing_entry.data:
-			return jsonify({"success": False, "message": "Vote is not saved in Supabase"}), 404
+			return jsonify({"success": False, "message": "Vote is not saved in Supabase"})
 
 		response = supabase.from_('Vote').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
 
 		if response.data:
-			return jsonify({"success": True, "message": "Vote deleted successfully"}), 201
+			return jsonify({"success": True, "message": "Vote deleted successfully"})
 		else:
 			logger.error(f"Failed to delete vote", exc_info=True)
-			return jsonify({"success": False, "message": "Failed to delete vote"}), 400
+			return jsonify({"success": False, "message": "Failed to delete vote"})
 
 	except Exception as e:
 		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
-		return jsonify({"success": False, "message": f"Error deleting deal vote: {str(e)}"}), 500
+		return jsonify({"success": False, "message": f"Error deleting deal vote: {str(e)}"})
 
 def update_vote_in_db(user_id, deal_id, vote_type):
 	"""Update vote for the given deal and user in Supabase."""
@@ -83,14 +83,14 @@ def update_vote_in_db(user_id, deal_id, vote_type):
 		}).execute()
 
 		if response.data:
-			return jsonify({"success": True, "message": f"Vote updated successfully with {vote_type}"}), 201
+			return jsonify({"success": True, "message": f"Vote updated successfully with {vote_type}"})
 		else:
 			logger.error(f"Failed to update vote", exc_info=True)
-			return jsonify({"success": False, "message": f"Failed to update vote with {vote_type}"}), 400
+			return jsonify({"success": False, "message": f"Failed to update vote with {vote_type}"})
 
 	except Exception as e:
 		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
-		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"}), 500
+		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"})
 
 def mark_deal_expired_in_db(deal_id):
 	"""Marks deal as expired given the deal id."""
@@ -107,12 +107,16 @@ def mark_deal_saved_in_db(deal_id, user_id):
 	"""Marks deal as saved given the deal id and user_id."""
 	try:
 		# Check if the deal is already saved
+		logger.info("a")
 		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
 			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+		logger.info("b")
 
 		if existing_entry.data:  # If the entry exists
-			return jsonify({"success": False, "message": "Deal is already saved"}), 409
+			logger.info("c")
+			return jsonify({"success": False, "message": "Deal is already saved"})
 
+		logger.info("d")
 		# Insert into 'Saved' table
 		response = supabase.from_('Saved').insert({
 			"user_id": user_id,
@@ -120,14 +124,15 @@ def mark_deal_saved_in_db(deal_id, user_id):
 		}).execute()
 
 		if response.data:
-			return jsonify({"success": True, "message": "Deal saved successfully"}), 201
+			return jsonify({"success": True, "message": "Deal saved successfully"})
 		else:
 			logger.error(f"Error saving deal in Supabase")
-			return jsonify({"success": False, "message": "Failed to save deal"}), 400
+			return jsonify({"success": False, "message": "Failed to save deal"})
 
 	except Exception as e:
+		logger.info("e")
 		logger.error(f"Error marking deal as saved: {str(e)}", exc_info=True)
-		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"}), 500
+		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"})
 
 def unmark_deal_saved_in_db(deal_id, user_id):
 	"""Removes a saved deal given the deal_id and user_id."""
@@ -137,20 +142,20 @@ def unmark_deal_saved_in_db(deal_id, user_id):
 			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
 
 		if not existing_entry.data:  # If the entry does NOT exist
-			return jsonify({"success": False, "message": "Deal is not saved in Supabase"}), 404
+			return jsonify({"success": False, "message": "Deal is not saved in Supabase"})
 
 		# Delete the saved deal
 		response = supabase.from_('Saved').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
 
 		if response.data:
-			return jsonify({"success": True, "message": "Deal unsaved successfully"}), 200
+			return jsonify({"success": True, "message": "Deal unsaved successfully"})
 		else:
 			logger.error(f"Error unsaving deal: {str(response)}", exc_info=True)
-			return jsonify({"success": False, "message": "Failed to unsave deal"}), 400
+			return jsonify({"success": False, "message": "Failed to unsave deal"})
 
 	except Exception as e:
 		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
-		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"}), 500
+		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
 
 def get_saved_deals_by_user_id(user_id):
 	"""Fetches the saved deals by the user id from Supabase."""
@@ -331,7 +336,7 @@ def get_deals():
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while fetching restaurant deals"}), 500
+		return jsonify({"error": "An error occurred while fetching restaurant deals"})
 
 
 @app.route('/add_restaurant_deal', methods=["POST"])
@@ -386,12 +391,12 @@ def add_restaurant_deal():
 			deal_uuid = response.data[0]['id'] if response.data else None
 			logger.info(f"Added new deal: {deal['item']} for restaurant {restaurant.get('restaurant_name')}")
 
-			return jsonify({"dealId": str(deal_uuid)}), 200
+			return jsonify({"dealId": str(deal_uuid)})
 
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred at add_restaurant_deal: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while adding the deal"}), 500
+		return jsonify({"error": "An error occurred while adding the deal"})
 
 
 @app.route('/search_nearby_restaurants', methods=["GET"])
@@ -415,7 +420,7 @@ def nearby_search():
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
+		return jsonify({"error": "An error occurred while searching for nearby restaurants"})
 
 @app.route('/update_vote', methods=["GET"])
 def update_vote():
@@ -447,7 +452,7 @@ def get_saved_deals():
 	user_id = request.args.get("user_id")
 
 	if not user_id:
-		return jsonify({"error": "No user_id"}), 400
+		return jsonify({"error": "No user_id"})
 
 	saved_deals = get_saved_deals_by_user_id(user_id)
 
@@ -461,17 +466,17 @@ def delete_deal():
 	deal = get_deal_by_id(deal_id)
 
 	if not deal:
-		return jsonify({"error": "Deal not found. Incorrect deal_id"}), 404
+		return jsonify({"error": "Deal not found. Incorrect deal_id"})
 
 	if deal["user_id"] != user_id:
-		return jsonify({"error": "Unauthorized: You are not the creator of this deal"}), 403
+		return jsonify({"error": "Unauthorized: You are not the creator of this deal"})
 
 	try:
 		mark_deal_expired_in_db(deal_id)
-		return jsonify({"success": True, "message": "Deal successfully marked as expired"}), 200
+		return jsonify({"success": True, "message": "Deal successfully marked as expired"})
 
 	except Exception as e:
-		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"}), 500
+		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"})
 
 @app.route('/')
 def index():

@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
-import com.example.grub.data.deals.DealIdResponse
+import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
@@ -41,7 +41,7 @@ data class AddDealUiState(
     val selectedRestaurant: SimpleRestaurant,
     val restaurantSearchText: String,
     val imageUri: Uri?,
-    val addDealResult: Result<DealIdResponse>?,
+    val addDealResult: Result<AddDealResponse>?,
     val userId: String,
     val dealState: DealState,
 )
@@ -70,7 +70,7 @@ private data class AddDealViewModelState(
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
     val userId: String = "",
-    val addDealResult: Result<DealIdResponse>? = null,
+    val addDealResult: Result<AddDealResponse>? = null,
     val dealState: DealState = DealState(),
 ) {
 
