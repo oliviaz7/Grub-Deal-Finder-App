@@ -33,6 +33,8 @@ data class RawDeal(
     @SerializedName("user_saved") val userSaved: Boolean = false,
     @SerializedName("user_vote") val userVote: VoteType = VoteType.NEUTRAL,
     @SerializedName("applicable_group") val applicableGroup: ApplicableGroup = ApplicableGroup.NONE,
+    @SerializedName("start_times") val startTimes: List<Int>,
+    @SerializedName("end_times") val endTimes: List<Int>,
 )
 
 // return type for when we add a deal

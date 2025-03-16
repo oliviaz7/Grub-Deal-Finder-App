@@ -217,6 +217,8 @@ def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 				"user_saved": deal["user_saved"],
 				"user_vote": deal["user_vote"],
 				"applicable_group": deal["applicable_group"],
+				"start_times": deal["start_times"],
+				"end_times": deal["end_times"]
 			})
 
 		return list(restaurant_map.values())
@@ -360,7 +362,11 @@ def add_restaurant_deal():
 				"expiry_date": datetime(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
 				"date_posted": datetime(deal["date_posted"] / 1000).isoformat(),
 				"user_id": user_id,
-				"image_id": deal.get("imageId")
+				"image_id": deal.get("image_id"),
+				"applicable_group": deal.get("applicable_group"),
+				"is_expired": deal.get("is_expired"),
+				"start_times": deal.get("start_times"),
+				"end_times": deal.get("end_times"),
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
