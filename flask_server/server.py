@@ -107,16 +107,12 @@ def mark_deal_saved_in_db(deal_id, user_id):
 	"""Marks deal as saved given the deal id and user_id."""
 	try:
 		# Check if the deal is already saved
-		logger.info("a")
 		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
 			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
-		logger.info("b")
 
 		if existing_entry.data:  # If the entry exists
-			logger.info("c")
 			return jsonify({"success": False, "message": "Deal is already saved"})
 
-		logger.info("d")
 		# Insert into 'Saved' table
 		response = supabase.from_('Saved').insert({
 			"user_id": user_id,
@@ -130,7 +126,6 @@ def mark_deal_saved_in_db(deal_id, user_id):
 			return jsonify({"success": False, "message": "Failed to save deal"})
 
 	except Exception as e:
-		logger.info("e")
 		logger.error(f"Error marking deal as saved: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"})
 
@@ -344,7 +339,6 @@ def add_restaurant_deal():
 	"""Adds a new restaurant deal to Supabase."""
 	try:
 		restaurant = request.json
-		logger.info(restaurant)
 		restaurant_place_id = restaurant.get("place_id")
 		logger.info(f"Received new add deal request for place_id: {restaurant_place_id}")
 
