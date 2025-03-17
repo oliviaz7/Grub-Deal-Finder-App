@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.model.ApplicableGroup
+import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.mappers.RestaurantDealMapper
@@ -143,6 +145,7 @@ class ListViewModel(
                     }
                     currentState.selectedCustomFilter.copy(type = newTypeSet)
                 }
+
                 "day" -> {
                     val currentDaySet = currentState.selectedCustomFilter.day
                     val newDaySet = if (filter in currentDaySet) {
@@ -152,6 +155,7 @@ class ListViewModel(
                     }
                     currentState.selectedCustomFilter.copy(day = newDaySet)
                 }
+
                 "restrictions" -> {
                     val currentRestrictionsSet = currentState.selectedCustomFilter.restrictions
                     val newRestrictionsSet = if (filter in currentRestrictionsSet) {
@@ -179,8 +183,24 @@ class ListViewModel(
         println(viewModelState.value.selectedCustomFilter.type)
         return deals.map { restaurantDeal ->
             val filteredDeals = restaurantDeal.deals.filter { deal ->
-                viewModelState.value.selectedCustomFilter.type.isEmpty() ||
-                        deal.type.name in viewModelState.value.selectedCustomFilter.type
+                (viewModelState.value.selectedCustomFilter.type.isEmpty() || deal.type.name in viewModelState.value.selectedCustomFilter.type)
+                        &&
+                        (viewModelState.value.selectedCustomFilter.restrictions.isEmpty() ||
+                                deal.applicableGroup.toString() in viewModelState.value.selectedCustomFilter.restrictions ||
+                                deal.applicableGroup == ApplicableGroup.ALL ||
+                                deal.applicableGroup == ApplicableGroup.NONE
+                                )
+                        &&
+                        (viewModelState.value.selectedCustomFilter.day.isEmpty() || deal.activeDayTime.let { restriction ->
+                            when (restriction) {
+                                is DayOfWeekAndTimeRestriction.NoRestriction -> true
+                                is DayOfWeekAndTimeRestriction.DayOfWeekRestriction ->
+                                    restriction.activeDays.any { it.toString() in viewModelState.value.selectedCustomFilter.day }
+
+                                is DayOfWeekAndTimeRestriction.BothDayAndTimeRestriction ->
+                                    restriction.activeDaysAndTimes.any { it.dayOfWeek.name in viewModelState.value.selectedCustomFilter.day }
+                            }
+                        })
             }
             restaurantDeal.copy(deals = filteredDeals)
         }.filter { it.deals.isNotEmpty() }

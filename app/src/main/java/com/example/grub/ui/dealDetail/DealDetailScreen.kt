@@ -319,7 +319,7 @@ fun DealDetailScreen(
                                         fontWeight = FontWeight.Medium,
                                         lineBreak = LineBreak.Heading
                                     ),
-                                    color = MaterialTheme.colorScheme.primaryContainer
+                                    color = Color.Black
 
                                 )
                                 Text(
@@ -350,7 +350,7 @@ fun DealDetailScreen(
                                         fontWeight = FontWeight.Medium,
                                         lineBreak = LineBreak.Heading
                                     ),
-                                    color = MaterialTheme.colorScheme.primaryContainer
+                                    color = Color.Black
 
                                 )
                                 Text(
@@ -392,30 +392,6 @@ fun DealDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-//                    Button(
-//                        onClick = { navController.popBackStack() },
-//                        colors = ButtonColors(
-//                            containerColor = MaterialTheme.colorScheme.background,
-//                            contentColor = MaterialTheme.colorScheme.primary,
-//                            disabledContainerColor = MaterialTheme.colorScheme.background,
-//                            disabledContentColor = MaterialTheme.colorScheme.primary,
-//                        ),
-//                        contentPadding = PaddingValues(12.dp, 0.dp),
-//                        shape = MaterialTheme.shapes.medium,
-//                        modifier = Modifier
-//                            .align(Alignment.CenterHorizontally)
-//                    ) {
-//                        Text(
-//                            text = "Return to Deals",
-//                            style = defaultTextStyle.copy(
-//                                fontSize = 20.sp,
-//                                lineHeight = 20.sp,
-//                                letterSpacing = 0.15.sp,
-//                                fontWeight = FontWeight.SemiBold,
-//                                lineBreak = LineBreak.Heading
-//                            )
-//                        )
-//                    }
                 }
             }
         }

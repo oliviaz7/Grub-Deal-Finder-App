@@ -34,6 +34,18 @@ enum class DayOfWeek(val rawIndex: Int) {
             else -> MONDAY // error lol, if we see monday, be alarmed
         }
     }
+
+    override fun toString(): String {
+        return when (this) {
+            MONDAY -> "Monday"
+            TUESDAY -> "Tuesday"
+            WEDNESDAY -> "Wednesday"
+            THURSDAY -> "Thursday"
+            FRIDAY -> "Friday"
+            SATURDAY -> "Saturday"
+            SUNDAY -> "Sunday"
+        }
+    }
 }
 
 @Parcelize
@@ -87,9 +99,11 @@ sealed class DayOfWeekAndTimeRestriction(
     @Parcelize
     data class DayOfWeekRestriction(
         val activeDays: List<DayOfWeek>,
-    ) : DayOfWeekAndTimeRestriction(RestrictionType.DAY_OF_WEEK){
+    ) : DayOfWeekAndTimeRestriction(RestrictionType.DAY_OF_WEEK) {
         override fun toDisplayString(): String {
-            return activeDays.joinToString(", ") { it.name.lowercase().replaceFirstChar(Char::uppercase) }
+            return activeDays.joinToString(", ") {
+                it.name.lowercase().replaceFirstChar(Char::uppercase)
+            }
         }
     }
 
@@ -108,8 +122,16 @@ sealed class DayOfWeekAndTimeRestriction(
 
             return filteredIntervals.joinToString("\n") { interval ->
                 val day = interval.dayOfWeek.name.lowercase().replaceFirstChar(Char::uppercase)
-                val startTime = String.format("%02d:%02d", interval.timeInterval.startHour, interval.timeInterval.startMinute)
-                val endTime = String.format("%02d:%02d", interval.timeInterval.endHour, interval.timeInterval.endMinute)
+                val startTime = String.format(
+                    "%02d:%02d",
+                    interval.timeInterval.startHour,
+                    interval.timeInterval.startMinute
+                )
+                val endTime = String.format(
+                    "%02d:%02d",
+                    interval.timeInterval.endHour,
+                    interval.timeInterval.endMinute
+                )
                 "$day: $startTime - $endTime"
             }
         }

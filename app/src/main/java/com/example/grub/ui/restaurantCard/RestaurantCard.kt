@@ -256,7 +256,6 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
         model = imageUrl,
         modifier = modifier,
         contentDescription = "Deal Image",
-        // TODO: replace with a better loading placeholder
         placeholder = painterResource(R.drawable.hot_deals),
         error = painterResource(R.drawable.hot_deals),
         contentScale = ContentScale.Crop
@@ -271,7 +270,6 @@ fun RestaurantImage(imageUrl: String?, modifier: Modifier = Modifier) {
         model = imageUrl,
         modifier = modifier,
         contentDescription = "restaurant Image",
-        // TODO: replace with a better loading placeholder
         placeholder = painterResource(R.drawable.restaurant_placeholder),
         error = painterResource(R.drawable.restaurant_placeholder),
         contentScale = ContentScale.Crop
