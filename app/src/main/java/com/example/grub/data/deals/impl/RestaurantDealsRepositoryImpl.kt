@@ -2,10 +2,12 @@ package com.example.grub.data.deals.impl
 
 import android.util.Log
 import com.example.grub.data.Result
+import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.model.VoteType
 import com.example.grub.service.RetrofitClient.apiService
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +65,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
 
             Result.Success(Unit)
         } catch (e: Exception) {
-            Log.d("marker-location", e.toString())
+            Log.e("RestaurantDealsError", "Error fetching deals", e)
             Result.Error(e)
         }
     }
@@ -77,6 +79,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             // another fetch)
 
         } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error adding deal", e)
             Result.Error(e)
         }
     }
@@ -92,6 +95,71 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             val response = apiService.searchNearbyRestaurants(keyword, latitude, longitude, radius)
             Result.Success(response)
         } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error searching restaurants", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateVote(
+        dealId: String,
+        userId: String,
+        userVote: VoteType
+    ): Result<ApiResponse> {
+        return try {
+            val response = apiService.updateVote(dealId, userId, userVote)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error updating vote", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun saveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return try {
+            val response = apiService.saveDeal(dealId, userId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error saving deal", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun unsaveDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return try {
+            val response = apiService.unsaveDeal(dealId, userId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error unsaving deal", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun getSavedDeals(userId: String): Result<List<String>> {
+        return try {
+            val response = apiService.getSavedDeals(userId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error fetching saved deals", e)
+            Result.Error(e)
+        }
+    }
+
+
+    override suspend fun deleteDeal(
+        dealId: String,
+        userId: String
+    ): Result<ApiResponse> {
+        return try {
+            val response = apiService.deleteDeal(dealId, userId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("RestaurantDealsError", "Error deleting deal", e)
             Result.Error(e)
         }
     }

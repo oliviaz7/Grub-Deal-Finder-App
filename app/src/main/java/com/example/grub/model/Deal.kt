@@ -13,7 +13,6 @@ data class Deal(
     val expiryDate: ZonedDateTime? = null,
     val datePosted: ZonedDateTime,
     val userId: String,
-    val restrictions: String, // TODO: figure out how we're handling
     val imageUrl: String?,
     val userSaved: Boolean,
     val userVote: VoteType,

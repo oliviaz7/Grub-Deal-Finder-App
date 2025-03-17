@@ -49,10 +49,138 @@ def iso_to_unix(iso_string):
 		utc_dt = dt.astimezone(pytz.UTC)
 		return int(utc_dt.timestamp())
 	except ValueError as e:
-		print(f"Error parsing ISO string: {e}")
+		logger.error(f"Error parsing ISO string: {str(e)}", exc_info=True)
 		return None
 
-def get_all_restaurant_deals():
+def remove_vote_in_db(user_id, deal_id):
+	"""Remove vote for given deal and user in Supabase."""
+	try:
+		existing_entry = supabase.from_('Vote').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if not existing_entry.data:
+			return jsonify({"success": False, "message": "Vote is not saved in Supabase"})
+
+		response = supabase.from_('Vote').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Vote deleted successfully"})
+		else:
+			logger.error(f"Failed to delete vote", exc_info=True)
+			return jsonify({"success": False, "message": "Failed to delete vote"})
+
+	except Exception as e:
+		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error deleting deal vote: {str(e)}"})
+
+def update_vote_in_db(user_id, deal_id, vote_type):
+	"""Update vote for the given deal and user in Supabase."""
+	try:
+		response = supabase.from_('Vote').upsert({
+			'user_id': user_id,
+			'deal_id': deal_id,
+			'user_vote': vote_type
+		}).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": f"Vote updated successfully with {vote_type}"})
+		else:
+			logger.error(f"Failed to update vote", exc_info=True)
+			return jsonify({"success": False, "message": f"Failed to update vote with {vote_type}"})
+
+	except Exception as e:
+		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"})
+
+def mark_deal_expired_in_db(deal_id):
+	"""Marks deal as expired given the deal id."""
+	try:
+		response = supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+
+		if not response.data:
+			logger.error("Error marking deal as expired")
+
+	except Exception as e:
+		logger.error(f"Error marking deal as expired: {str(e)}", exc_info=True)
+
+def mark_deal_saved_in_db(deal_id, user_id):
+	"""Marks deal as saved given the deal id and user_id."""
+	try:
+		# Check if the deal is already saved
+		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if existing_entry.data:  # If the entry exists
+			return jsonify({"success": False, "message": "Deal is already saved"})
+
+		# Insert into 'Saved' table
+		response = supabase.from_('Saved').insert({
+			"user_id": user_id,
+			"deal_id": deal_id
+		}).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Deal saved successfully"})
+		else:
+			logger.error(f"Error saving deal in Supabase")
+			return jsonify({"success": False, "message": "Failed to save deal"})
+
+	except Exception as e:
+		logger.error(f"Error marking deal as saved: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error saving deal: {str(e)}"})
+
+def unmark_deal_saved_in_db(deal_id, user_id):
+	"""Removes a saved deal given the deal_id and user_id."""
+	try:
+		# Check if the deal is saved
+		existing_entry = supabase.from_('Saved').select('user_id', 'deal_id') \
+			.eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if not existing_entry.data:  # If the entry does NOT exist
+			return jsonify({"success": False, "message": "Deal is not saved in Supabase"})
+
+		# Delete the saved deal
+		response = supabase.from_('Saved').delete().eq('user_id', user_id).eq('deal_id', deal_id).execute()
+
+		if response.data:
+			return jsonify({"success": True, "message": "Deal unsaved successfully"})
+		else:
+			logger.error(f"Error unsaving deal: {str(response)}", exc_info=True)
+			return jsonify({"success": False, "message": "Failed to unsave deal"})
+
+	except Exception as e:
+		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
+		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
+
+def get_saved_deals_by_user_id(user_id):
+	"""Fetches the saved deals by the user id from Supabase."""
+	try:
+		result = supabase.from_('Saved').select('deal_id').eq('user_id', user_id).execute()
+
+		deal_ids = [item['deal_id'] for item in result.data]
+
+		return deal_ids
+
+	except Exception as e:
+		logger.error(f"Failed to fetch saved deals from user {user_id}: {str(e)}", exc_info=True)
+		return []
+
+def get_deal_by_id(deal_id):
+	"""Fetches the deal by the id from Supabase."""
+	try:
+		result = supabase.from_('Deal').select('*').eq('id', deal_id).execute()
+
+		if result.data:
+			return result.data[0]
+		else:
+			logger.error(f"No deal with id: {deal_id}")
+			return None
+
+	except Exception as e:
+		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
+		return []
+
+def get_all_restaurant_deals_in_db():
 	"""Fetches all restaurants and their deals from Supabase."""
 	try:
 		result = supabase.from_('Restaurant').select('*, Deal(*)').execute()
@@ -61,11 +189,7 @@ def get_all_restaurant_deals():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
-def delete_deal(deal_id):
-	"""Delete deal from Supabase"""
-	supabase.from_('Deal').delete().eq('id', deal_id).execute()
-
-def get_all_restaurant_deals_with_user_details(user_id=None):
+def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
 	try:
 		# the query, get_all_restaurant_deals, can be viewed in supabase terminal using `SELECT pg_get_functiondef('get_all_restaurant_deals'::regproc);`
@@ -102,11 +226,12 @@ def get_all_restaurant_deals_with_user_details(user_id=None):
 				"expiry_date": deal["expiry_date"],
 				"date_posted": deal["date_posted"],
 				"user_id": deal["user_id"],
-				"restrictions": deal["restrictions"],
 				"image_id": deal["image_id"],
 				"user_saved": deal["user_saved"],
 				"user_vote": deal["user_vote"],
 				"applicable_group": deal["applicable_group"],
+				"daily_start_times": deal["start_times"],
+				"daily_end_times": deal["end_times"]
 			})
 
 		return list(restaurant_map.values())
@@ -117,7 +242,7 @@ def get_all_restaurant_deals_with_user_details(user_id=None):
 
 def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 	"""Filter restaurants based on user location and radius."""
-	restaurant_deals = get_all_restaurant_deals_with_user_details(user_id)
+	restaurant_deals = get_all_restaurant_deals_with_user_details_in_db(user_id)
 	filtered_restaurants = []
 
 	for restaurant in restaurant_deals:
@@ -135,6 +260,8 @@ def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
 	try:
 		for restaurant in restaurants:
+			valid_deals = []
+
 			for deal in restaurant["Deal"]:
 				deal['date_posted'] = iso_to_unix(deal['date_posted'])
 				if deal.get('expiry_date'):
@@ -144,10 +271,18 @@ def process_and_filter_restaurant_deals(restaurants):
 					expiry_date = datetime.fromtimestamp(deal['expiry_date'], tz=pytz.UTC)
 					today = datetime.now(tz=pytz.UTC)
 
-					# If expiry date is in the past, delete the deal from Supabase
-					if expiry_date < today:
-						delete_deal(deal['id'])
-						logger.info(f"Deal {deal['id']} expired and was deleted.")
+					# Only keep non-expired deals
+					if expiry_date >= today:
+						valid_deals.append(deal)
+					else:
+						deal_id = deal['id']
+						logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
+						mark_deal_expired_in_db(deal_id)
+
+				else:
+					valid_deals.append(deal)
+
+			restaurant["Deal"] = valid_deals
 
 		return restaurants
 
@@ -196,7 +331,7 @@ def get_deals():
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while fetching restaurant deals"}), 500
+		return jsonify({"error": "An error occurred while fetching restaurant deals"})
 
 
 @app.route('/add_restaurant_deal', methods=["POST"])
@@ -230,31 +365,35 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
+			user_id = restaurant.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
+
 			deal_item = {
 				"restaurant_id": restaurant_id,
 				"item": deal["item"],
 				"description": deal.get("description"),
 				"type": deal.get("type"),
-				"expiry_date": datetime.utcfromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
-				"date_posted": datetime.utcfromtimestamp(deal["date_posted"] / 1000).isoformat(),
-				"user_id": "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90", # guest account
-				"restrictions": deal.get("restrictions"),
-				"image_id": deal.get("imageId")
+				"expiry_date": datetime.fromtimestamp(deal["expiry_date"] / 1000).isoformat() if deal.get("expiry_date") else None,
+				"date_posted": datetime.fromtimestamp(deal["date_posted"] / 1000).isoformat(),
+				"user_id": user_id,
+				"image_id": deal.get("image_id"),
+				"applicable_group": deal.get("applicable_group"),
+				"start_times": deal.get("daily_start_times"),
+				"end_times": deal.get("daily_end_times"),
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
 			deal_uuid = response.data[0]['id'] if response.data else None
 			logger.info(f"Added new deal: {deal['item']} for restaurant {restaurant.get('restaurant_name')}")
 
-			return jsonify({"dealId": str(deal_uuid)}), 200
+			return jsonify({"dealId": str(deal_uuid)})
 
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred at add_restaurant_deal: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while adding the deal"}), 500
+		return jsonify({"error": "An error occurred while adding the deal"})
 
 
-@app.route('/search_nearby_restaurants')
+@app.route('/search_nearby_restaurants', methods=["GET"])
 def nearby_search():
 	try:
 		keyword = request.args.get('keyword')
@@ -275,8 +414,60 @@ def nearby_search():
 	except Exception as e:
 		error_message = str(e)
 		logger.error(f"Error occurred at nearby_search: {error_message}", exc_info=True)
-		return jsonify({"error": "An error occurred while searching for nearby restaurants"}), 500
+		return jsonify({"error": "An error occurred while searching for nearby restaurants"})
 
+@app.route('/update_vote', methods=["GET"])
+def update_vote():
+	user_id = request.args.get('user_id')
+	deal_id = request.args.get('deal_id')
+	vote_type = request.args.get('user_vote')
+
+	if vote_type == "NEUTRAL":
+		return remove_vote_in_db(user_id, deal_id)
+	else:
+		return update_vote_in_db(user_id, deal_id, vote_type)
+
+@app.route('/save_deal', methods=["GET"])
+def save_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	return mark_deal_saved_in_db(deal_id, user_id)
+
+@app.route('/unsave_deal', methods=["GET"])
+def unsave_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	return unmark_deal_saved_in_db(deal_id, user_id)
+
+@app.route("/get_saved_deals", methods=["GET"])
+def get_saved_deals():
+	user_id = request.args.get("user_id")
+
+	saved_deals = get_saved_deals_by_user_id(user_id)
+
+	return jsonify(saved_deals)
+
+@app.route('/delete_deal', methods=["GET"])
+def delete_deal():
+	deal_id = request.args.get('deal_id')
+	user_id = request.args.get('user_id')
+
+	deal = get_deal_by_id(deal_id)
+
+	if not deal:
+		return jsonify({"success": False, "message": "Deal not found. Incorrect deal_id"})
+
+	if deal["user_id"] != user_id:
+		return jsonify({"success": False, "message": "Unauthorized: You are not the creator of this deal"})
+
+	try:
+		mark_deal_expired_in_db(deal_id)
+		return jsonify({"success": True, "message": "Deal successfully marked as expired"})
+
+	except Exception as e:
+		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"})
 
 @app.route('/')
 def index():
