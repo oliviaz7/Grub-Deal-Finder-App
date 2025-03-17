@@ -231,7 +231,9 @@ def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 				"user_vote": deal["user_vote"],
 				"applicable_group": deal["applicable_group"],
 				"daily_start_times": deal["start_times"],
-				"daily_end_times": deal["end_times"]
+				"daily_end_times": deal["end_times"],
+				"num_upvote": deal["upvotes"],
+				"num_downvote": deal["downvotes"]
 			})
 
 		return list(restaurant_map.values())

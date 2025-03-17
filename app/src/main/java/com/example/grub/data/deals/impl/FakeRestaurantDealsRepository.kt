@@ -45,6 +45,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         // means 4-7PM on Monday - Thursday
                         dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
                         dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
+                        numUpvote = 3,
+                        numDownvote = 1
                     )
                 )
             ),
@@ -70,6 +72,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         // Friday only deal, from 0 - (23 * 60 + 59) minutes
                         dailyStartTimes = listOf(0, 0, 0, 0, 0, 0, 0),
                         dailyEndTimes = listOf(0, 0, 0, 1439, 0, 0, 0),
+                        numUpvote = 10,
+                        numDownvote = 1
                     ),
                     RawDeal(
                         id = "dealId_456",
@@ -86,6 +90,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         // Monday only deal, from 0 - (23 * 60 + 59) minutes
                         dailyStartTimes = listOf(0, 0, 0, 0, 0, 0, 0),
                         dailyEndTimes = listOf(1439, 0, 0, 0, 0, 0, 0),
+                        numUpvote = 10,
+                        numDownvote = 1,
                     )
                 )
             ),
@@ -111,6 +117,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         // means 4-7PM on Monday - Thursday
                         dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
                         dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
+                        numUpvote = 10,
+                        numDownvote = 1,
                     )
                 )
             ),
@@ -137,6 +145,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         // means 4-7PM on Monday - Thursday
                         dailyStartTimes = listOf(840, 840, 840, 840, 0, 0, 0),
                         dailyEndTimes = listOf(1080, 1080, 1080, 1080, 0, 0, 0),
+                        numUpvote = 10,
+                        numDownvote = 1,
                     )
                 )
             ),
@@ -162,6 +172,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         applicableGroup = ApplicableGroup.BIRTHDAY,
                         dailyStartTimes = null,
                         dailyEndTimes = null,
+                        numUpvote = 10,
+                        numDownvote = 0,
                     )
                 )
             ),
@@ -184,6 +196,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
                         imageId = "deal_17400.jpg",
                         dailyStartTimes = null,
                         dailyEndTimes = null,
+                        numUpvote = 1,
+                        numDownvote = 17
                     )
                 )
             ),
