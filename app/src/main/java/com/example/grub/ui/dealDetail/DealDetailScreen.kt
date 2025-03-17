@@ -24,9 +24,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
 import androidx.compose.material3.Button
@@ -39,11 +39,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -57,17 +53,13 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.VoteType
-import com.example.grub.ui.list.SortingOptions
 import com.example.grub.ui.theme.defaultTextStyle
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,9 +190,14 @@ fun DealDetailScreen(
                         .fillMaxWidth()
                 ) {
                     Row() {
-
+                        Text(
+                            text = "${deal.type}",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = Color.White,
+                            modifier = Modifier.weight(1f)
+                        )
                         Icon(
-                            Icons.Filled.Star,
+                            Icons.Filled.Favorite,
                             contentDescription = null,
                             tint =
                             if (deal.userSaved)
@@ -211,12 +208,6 @@ fun DealDetailScreen(
                                 .padding(top = 8.dp)
                                 .size(40.dp)
                                 .clickable { onSaveClicked() }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "${deal.type}",
-                            style = MaterialTheme.typography.displayMedium,
-                            color = Color.White,
                         )
                     }
 
@@ -262,9 +253,8 @@ fun DealDetailScreen(
                             else
                                 Color.White,
                             modifier = Modifier
-                                .size(18.dp)
+                                .size(24.dp)
                                 .scale(0.95f)
-                                .padding(top = 4.dp)
                                 .clickable { onUpVoteClicked() },
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -284,8 +274,7 @@ fun DealDetailScreen(
                             else
                                 Color.White,
                             modifier = Modifier
-                                .size(18.dp)
-                                .padding(top = 4.dp)
+                                .size(24.dp)
                                 .scale(0.95f)
                                 .clickable { onDownVoteClicked() },
                         )
