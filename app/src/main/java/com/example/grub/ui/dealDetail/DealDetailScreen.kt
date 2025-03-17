@@ -1,6 +1,7 @@
 package com.example.grub.ui.dealDetail
 
 import DealImage
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -28,12 +29,21 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -41,23 +51,36 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
+import com.example.grub.model.VoteType
+import com.example.grub.ui.list.SortingOptions
 import com.example.grub.ui.theme.defaultTextStyle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DealDetailScreen(
     uiState: DealDetailUiState,
     navController: NavController,
+    onSaveClicked: () -> Unit,
+    onUpVoteClicked: () -> Unit,
+    onDownVoteClicked: () -> Unit,
+    setShowBottomSheet: (Boolean) -> Unit,
+    onLogin: (Context) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -175,13 +198,19 @@ fun DealDetailScreen(
                         .fillMaxWidth()
                 ) {
                     Row() {
+
                         Icon(
                             Icons.Filled.Star,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint =
+                            if (deal.userSaved)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier
                                 .padding(top = 8.dp)
                                 .size(40.dp)
+                                .clickable { onSaveClicked() }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -227,12 +256,16 @@ fun DealDetailScreen(
                         Icon(
                             Icons.Filled.ThumbUpOffAlt,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint =
+                            if (deal.userVote == VoteType.UPVOTE)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier
                                 .size(18.dp)
                                 .scale(0.95f)
                                 .padding(top = 4.dp)
-                                .clickable { }, // Todo: -> handle click
+                                .clickable { onUpVoteClicked() },
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -245,12 +278,16 @@ fun DealDetailScreen(
                         Icon(
                             Icons.Filled.ThumbDownOffAlt,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint =
+                            if (deal.userVote == VoteType.DOWNVOTE)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier
                                 .size(18.dp)
                                 .padding(top = 4.dp)
                                 .scale(0.95f)
-                                .clickable { }, // Todo -> handle click
+                                .clickable { onDownVoteClicked() },
                         )
 
                     }
@@ -395,6 +432,45 @@ fun DealDetailScreen(
                 }
             }
         }
+        val scope = rememberCoroutineScope()
+        val sheetState = rememberModalBottomSheetState()
 
+        if (uiState.showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        setShowBottomSheet(false)
+                    }
+                },
+                sheetState = sheetState,
+                dragHandle = null,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "Sign in to interact with a deal",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    val context = LocalContext.current
+
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                onLogin(context)
+                            }
+                            setShowBottomSheet(false)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Sign in with Google")
+                    }
+                }
+            }
+        }
     }
 }
