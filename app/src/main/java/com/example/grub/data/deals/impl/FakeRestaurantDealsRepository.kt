@@ -239,7 +239,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         )
     }
 
-    override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double): Result<Unit> {
+    override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double, userId: String?): Result<Unit> {
         _accumulatedDeals.update { currentDeals ->
             (currentDeals + fakeDeals).distinctBy { it.id }
         }

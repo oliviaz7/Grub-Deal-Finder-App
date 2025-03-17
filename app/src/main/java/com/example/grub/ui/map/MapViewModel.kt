@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.User
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -36,7 +37,8 @@ data class MapUiState(
     val userLocation: LatLng?,
     val cameraCoordinate: LatLng?,
     val cameraZoom: Float,
-    val visibleRadius: Double?
+    val visibleRadius: Double?,
+    val currUser: User?,
 ) {
     val loadingUserLocation = hasLocationPermission && userLocation == null
 }
@@ -59,7 +61,8 @@ class MapViewModel(
             userLocation = null,
             cameraCoordinate = null,
             cameraZoom = 0f,
-            visibleRadius = null
+            visibleRadius = null,
+            currUser = null,
         )
     )
 
@@ -69,6 +72,7 @@ class MapViewModel(
     private suspend fun getRestaurantDeals() {
         val currentCameraCoordinates = _uiState.value.cameraCoordinate
         val currentVisibleRadius = _uiState.value.visibleRadius
+        val currUser = _uiState.value.currUser
         Log.d(
             "marker-location",
             "getRestaurantDeals camera coords param: $currentCameraCoordinates and visibleRadius: $currentVisibleRadius"
@@ -77,7 +81,8 @@ class MapViewModel(
         if (currentCameraCoordinates != null && currentVisibleRadius != null) {
             restaurantDealsRepository.getRestaurantDeals(
                 currentCameraCoordinates,
-                currentVisibleRadius
+                currentVisibleRadius,
+                currUser?.id
             )
         }
     }
@@ -109,6 +114,15 @@ class MapViewModel(
                     _uiState.update {
                         _uiState.value.copy(hasLocationPermission = permissionGranted)
                     }
+                }
+            }
+        }
+        viewModelScope.launch {
+            appViewModel.currentUser.collect { currentUser: User? ->
+                _uiState.update {
+                    it.copy(
+                        currUser = currentUser,
+                    )
                 }
             }
         }
