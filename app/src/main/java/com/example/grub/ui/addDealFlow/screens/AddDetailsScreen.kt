@@ -1,15 +1,15 @@
 package com.example.grub.ui.addDealFlow.screens
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
@@ -19,7 +19,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -28,19 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.AddDealUiState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.Alignment
-import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 
@@ -57,8 +50,6 @@ fun AddDetailsScreen(
     updateDealType: (DealType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("Select restaurant: ${uiState.deals}")
-
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
     val dealTypes = DealType.entries.toList()
@@ -108,6 +99,7 @@ fun AddDetailsScreen(
             }
         },
         containerColor = Color.White,
+        modifier = modifier,
     ) { innerPadding ->
         Column(
             modifier = Modifier

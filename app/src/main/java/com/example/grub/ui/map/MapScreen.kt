@@ -86,7 +86,6 @@ fun MapScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     // TODO: OLIVIA IMPLEMENT CUSTOM ICONS
-    // TODO: OLIVIA FIX THE NAV BUG THAT CAUSES MAP TO RECENTER
     val markerIcon by lazy { BitmapDescriptorFactory.defaultMarker(21F) }
     // https://developer.android.com/develop/sensors-and-location/location/retrieve-current
     Box(

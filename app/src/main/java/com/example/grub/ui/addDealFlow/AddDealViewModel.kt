@@ -51,9 +51,10 @@ data class DealState(
     val description: String? = null,
     val price: String? = null,
     val dealType: DealType? = null,
+    val imageKey: String? = null,
     val expiryDate: ZonedDateTime? = null,
-    val startTimes: List<Int> = List(7){0}, // array of 7 integers, each representing a day of the week
-    val endTimes: List<Int> = List(7){24 * 60}, // integers representing the end time for each day of the week, in the range [0, 24]
+    val startTimes: List<Int> = List(7) { 0 }, // array of 7 integers, each representing a day of the week
+    val endTimes: List<Int> = List(7) { 24 * 60 }, // integers representing the end time for each day of the week, in the range [0, 24]
     val restrictions: String? = null,
     val applicableGroup: ApplicableGroup = ApplicableGroup.ALL // set of applicable groups
 )
@@ -69,6 +70,7 @@ private data class AddDealViewModelState(
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
+    val imageExtension: String? = null,
     val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
     val dealState: DealState = DealState(),
@@ -79,7 +81,17 @@ private data class AddDealViewModelState(
      * the ui.
      */
     fun toUiState(): AddDealUiState =
-        AddDealUiState(deals, restaurants, step, selectedRestaurant, restaurantSearchText, imageUri, addDealResult, userId, dealState)
+        AddDealUiState(
+            deals,
+            restaurants,
+            step,
+            selectedRestaurant,
+            restaurantSearchText,
+            imageUri,
+            addDealResult,
+            userId,
+            dealState
+        )
 }
 
 
@@ -109,18 +121,36 @@ class AddDealViewModel(
             viewModelState.value.toUiState()
         )
 
-    val uploadImage = { androidUri: Uri ->
-        Log.d("uploadImage", "UPLOADING IMAGE: ${androidUri}")
+    fun updateImageExtension(extension: String) {
+        viewModelState.update { it.copy(imageExtension = extension) }
+    }
+
+    // this is the unique id/key/name of the image in the firebase storage bucket
+    // this is what we will store in the database, and is used to reconstruct the full URL
+    // to display the image later
+    private fun updateImageKey(imageId: String) {
+        viewModelState.update { it.copy(dealState = it.dealState.copy(imageKey = imageId)) }
+    }
+
+    fun uploadImageToFirebase(androidUri: Uri) {
+        Log.d("uploadImage", "UPLOADING IMAGE: $androidUri")
+        val imageKey = "deal_${viewModelState.value.userId}_${System.currentTimeMillis()}"
+        val ext = viewModelState.value.imageExtension ?: ".jpg"
+
         storageService.uploadDealImage(
-            dealId = "deal_" + System.currentTimeMillis(), // TODO: come up with a better ID
+            dealId = imageKey,
             fileUri = androidUri,
-            onSuccess = { uploadedUrl: String -> println("UPLOAD SUCCESS: $uploadedUrl") },
-            onFailure = { println("UPLOAD FAILED") },
+            onSuccess = { uploadedUrl: String ->
+                Log.d("uploadImage", "UPLOAD SUCCESS $uploadedUrl")
+                updateImageKey("$imageKey.$ext")
+            },
+            onFailure = {
+                Log.e("uploadImage", "UPLOAD FAILED, extension: $ext")
+            },
         )
     }
 
     init {
-        println("ex. how to get the logged in user: ${appViewModel.currentUser.value}")
         viewModelScope.launch {
             if (appViewModel.currentUser.value?.id == null) {
                 Log.e("Add Deal Launch", "No user id")
@@ -154,7 +184,8 @@ class AddDealViewModel(
 
     fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            val coordinates = appViewModel.currentUserLocation.value ?: appViewModel.mapCameraCentroidCoordinates.value
+            val coordinates = appViewModel.currentUserLocation.value
+                ?: appViewModel.mapCameraCentroidCoordinates.value
             if (coordinates == null) {
                 Log.e("searchNearbyRestaurants", "No location available")
                 return@launch
@@ -222,7 +253,7 @@ class AddDealViewModel(
 
     fun updateStartTimes(startTimes: List<Int>) {
         if (startTimes.isEmpty()) { // reset to default - available every day 0-24
-            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = List(7){0})) }
+            viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = List(7) { 0 })) }
         } else {
             viewModelState.update { it.copy(dealState = it.dealState.copy(startTimes = startTimes)) }
         }
@@ -230,7 +261,7 @@ class AddDealViewModel(
 
     fun updateEndTimes(endTimes: List<Int>) {
         if (endTimes.isEmpty()) { // reset to default - available every day 0-24
-            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7){24 * 60})) }
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7) { 24 * 60 })) }
         } else {
             viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
         }

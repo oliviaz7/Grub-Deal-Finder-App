@@ -1,16 +1,19 @@
 package com.example.grub.ui.addDealFlow.screens
 
+import android.content.ContentResolver
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,46 +30,46 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.ui.addDealFlow.AddDealUiState
 import coil.compose.rememberAsyncImagePainter
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.ui.layout.ContentScale
+import com.example.grub.ui.addDealFlow.AddDealUiState
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddImagesScreen (
+fun AddImagesScreen(
     uiState: AddDealUiState,
     navController: NavController,
-    uploadImage: (imageUri: Uri) -> Unit,
-    updateImageUri: (Uri?) -> Unit,
+    uploadImageToFirebase: (imageUri: Uri) -> Unit,
+    updateAndroidImageUri: (Uri?) -> Unit,
+    updateImageExtension: (String) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val contentResolver: ContentResolver = LocalContext.current.contentResolver
+    val mimeTypeMap = MimeTypeMap.getSingleton()
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        Log.d("ImagePickerButton", "ImagePickerButton Image URI: ${uri}")
-        updateImageUri(uri)
+        Log.d("ImagePickerButton", "ImagePickerButton Image URI: $uri")
+        updateAndroidImageUri(uri)
+        uri?.let {
+            contentResolver.getType(it)
+            val extension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
+            updateImageExtension(extension ?: "")
+        }
     }
 
     Scaffold(
@@ -97,11 +100,11 @@ fun AddImagesScreen (
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                OutlinedButton (
+                OutlinedButton(
                     onClick = {
-                        updateImageUri(null)
+                        updateAndroidImageUri(null)
                         nextStep()
-                              },
+                    },
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -114,7 +117,8 @@ fun AddImagesScreen (
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         uiState.imageUri?.let { uri ->
-                            uploadImage(uri)
+                            // uploads image to firebase and saves the image key in the deal state
+                            uploadImageToFirebase(uri)
                         }
                         nextStep()
                     },
@@ -125,6 +129,7 @@ fun AddImagesScreen (
             }
         },
         containerColor = Color.White,
+        modifier = modifier,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -136,12 +141,16 @@ fun AddImagesScreen (
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Upload an image to share!",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
             ImagePickerButton(
-                onClick = {launcher.launch("image/*") },
+                onClick = { launcher.launch("image/*") },
                 imageUri = uiState.imageUri
             )
         }
-
 
 
     }
@@ -154,10 +163,11 @@ fun ImagePickerButton(imageUri: Uri?, onClick: () -> Unit) {
             .size(300.dp)
             .background(
                 Color.LightGray,
-                shape = RoundedCornerShape(8.dp)),
+                shape = RoundedCornerShape(8.dp)
+            ),
         contentAlignment = Alignment.Center,
 
-    ) {
+        ) {
         Button(
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),

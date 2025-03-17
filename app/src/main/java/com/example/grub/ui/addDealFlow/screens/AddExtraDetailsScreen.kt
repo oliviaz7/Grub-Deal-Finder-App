@@ -2,7 +2,9 @@ package com.example.grub.ui.addDealFlow.screens
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -46,11 +48,9 @@ import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.NOT_AVAILABLE
 import com.example.grub.ui.addDealFlow.components.SectionDivider
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +69,7 @@ fun AddExtraDetailsScreen(
     var showErrorDialog by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
-    // hidable section states
+    // hide-able section states
     var isTimeSelectorChecked by remember { mutableStateOf(true) }
     var isApplicableGroupChecked by remember { mutableStateOf(true) }
 
@@ -156,6 +156,7 @@ fun AddExtraDetailsScreen(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NewApi")
     fun tryAddNewRestaurantDeal () {
         try {
@@ -180,7 +181,7 @@ fun AddExtraDetailsScreen(
                         expiryDate = uiState.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                         datePosted = System.currentTimeMillis(),
                         userId = uiState.userId,
-                        imageId = uiState.imageUri?.path, // idk if this is right,
+                        imageId = uiState.dealState.imageKey,
                         applicableGroup = uiState.dealState.applicableGroup,
                         dailyStartTimes = uiState.dealState.startTimes,
                         dailyEndTimes = uiState.dealState.endTimes,
@@ -231,6 +232,7 @@ fun AddExtraDetailsScreen(
             }
         },
         containerColor = Color.White,
+        modifier = modifier,
     ) { innerPadding ->
         Column(
             modifier = Modifier

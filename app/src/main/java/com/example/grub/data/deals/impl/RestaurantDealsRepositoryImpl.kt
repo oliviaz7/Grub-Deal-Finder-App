@@ -27,8 +27,10 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
      * is always relevant to the location of interest.
      */
     private fun updateAccumulatedDeals(newDeals: List<RestaurantDealsResponse>) {
-        _accumulatedDeals.update { currentDeals ->
-            (currentDeals + newDeals).distinctBy { it.id }
+        _accumulatedDeals.update { currentRestaurantDeals ->
+            newDeals + currentRestaurantDeals.filter { restaurant ->
+                newDeals.none { it.id == restaurant.id }
+            }
         }
     }
 
