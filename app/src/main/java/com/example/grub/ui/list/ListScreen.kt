@@ -103,12 +103,19 @@ fun ListScreen(
                         .height(40.dp),
                     shape = MaterialTheme.shapes.small,
                     contentPadding = PaddingValues(8.dp),
-                    colors = ButtonColors(
+                    colors = if(uiState.selectedSort=="") ButtonColors(
                         containerColor = Color.White,
                         contentColor = MaterialTheme.colorScheme.primary,
                         disabledContainerColor = MaterialTheme.colorScheme.primary,
                         disabledContentColor = Color.White,
-                    )
+                    ) else
+                        ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = Color.White,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = Color.White,
+                        )
+                    ,
                 ) {
                     Text("Sort")
                 }

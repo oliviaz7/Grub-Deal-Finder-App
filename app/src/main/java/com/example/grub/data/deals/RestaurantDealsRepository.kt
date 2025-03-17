@@ -35,6 +35,8 @@ data class RawDeal(
     @SerializedName("applicable_group") val applicableGroup: ApplicableGroup = ApplicableGroup.NONE,
     @SerializedName("daily_start_times") val dailyStartTimes: List<Int>? = null,
     @SerializedName("daily_end_times") val dailyEndTimes: List<Int>? = null,
+    @SerializedName("num_upvote") val numUpvote: Int,
+    @SerializedName("num_downvotes") val numDownvote: Int,
 )
 
 data class AddDealResponse(
