@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.util.Log
+import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.mappers.RestaurantDealMapper
 
 
 /**
@@ -22,7 +25,9 @@ import android.util.Log
  */
 data class ProfileUiState(
     val currentUser: User? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val favouriteDeals: List<RestaurantDeal> = emptyList(),
+    val showBottomSheet: Boolean = false,
 ) {
     val isLoggedIn = currentUser != null
 }
@@ -30,17 +35,17 @@ data class ProfileUiState(
 class ProfileViewModel(
     private val appViewModel: AppViewModel,
     private val authRepository: AuthRepository,
+    private val restaurantRepo: RestaurantDealsRepository,
+    private val dealMapper: RestaurantDealMapper,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     init {
         // TODO: lol remove me once auth is implemented
-        // this is just a stub to force login so we can create the profile UI
         viewModelScope.launch {
             appViewModel.currentUser.collect { currentUser: User? ->
                 _uiState.update {
-                    // if currentUser is null, means no one is logged in
                     it.copy(
                         currentUser = currentUser,
                     )
@@ -66,6 +71,23 @@ class ProfileViewModel(
                 _googleSignInState.value = GoogleSignInState.Error("Sign-in failed: ${e.message}")
             }
         }
+    }
+    fun setShowBottomSheet(show: Boolean) {
+        _uiState.update {
+            it.copy(
+                showBottomSheet = show,
+            )
+        }
+    }
+
+    fun onClickFavDeals() {
+        _uiState.update {
+            it.copy(
+                //TODO: get fav deals from restaurant repo, idk how to do this
+                favouriteDeals = emptyList(),
+            )
+        }
+        setShowBottomSheet(true)
     }
 
     fun onSignOut() {
@@ -100,10 +122,12 @@ class ProfileViewModel(
         fun provideFactory(
             appViewModel: AppViewModel,
             authRepository: AuthRepository,
+            restaurantRepo: RestaurantDealsRepository,
+            dealMapper: RestaurantDealMapper,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(appViewModel, authRepository) as T
+                return ProfileViewModel(appViewModel, authRepository, restaurantRepo, dealMapper) as T
             }
         }
     }

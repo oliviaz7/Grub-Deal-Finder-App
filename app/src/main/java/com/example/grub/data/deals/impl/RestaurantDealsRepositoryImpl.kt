@@ -52,13 +52,14 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
 
     override suspend fun getRestaurantDeals(
         coordinates: LatLng,
-        radius: Double
+        radius: Double,
+        userId: String?
     ): Result<Unit> {
         return try {
             val latitude = coordinates.latitude
             val longitude = coordinates.longitude
 
-            val response = apiService.getRestaurantDeals(latitude, longitude, radius)
+            val response = apiService.getRestaurantDeals(latitude, longitude, radius, userId)
             // add all the newly fetched deals to _accumulatedDeals
             updateAccumulatedDeals(response)
 

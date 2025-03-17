@@ -1,14 +1,9 @@
 package com.example.grub.data.auth.impl
 
 import android.content.Context
-import android.util.Log
-import androidx.credentials.Credential
-import androidx.credentials.CustomCredential
 import com.example.grub.data.Result
 import com.example.grub.data.auth.AuthRepository
 import com.example.grub.model.User
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +13,8 @@ class FakeAuthRepositoryImpl : AuthRepository {
 
     private var loggedInUserToken: String? = null
     private val fakeUserProfile = User(
-        id = "fake_user_123",
-        username = "testuser",
+        id = "2b485469-7fc3-4186-b4e7-b964104b2a52",
+        username = "grassyg",
         firstName = "guest",
         lastName = "user",
         email = "example@gmail.com"
