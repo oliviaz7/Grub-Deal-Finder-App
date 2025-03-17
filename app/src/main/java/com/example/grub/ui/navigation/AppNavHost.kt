@@ -91,6 +91,8 @@ fun AppNavHost(
                 factory = ProfileViewModel.provideFactory(
                     appViewModel = appViewModel,
                     authRepository = appContainer.authRepository,
+                    dealMapper = RestaurantDealMapper,
+                    restaurantRepo = appContainer.restaurantDealsRepository,
                 )
             )
             ScreenWithScaffold(
@@ -98,7 +100,7 @@ fun AppNavHost(
                 showBottomNavItem = true,
                 showFloatingActionButton = false
             ) {
-                ProfileRoute(profileViewModel)
+                ProfileRoute(profileViewModel, navController)
             }
         }
         composable(Destinations.ADD_DEAL_ROUTE) {

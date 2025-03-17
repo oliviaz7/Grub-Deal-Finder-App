@@ -1,6 +1,9 @@
 package com.example.grub.ui.profile
 
 
+import RestaurantItem
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -18,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -25,17 +30,24 @@ import com.example.grub.R
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     uiState: ProfileUiState,
+    onClickFavDeals: ()->Unit,
+    setShowBottomSheet: (Boolean)->Unit,
     modifier: Modifier = Modifier,
-    profileViewModel: ProfileViewModel = viewModel()
+    profileViewModel: ProfileViewModel = viewModel(),
+    navController: NavController,
 ) {
     val scrollState = rememberScrollState()
 
@@ -93,7 +105,7 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    ProfileOption(Icons.Default.Favorite, "Favorite Deals")
+                    ProfileOption(Icons.Default.Favorite, "Favorite Deals", onClickFavDeals)
                     ProfileOption(Icons.Default.Person, "Account Details")
                     ProfileOption(Icons.Default.Info, "About Grub")
                 }
@@ -110,7 +122,11 @@ fun ProfileScreen(
                     Text("Sign Out")
                 }
             }
-
+            FavouriteDeals(
+                setShowBottomSheet,
+                uiState,
+                navController,
+            )
         } else {
             Column(
                 modifier = modifier
@@ -151,6 +167,64 @@ fun ProfileScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FavouriteDeals(
+    setShowBottomSheet: (Boolean)-> Unit,
+    uiState: ProfileUiState,
+    navController: NavController
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
+    if (uiState.showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    setShowBottomSheet(false)
+                }
+            },
+            sheetState = sheetState,
+            dragHandle = null,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text("${uiState.currentUser!!.username}'s Favourite Deals")
+                if (uiState.favouriteDeals.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No deals found",
+                            color = Color.Black,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else {
+                    // Display the list of filtered restaurant deals
+                    uiState.favouriteDeals.forEach { restaurant ->
+                        RestaurantItem(
+                            restaurant = restaurant,
+                            navController = navController,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+        }
+    }
+}
+
+
 @Composable
 fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
     val context = LocalContext.current
@@ -165,7 +239,7 @@ fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
 }
 
 @Composable
-fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClickFavDeals: () -> Unit = {}) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFF6B00).copy(alpha = 0.15f)),
@@ -179,6 +253,7 @@ fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: S
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
+                .clickable{ onClickFavDeals() }
         ) {
             Icon(imageVector = icon, contentDescription = text, tint = Color.Black)
             Spacer(modifier = Modifier.width(20.dp))
