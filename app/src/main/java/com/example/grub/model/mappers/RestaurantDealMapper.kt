@@ -41,6 +41,12 @@ object RestaurantDealMapper {
             Log.e("RestaurantDealMapper", "Invalid startTimes or endTimes")
             return DayOfWeekAndTimeRestriction.NoRestriction
         }
+        // If all 7 days have time restrictions but cover the full day (00:00 - 23:59),
+        // treat it as NoRestriction
+        val isFullDayRestriction = startTimes.all { it == 0 } && endTimes.all { it == MAX_MINUTES_IN_DAY }
+        if (isFullDayRestriction) {
+            return DayOfWeekAndTimeRestriction.NoRestriction
+        }
 
         val hasTimeRestrictions =
             startTimes.any { it != 0 } || endTimes.any { it != MAX_MINUTES_IN_DAY && it != 0 }
