@@ -109,6 +109,8 @@ object RestaurantDealMapper {
                     rawDeal.dailyStartTimes,
                     rawDeal.dailyEndTimes
                 ),
+                numUpVotes = rawDeal.numUpvote,
+                numDownVotes = rawDeal.numDownvote,
             )
         }
 

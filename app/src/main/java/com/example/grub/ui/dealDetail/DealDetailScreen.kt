@@ -259,7 +259,7 @@ fun DealDetailScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "7", //TODO: need to pull BE info
+                            text = " ${deal.numUpVotes-deal.numDownVotes} ",
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White,
                         )
