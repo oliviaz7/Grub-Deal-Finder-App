@@ -137,11 +137,29 @@ class ListViewModel(
                 "type" -> {
                     val currentTypeSet = currentState.selectedCustomFilter.type
                     val newTypeSet = if (filter.uppercase() in currentTypeSet) {
-                        currentTypeSet - filter.uppercase() // Remove filter if it already exists
+                        currentTypeSet - filter.uppercase()
                     } else {
-                        currentTypeSet + filter.uppercase() // Add filter if it doesn't exist
+                        currentTypeSet + filter.uppercase()
                     }
                     currentState.selectedCustomFilter.copy(type = newTypeSet)
+                }
+                "day" -> {
+                    val currentDaySet = currentState.selectedCustomFilter.day
+                    val newDaySet = if (filter in currentDaySet) {
+                        currentDaySet - filter
+                    } else {
+                        currentDaySet + filter
+                    }
+                    currentState.selectedCustomFilter.copy(day = newDaySet)
+                }
+                "restrictions" -> {
+                    val currentRestrictionsSet = currentState.selectedCustomFilter.restrictions
+                    val newRestrictionsSet = if (filter in currentRestrictionsSet) {
+                        currentRestrictionsSet - filter
+                    } else {
+                        currentRestrictionsSet + filter
+                    }
+                    currentState.selectedCustomFilter.copy(restrictions = newRestrictionsSet)
                 }
 
                 else -> currentState.selectedCustomFilter
