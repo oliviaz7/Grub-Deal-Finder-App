@@ -74,8 +74,7 @@ interface RestaurantDealsRepository {
      */
     suspend fun getRestaurantDeals(
         coordinates: LatLng,
-        radius: Double = 1000.0,
-        userId: String?,
+        radius: Double = 1000.0
     ): Result<Unit>
 
      /**
