@@ -1,5 +1,6 @@
 package com.example.grub.model
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
@@ -79,17 +80,42 @@ sealed class DayOfWeekAndTimeRestriction(
 ) : Parcelable {
 
     @Parcelize
-    data object NoRestriction : DayOfWeekAndTimeRestriction(RestrictionType.NONE)
+    data object NoRestriction : DayOfWeekAndTimeRestriction(RestrictionType.NONE) {
+        override fun toDisplayString(): String = "Available anytime"
+    }
 
     @Parcelize
     data class DayOfWeekRestriction(
         val activeDays: List<DayOfWeek>,
-    ) : DayOfWeekAndTimeRestriction(RestrictionType.DAY_OF_WEEK)
+    ) : DayOfWeekAndTimeRestriction(RestrictionType.DAY_OF_WEEK){
+        override fun toDisplayString(): String {
+            return activeDays.joinToString(", ") { it.name.lowercase().replaceFirstChar(Char::uppercase) }
+        }
+    }
 
     @Parcelize
     data class BothDayAndTimeRestriction(
         val activeDaysAndTimes: List<DayWithTimeInterval>,
-    ) : DayOfWeekAndTimeRestriction(RestrictionType.BOTH_DAY_AND_TIME)
+    ) : DayOfWeekAndTimeRestriction(RestrictionType.BOTH_DAY_AND_TIME) {
+        @SuppressLint("DefaultLocale")
+        override fun toDisplayString(): String {
+            val filteredIntervals = activeDaysAndTimes.filterNot {
+                it.timeInterval.startHour == 0 && it.timeInterval.startMinute == 0 &&
+                        it.timeInterval.endHour == 0 && it.timeInterval.endMinute == 0
+            }
+
+            if (filteredIntervals.isEmpty()) return "No specific time restrictions"
+
+            return filteredIntervals.joinToString("\n") { interval ->
+                val day = interval.dayOfWeek.name.lowercase().replaceFirstChar(Char::uppercase)
+                val startTime = String.format("%02d:%02d", interval.timeInterval.startHour, interval.timeInterval.startMinute)
+                val endTime = String.format("%02d:%02d", interval.timeInterval.endHour, interval.timeInterval.endMinute)
+                "$day: $startTime - $endTime"
+            }
+        }
+    }
+
+    abstract fun toDisplayString(): String
 
     /**
      * Checks if the deal is available at the given [dateTime].

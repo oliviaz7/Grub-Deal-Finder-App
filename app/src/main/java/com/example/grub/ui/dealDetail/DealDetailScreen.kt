@@ -2,6 +2,7 @@ package com.example.grub.ui.dealDetail
 
 import DealImage
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,6 +47,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.grub.model.ApplicableGroup
+import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.ui.theme.defaultTextStyle
 import java.time.format.DateTimeFormatter
 
@@ -84,6 +87,8 @@ fun DealDetailScreen(
         val deal = uiState.deal!!
         val restaurantName = uiState.restaurantName!!
         val restaurantAddress = uiState.restaurantAddress!!
+        Log.d("deal detail screen", deal.toString())
+
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -291,6 +296,65 @@ fun DealDetailScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = deal.description,
+                                    style = defaultTextStyle.copy(
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        letterSpacing = 0.15.sp,
+                                        fontWeight = FontWeight.Light,
+                                        lineBreak = LineBreak.Heading
+                                    ),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+
+                                )
+                            }
+
+                            if (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Available on:",
+                                    style = defaultTextStyle.copy(
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        letterSpacing = 0.15.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        lineBreak = LineBreak.Heading
+                                    ),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+
+                                )
+                                Text(
+                                    text = deal.activeDayTime.toDisplayString(),
+                                    style = defaultTextStyle.copy(
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        letterSpacing = 0.15.sp,
+                                        fontWeight = FontWeight.Light,
+                                        lineBreak = LineBreak.Heading
+                                    ),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+
+                                )
+                            }
+
+                            if (
+                                deal.applicableGroup != ApplicableGroup.NONE
+                                && deal.applicableGroup != ApplicableGroup.ALL
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Available to:",
+                                    style = defaultTextStyle.copy(
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        letterSpacing = 0.15.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        lineBreak = LineBreak.Heading
+                                    ),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+
+                                )
+                                Text(
+                                    text = deal.applicableGroup.toString(),
                                     style = defaultTextStyle.copy(
                                         fontSize = 16.sp,
                                         lineHeight = 24.sp,
