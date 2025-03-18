@@ -38,6 +38,7 @@ data class RawDeal(
     @SerializedName("daily_end_times") val dailyEndTimes: List<Int>? = null,
     @SerializedName("num_upvote") val numUpvote: Int = 0,
     @SerializedName("num_downvotes") val numDownvote: Int = 0,
+    @SerializedName("price") val price: Double = 0.0,
 )
 
 data class AddDealResponse(
