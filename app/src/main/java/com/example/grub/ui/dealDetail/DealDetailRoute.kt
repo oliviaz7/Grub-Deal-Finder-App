@@ -1,6 +1,5 @@
 package com.example.grub.ui.dealDetail
 
-import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -19,27 +18,15 @@ fun DealDetailRoute(
     dealDetailViewModel: DealDetailViewModel,
     navController: NavController
 ) {
-    // UiState of the HomeScreen
     val uiState by dealDetailViewModel.uiState.collectAsStateWithLifecycle()
 
     DealDetailScreen(
         uiState,
         navController,
-        onSaveClicked = { -> dealDetailViewModel.onSaveClicked() },
-        onUpVoteClicked = { -> dealDetailViewModel.onUpVoteClicked() },
-        onDownVoteClicked = { -> dealDetailViewModel.onDownVoteClicked() },
-        setShowBottomSheet = { show: Boolean ->
-            dealDetailViewModel.setShowBottomSheet(show)
-        },
-        onLogin = { context: Context -> dealDetailViewModel.onLogin(context) },
+        onSaveClicked = dealDetailViewModel::onSaveClicked,
+        onUpVoteClicked = dealDetailViewModel::onUpVoteClicked,
+        onDownVoteClicked = dealDetailViewModel::onDownVoteClicked,
+        setShowBottomSheet = dealDetailViewModel::setShowBottomSheet,
+        onLogin = dealDetailViewModel::onLogin,
     )
-}
-
-
-@Composable
-fun DealDetailRoute(
-    uiState: DealDetailUiState,
-    navController: NavController
-) {
-
 }

@@ -12,9 +12,11 @@ import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.Deal
 import com.example.grub.model.User
 import com.example.grub.model.VoteType
+import com.example.grub.model.mappers.RestaurantDealMapper.mapRawDealToDeal
 import com.example.grub.ui.AppViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,7 +35,9 @@ data class DealDetailUiState(
     val deal: Deal?,
     val restaurantName: String?,
     val restaurantAddress: String?,
-)
+) {
+    val isLoggedIn = currUser != null
+}
 
 /**
  * An internal representation of the map route state, in a raw form
@@ -87,6 +91,28 @@ class DealDetailViewModel(
             viewModelState.value.toUiState()
         )
 
+    private suspend fun observeChangesToDeal() {
+        // subscribe to changes in the current deal's votes
+        restaurantDealRepo.accumulatedDeals().collectLatest { allRestaurantDeals ->
+
+            // for each restaurant, look through its deals until we find our deal
+            allRestaurantDeals.map { restaurantDeal ->
+                restaurantDeal.rawDeals.map { rawDeal ->
+                    if (rawDeal.id == deal?.id) {
+
+                        // update the view model state with any changes to the new deal
+                        // if we add the ability to edit other fields, we need to include
+                        viewModelState.update {
+                            it.copy(
+                                deal = mapRawDealToDeal(rawDeal)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     init {
         viewModelScope.launch {
             viewModelState.update {
@@ -103,6 +129,10 @@ class DealDetailViewModel(
                     )
                 }
             }
+        }
+        // subscribe to changes in the deal details that we're observing
+        viewModelScope.launch {
+            observeChangesToDeal()
         }
     }
 
@@ -141,11 +171,12 @@ class DealDetailViewModel(
         if (viewModelState.value.currUser == null) {
             setShowBottomSheet(true)
         } else {
+            val alreadyUpvoted = viewModelState.value.deal?.userVote == VoteType.UPVOTE
             viewModelScope.launch {
                 restaurantDealRepo.updateVote(
                     dealId = viewModelState.value.deal!!.id,
                     userId = viewModelState.value.currUser!!.id,
-                    userVote = VoteType.UPVOTE,
+                    userVote = if (alreadyUpvoted) VoteType.NEUTRAL else VoteType.UPVOTE,
                 )
             }
         }
@@ -156,11 +187,12 @@ class DealDetailViewModel(
         if (viewModelState.value.currUser == null) {
             setShowBottomSheet(true)
         } else {
+            val alreadyDownvoted = viewModelState.value.deal?.userVote == VoteType.DOWNVOTE
             viewModelScope.launch {
                 restaurantDealRepo.updateVote(
                     dealId = viewModelState.value.deal!!.id,
                     userId = viewModelState.value.currUser!!.id,
-                    userVote = VoteType.DOWNVOTE,
+                    userVote = if (alreadyDownvoted) VoteType.NEUTRAL else VoteType.DOWNVOTE,
                 )
             }
         }

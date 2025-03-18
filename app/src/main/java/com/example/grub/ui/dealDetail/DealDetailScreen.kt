@@ -23,12 +23,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -197,13 +198,13 @@ fun DealDetailScreen(
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
-                            Icons.Filled.Favorite,
+                            imageVector = if (deal.userSaved && uiState.isLoggedIn) {
+                                Icons.Filled.Bookmark
+                            } else {
+                                Icons.Outlined.BookmarkBorder
+                            },
                             contentDescription = null,
-                            tint =
-                            if (deal.userSaved)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                Color.White,
+                            tint = Color.White,
                             modifier = Modifier
                                 .padding(top = 8.dp)
                                 .size(40.dp)
@@ -241,41 +242,38 @@ fun DealDetailScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row() {
-
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row {
                         Icon(
                             Icons.Filled.ThumbUpOffAlt,
                             contentDescription = null,
                             tint =
-                            if (deal.userVote == VoteType.UPVOTE)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                Color.White,
+                                if (deal.userVote == VoteType.UPVOTE)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.White,
                             modifier = Modifier
-                                .size(24.dp)
-                                .scale(0.95f)
+                                .size(26.dp)
                                 .clickable { onUpVoteClicked() },
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = " ${deal.numUpVotes-deal.numDownVotes} ",
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = " ${deal.numUpVotes - deal.numDownVotes} ",
+                            style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
 
                         Icon(
                             Icons.Filled.ThumbDownOffAlt,
                             contentDescription = null,
                             tint =
-                            if (deal.userVote == VoteType.DOWNVOTE)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                Color.White,
+                                if (deal.userVote == VoteType.DOWNVOTE)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.White,
                             modifier = Modifier
-                                .size(24.dp)
-                                .scale(0.95f)
+                                .size(26.dp)
                                 .clickable { onDownVoteClicked() },
                         )
 

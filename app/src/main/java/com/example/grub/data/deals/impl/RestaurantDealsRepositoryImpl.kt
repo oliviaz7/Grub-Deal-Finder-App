@@ -2,8 +2,9 @@ package com.example.grub.data.deals.impl
 
 import android.util.Log
 import com.example.grub.data.Result
-import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.ApiResponse
+import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
@@ -26,7 +27,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
      * Should be called with removeFarawayDeals to ensure that the deal store
      * is always relevant to the location of interest.
      */
-    private fun updateAccumulatedDeals(newDeals: List<RestaurantDealsResponse>) {
+    private fun updateAccumulatedDealsWithVote(newDeals: List<RestaurantDealsResponse>) {
         _accumulatedDeals.update { currentRestaurantDeals ->
             newDeals + currentRestaurantDeals.filter { restaurant ->
                 newDeals.none { it.id == restaurant.id }
@@ -61,7 +62,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
 
             val response = apiService.getRestaurantDeals(latitude, longitude, radius, userId)
             // add all the newly fetched deals to _accumulatedDeals
-            updateAccumulatedDeals(response)
+            updateAccumulatedDealsWithVote(response)
 
             // remove any deals that are too far away now (beyond 3x the radius)
             removeFarawayDeals(coordinates, radius * 3)
@@ -103,17 +104,94 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         }
     }
 
+    private fun applyVoteToDeal(deal: RawDeal, voteType: VoteType): RawDeal {
+        val previousVote = deal.userVote
+
+        if (previousVote == voteType) {
+            return deal
+        }
+
+        return when (voteType) {
+            VoteType.UPVOTE -> deal.copy(
+                userVote = voteType,
+                numUpvote = deal.numUpvote + 1,
+                numDownvote = deal.numDownvote - (if (previousVote == VoteType.DOWNVOTE) 1 else 0)
+            )
+            VoteType.DOWNVOTE -> deal.copy(
+                userVote = voteType,
+                numUpvote = deal.numUpvote - (if (previousVote == VoteType.UPVOTE) 1 else 0),
+                numDownvote = deal.numDownvote + 1
+            )
+            // otherwise the user is removing their vote
+            else -> {
+                deal.copy(
+                    userVote = VoteType.NEUTRAL,
+                    numDownvote = if (previousVote == VoteType.DOWNVOTE) {
+                        deal.numDownvote - 1
+                    } else {
+                        deal.numDownvote
+                    },
+                    numUpvote = if (previousVote == VoteType.UPVOTE) {
+                        deal.numUpvote - 1
+                    } else {
+                        deal.numUpvote
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * This is an optimistic update to the accumulated deals.
+     * Force/manually rewrites what we have as local state, so we don't have to wait for the
+     * network request to finish before updating the UI.
+     * TODO: we should be making a network request to update the vote, and then updating the
+     */
+    private fun updateAccumulatedDealsWithVote(dealId: String, userVote: VoteType) {
+        // optimistically update the vote in the accumulated deals
+        val updatedDeals = _accumulatedDeals.value.map { restaurant ->
+            restaurant.copy(
+                rawDeals = restaurant.rawDeals.map { deal ->
+                    if (deal.id == dealId) {
+                        applyVoteToDeal(deal, userVote)
+                    } else {
+                        deal
+                    }
+                }
+            )
+        }
+        _accumulatedDeals.value = updatedDeals
+    }
+
+    private fun updateAccumulatedDealsWithSaveAction(dealId: String, saved: Boolean) {
+        // optimistically update the vote in the accumulated deals
+        val updatedDeals = _accumulatedDeals.value.map { restaurant ->
+            restaurant.copy(
+                rawDeals = restaurant.rawDeals.map { deal ->
+                    if (deal.id == dealId) {
+                        deal.copy(userSaved = saved)
+                    } else {
+                        deal
+                    }
+                }
+            )
+        }
+        _accumulatedDeals.value = updatedDeals
+    }
+
     override suspend fun updateVote(
         dealId: String,
         userId: String,
         userVote: VoteType
     ): Result<ApiResponse> {
-        return try {
+        try {
             val response = apiService.updateVote(dealId, userId, userVote)
-            Result.Success(response)
+
+            updateAccumulatedDealsWithVote(dealId, userVote)
+            return Result.Success(response)
         } catch (e: Exception) {
             Log.e("RestaurantDealsError", "Error updating vote", e)
-            Result.Error(e)
+            return Result.Error(e)
         }
     }
 
@@ -123,6 +201,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
     ): Result<ApiResponse> {
         return try {
             val response = apiService.saveDeal(dealId, userId)
+            updateAccumulatedDealsWithSaveAction(dealId, saved = true)
             Result.Success(response)
         } catch (e: Exception) {
             Log.e("RestaurantDealsError", "Error saving deal", e)
@@ -136,6 +215,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
     ): Result<ApiResponse> {
         return try {
             val response = apiService.unsaveDeal(dealId, userId)
+            updateAccumulatedDealsWithSaveAction(dealId, saved = false)
             Result.Success(response)
         } catch (e: Exception) {
             Log.e("RestaurantDealsError", "Error unsaving deal", e)

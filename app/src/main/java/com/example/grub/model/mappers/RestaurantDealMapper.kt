@@ -3,6 +3,7 @@ package com.example.grub.model.mappers
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.DayOfWeek
@@ -44,7 +45,8 @@ object RestaurantDealMapper {
         }
         // If all 7 days have time restrictions but cover the full day (00:00 - 23:59),
         // treat it as NoRestriction
-        val isFullDayRestriction = startTimes.all { it == 0 } && endTimes.all { it == MAX_MINUTES_IN_DAY }
+        val isFullDayRestriction =
+            startTimes.all { it == 0 } && endTimes.all { it == MAX_MINUTES_IN_DAY }
         if (isFullDayRestriction) {
             return DayOfWeekAndTimeRestriction.NoRestriction
         }
@@ -86,34 +88,35 @@ object RestaurantDealMapper {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun mapResponseToRestaurantDeals(response: RestaurantDealsResponse): RestaurantDeal {
+    fun mapRawDealToDeal(rawDeal: RawDeal): Deal {
         val zoneId = ZoneId.of("EST") // hardcoded time zone for now
-        val deals = response.rawDeals.map { rawDeal ->
-            Deal(
-                id = rawDeal.id,
-                item = rawDeal.item,
-                description = rawDeal.description,
-                type = rawDeal.type,
-                expiryDate = rawDeal.expiryDate?.let {
-                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(it), zoneId)
-                },
-                datePosted = ZonedDateTime.ofInstant(
-                    Instant.ofEpochMilli(rawDeal.datePosted),
-                    zoneId
-                ),
-                userId = rawDeal.userId,
-                imageUrl = ImageUrlHelper.getFullUrl(rawDeal.imageId),
-                userSaved = rawDeal.userSaved,
-                userVote = rawDeal.userVote,
-                applicableGroup = rawDeal.applicableGroup,
-                activeDayTime = mapStartEndTimesToRestriction(
-                    rawDeal.dailyStartTimes,
-                    rawDeal.dailyEndTimes
-                ),
-                numUpVotes = rawDeal.numUpvote,
-                numDownVotes = rawDeal.numDownvote,
-            )
-        }
+
+        return Deal(
+            id = rawDeal.id,
+            item = rawDeal.item,
+            description = rawDeal.description,
+            type = rawDeal.type,
+            expiryDate = rawDeal.expiryDate?.let {
+                ZonedDateTime.ofInstant(Instant.ofEpochMilli(it), zoneId)
+            },
+            datePosted = ZonedDateTime.ofInstant(Instant.ofEpochMilli(rawDeal.datePosted), zoneId),
+            userId = rawDeal.userId,
+            imageUrl = ImageUrlHelper.getFullUrl(rawDeal.imageId),
+            userSaved = rawDeal.userSaved,
+            userVote = rawDeal.userVote,
+            applicableGroup = rawDeal.applicableGroup,
+            activeDayTime = mapStartEndTimesToRestriction(
+                rawDeal.dailyStartTimes,
+                rawDeal.dailyEndTimes
+            ),
+            numUpVotes = rawDeal.numUpvote,
+            numDownVotes = rawDeal.numDownvote,
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun mapResponseToRestaurantDeals(response: RestaurantDealsResponse): RestaurantDeal {
+        val deals = response.rawDeals.map(::mapRawDealToDeal)
 
         return RestaurantDeal(
             id = response.id,
