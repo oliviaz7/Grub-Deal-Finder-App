@@ -84,7 +84,7 @@ class ListViewModel(
                 .sortedByDescending { it.deals.firstOrNull()?.datePosted }
 
             "Up Votes" -> uiState.value.restaurantDeals
-                .map { it.copy(deals = it.deals.sortedByDescending { deal -> deal.numUpVotes-deal.numDownVotes }) }
+                .map { it.copy(deals = it.deals.sortedByDescending { deal -> deal.numUpVotes - deal.numDownVotes }) }
                 .sortedByDescending { it.deals.firstOrNull()?.numUpVotes }
 
             else -> uiState.value.restaurantDeals
@@ -185,10 +185,13 @@ class ListViewModel(
                             when (restriction) {
                                 is DayOfWeekAndTimeRestriction.NoRestriction -> true
                                 is DayOfWeekAndTimeRestriction.DayOfWeekRestriction ->
-                                    restriction.activeDays.any { it.toString() in viewModelState.value.selectedCustomFilter.day }
-
+                                    restriction.activeDays.any {
+                                        it.toString() in viewModelState.value.selectedCustomFilter.day
+                                    }
                                 is DayOfWeekAndTimeRestriction.BothDayAndTimeRestriction ->
-                                    restriction.activeDaysAndTimes.any { it.dayOfWeek.name in viewModelState.value.selectedCustomFilter.day }
+                                    restriction.activeDaysAndTimes.any {
+                                        it.dayOfWeek.toString() in viewModelState.value.selectedCustomFilter.day
+                                    }
                             }
                         })
             }

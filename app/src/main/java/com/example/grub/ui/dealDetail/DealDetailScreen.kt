@@ -122,10 +122,7 @@ fun DealDetailScreen(
                     Modifier
                         .fillMaxSize()
                 )
-
             }
-
-
 
             Box(
                 Modifier
@@ -157,25 +154,8 @@ fun DealDetailScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row() {
-                        Icon(
-                            Icons.Filled.Schedule,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text(
-                            text = "Hours Open:",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
                 }
             }
-
 
             Box(
                 Modifier
