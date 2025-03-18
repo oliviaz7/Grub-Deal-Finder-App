@@ -65,3 +65,5 @@ enum class ApplicableGroup {
     // NOTE: whenever you add a ApplicableGroup, please add the enum in supabase as well.
     //       Go to Database > DATABASE MANAGEMENT > Enumerated Types > Update type (for ApplicableGroup) > add value for new enum
 }
+
+const val NOT_AVAILABLE = 0

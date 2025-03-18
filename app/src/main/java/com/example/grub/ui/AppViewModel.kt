@@ -41,6 +41,10 @@ class AppViewModel(
     private val _mapCameraCentroidCoordinates = MutableStateFlow<LatLng?>(null)
     val mapCameraCentroidCoordinates: StateFlow<LatLng?> = _mapCameraCentroidCoordinates.asStateFlow()
 
+    private val _hasCameraPermission = MutableStateFlow(false)
+    val hasCameraPermission: StateFlow<Boolean> = _hasCameraPermission.asStateFlow()
+
+
     init {
         viewModelScope.launch {
             authRepository.loggedInUser.collect { user ->
@@ -54,13 +58,18 @@ class AppViewModel(
     /**
      * Update our own state when we detect a change in location permissions
      */
-    fun onPermissionsChanged(permissionGranted: Boolean) {
+    fun onLocationPermissionsChanged(permissionGranted: Boolean) {
         Log.i("location-permission", "location granted: $permissionGranted")
         _hasLocationPermission.value = permissionGranted
 
         if (permissionGranted) {
             getCurrentUserLocation()
         }
+    }
+
+    fun onCameraPermissionsChange(permissionGranted: Boolean) {
+        Log.i("camera-permission", "camera granted: $permissionGranted")
+        _hasCameraPermission.value = permissionGranted
     }
 
     /**

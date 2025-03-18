@@ -30,9 +30,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.grub.model.NOT_AVAILABLE
 import java.util.Calendar
 
-val NOT_AVAILABLE = 0
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

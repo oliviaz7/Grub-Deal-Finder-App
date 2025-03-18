@@ -152,7 +152,7 @@ class MapViewModel(
     }
 
     fun onPermissionsChanged(permissionGranted: Boolean) {
-        appViewModel.onPermissionsChanged(permissionGranted)
+        appViewModel.onLocationPermissionsChanged(permissionGranted)
     }
 
     // https://developer.android.com/training/location/receive-location-updates

@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.grub.data.deals.SimpleRestaurant
-import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
@@ -52,6 +51,7 @@ fun AddDealRoute(
         updateStartTimes = addDealViewModel::updateStartTimes,
         updateEndTimes = addDealViewModel::updateEndTimes,
         updateApplicableGroups = addDealViewModel::updateApplicableGroup,
+        onPermissionsChanged = addDealViewModel::onCameraPermissionsChanged,
     )
 }
 
@@ -61,7 +61,7 @@ fun AddDealRoute(
     uiState: AddDealUiState,
     navController: NavController,
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
-    addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
+    addNewRestaurantDeal: () -> Unit,
     searchNearbyRestaurants: (String, Double) -> Unit,
     updateRestaurant: (SimpleRestaurant) -> Unit,
     prevStep: () -> Unit,
@@ -77,6 +77,7 @@ fun AddDealRoute(
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateApplicableGroups: (ApplicableGroup) -> Unit,
+    onPermissionsChanged: (Boolean) -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -97,6 +98,7 @@ fun AddDealRoute(
                 uploadImageToFirebase = uploadImageToFirebase,
                 updateAndroidImageUri = updateAndroidImageUri,
                 updateImageExtension = updateImageExtension,
+                onPermissionsChanged = onPermissionsChanged,
                 prevStep = prevStep,
                 nextStep = nextStep,
             )

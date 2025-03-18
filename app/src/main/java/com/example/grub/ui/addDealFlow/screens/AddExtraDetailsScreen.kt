@@ -39,6 +39,9 @@ import com.example.grub.data.Result
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.ApplicableGroup
+import com.example.grub.model.NOT_AVAILABLE
+import com.example.grub.model.mappers.MAX_MINUTES_IN_DAY
+import com.example.grub.model.mappers.MIN_MINUTES_IN_DAY
 import com.example.grub.ui.addDealFlow.AddDealUiState
 import java.util.Calendar
 import com.example.grub.ui.addDealFlow.components.TimeSelector
@@ -46,7 +49,6 @@ import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.CustomRadioButton
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
-import com.example.grub.ui.addDealFlow.components.NOT_AVAILABLE
 import com.example.grub.ui.addDealFlow.components.SectionDivider
 import java.time.LocalDate
 import java.time.ZoneId
@@ -57,7 +59,7 @@ import java.time.ZonedDateTime
 fun AddExtraDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
-    addNewRestaurantDeal: (RestaurantDealsResponse) -> Unit,
+    addNewRestaurantDeal: () -> Unit,
     prevStep: () -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
@@ -137,7 +139,7 @@ fun AddExtraDetailsScreen(
             // both must be NOT_AVAILABLE or both must be >= 0 and start time < end time
             if (startTimes[i] == NOT_AVAILABLE && endTimes[i] == NOT_AVAILABLE) {
                 continue
-            } else if (startTimes[i] < 0 || endTimes[i] < 0 || startTimes[i] > 24 * 60 || endTimes[i] > 24 * 60) {
+            } else if (startTimes[i] < MIN_MINUTES_IN_DAY || endTimes[i] < MIN_MINUTES_IN_DAY || startTimes[i] > MAX_MINUTES_IN_DAY || endTimes[i] > MAX_MINUTES_IN_DAY) {
                 return false
             } else if (startTimes[i] >= endTimes[i]) {
                 return false
@@ -165,30 +167,7 @@ fun AddExtraDetailsScreen(
             showErrorDialog = e.message ?: "Unknown error"
             return
         }
-        addNewRestaurantDeal(
-            RestaurantDealsResponse(
-                id = "default_id",
-                placeId = uiState.selectedRestaurant.placeId,
-                coordinates = uiState.selectedRestaurant.coordinates,
-                restaurantName = uiState.selectedRestaurant.restaurantName,
-                displayAddress = "restaurant_addy", // will be added in the BE
-                rawDeals = listOf(
-                    RawDeal( // TODO: add price to raw deal obj
-                        id = "default_deal_id",
-                        item = uiState.dealState.itemName,
-                        description = uiState.dealState.description,
-                        type = uiState.dealState.dealType!!,
-                        expiryDate = uiState.dealState.expiryDate?.toInstant()?.toEpochMilli(),
-                        datePosted = System.currentTimeMillis(),
-                        userId = uiState.userId,
-                        imageId = uiState.dealState.imageKey,
-                        applicableGroup = uiState.dealState.applicableGroup,
-                        dailyStartTimes = uiState.dealState.startTimes,
-                        dailyEndTimes = uiState.dealState.endTimes,
-                    )
-                )
-            )
-        )
+        addNewRestaurantDeal() // restaurantDeal created in AddDealViewModel
         showDialog = true
     }
 

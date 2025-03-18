@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -35,6 +36,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.ui.addDealFlow.AddDealUiState
-
+import com.example.grub.ui.addDealFlow.components.CameraCaptureScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +60,7 @@ fun AddImagesScreen(
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
     updateAndroidImageUri: (Uri?) -> Unit,
     updateImageExtension: (String) -> Unit,
+    onPermissionsChanged: (Boolean) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,8 +68,7 @@ fun AddImagesScreen(
     val contentResolver: ContentResolver = LocalContext.current.contentResolver
     val mimeTypeMap = MimeTypeMap.getSingleton()
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        Log.d("ImagePickerButton", "ImagePickerButton Image URI: $uri")
+    fun updateImage(uri: Uri?) {
         updateAndroidImageUri(uri)
         uri?.let {
             contentResolver.getType(it)
@@ -71,6 +76,15 @@ fun AddImagesScreen(
             updateImageExtension(extension ?: "")
         }
     }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        Log.d("ImagePickerButton", "ImagePickerButton Image URI: $uri")
+        updateImage(uri)
+    }
+
+    var openCamerPreview by remember { mutableStateOf(false) }
+
+
 
     Scaffold(
         topBar = {
@@ -141,18 +155,40 @@ fun AddImagesScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Upload an image to share!",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            ImagePickerButton(
-                onClick = { launcher.launch("image/*") },
-                imageUri = uiState.imageUri
-            )
+            if (openCamerPreview) {
+                Box (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CameraCaptureScreen(
+                        updateImageUri = { updateImage(it) },
+                        onPermissionsChanged = onPermissionsChanged,
+                        onDismiss = { openCamerPreview = false },
+                    )
+                }
+            } else {
+                Text(
+                    text = "Upload an image to share!",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 20.dp)
+                )
+                ImagePickerButton(
+                    onClick = { launcher.launch("image/*") },
+                    imageUri = uiState.imageUri
+                )
+            }
+
+            Button(
+                onClick = { openCamerPreview = true },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Open Camera",
+                )
+            }
         }
-
-
     }
 }
 
@@ -160,9 +196,11 @@ fun AddImagesScreen(
 fun ImagePickerButton(imageUri: Uri?, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(300.dp)
+            .size(
+                if (imageUri == null) 300.dp else 400.dp
+            )
             .background(
-                Color.LightGray,
+                if (imageUri == null) Color.LightGray else Color.Transparent,
                 shape = RoundedCornerShape(8.dp)
             ),
         contentAlignment = Alignment.Center,

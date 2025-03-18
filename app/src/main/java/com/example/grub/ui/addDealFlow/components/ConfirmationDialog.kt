@@ -35,7 +35,7 @@ fun ConfirmationDialog(
                     navController.popBackStack()
                 },
                 title = { Text(text = "Confirmation") },
-                text = { Text(text = "Your action was successful!") },
+                text = { Text(text = "You added a deal!") },
                 confirmButton = {
                     Button(onClick = {
                         onDismiss()

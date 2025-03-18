@@ -16,7 +16,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-val MAX_MINUTES_IN_DAY = 24 * 60
+const val MIN_MINUTES_IN_DAY = 0
+const val MAX_MINUTES_IN_DAY = 24 * 60
 
 object RestaurantDealMapper {
 
