@@ -4,38 +4,55 @@ package com.example.grub.ui.profile
 import RestaurantItem
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import coil.compose.rememberAsyncImagePainter
-import androidx.compose.ui.graphics.graphicsLayer
-import com.example.grub.R
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.grub.R
 import kotlinx.coroutines.launch
 
 
@@ -43,8 +60,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileScreen(
     uiState: ProfileUiState,
-    onClickFavDeals: ()->Unit,
-    setShowBottomSheet: (Boolean)->Unit,
+    onClickFavDeals: () -> Unit,
+    setShowBottomSheet: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = viewModel(),
     navController: NavController,
@@ -105,7 +122,7 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    ProfileOption(Icons.Default.Favorite, "Favorite Deals", onClickFavDeals)
+                    ProfileOption(Icons.Default.Favorite, "Favourite Deals", onClickFavDeals)
                     ProfileOption(Icons.Default.Person, "Account Details")
                     ProfileOption(Icons.Default.Info, "About Grub")
                 }
@@ -171,7 +188,7 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavouriteDeals(
-    setShowBottomSheet: (Boolean)-> Unit,
+    setShowBottomSheet: (Boolean) -> Unit,
     uiState: ProfileUiState,
     navController: NavController
 ) {
@@ -187,7 +204,9 @@ fun FavouriteDeals(
             },
             sheetState = sheetState,
             dragHandle = null,
-        ) {
+            containerColor = Color.White,
+
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,7 +214,11 @@ fun FavouriteDeals(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Text("${uiState.currentUser!!.username}'s Favourite Deals")
+                Text(
+                    text = "${uiState.currentUser!!.username}'s Favourite Deals",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
+                )
                 if (uiState.favouriteDeals.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -210,12 +233,18 @@ fun FavouriteDeals(
                         )
                     }
                 } else {
-                    // Display the list of filtered restaurant deals
-                    uiState.favouriteDeals.forEach { restaurant ->
-                        RestaurantItem(
-                            restaurant = restaurant,
-                            navController = navController,
-                        )
+                    val scrollState = rememberScrollState()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(
+                        modifier = Modifier.verticalScroll(scrollState)
+                    ) {
+                        // Display the list of filtered restaurant deals
+                        uiState.favouriteDeals.forEach { restaurant ->
+                            RestaurantItem(
+                                restaurant = restaurant,
+                                navController = navController,
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -234,12 +263,20 @@ fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
     }
 
     Button(onClick = onClick) {
-        Text("Sign in with Google", style = MaterialTheme.typography.titleMedium, color = Color.Black)
+        Text(
+            "Sign in with Google",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Black
+        )
     }
 }
 
 @Composable
-fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClickFavDeals: () -> Unit = {}) {
+fun ProfileOption(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    onClickFavDeals: () -> Unit = {}
+) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFF6B00).copy(alpha = 0.15f)),
@@ -253,7 +290,7 @@ fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: S
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .clickable{ onClickFavDeals() }
+                .clickable { onClickFavDeals() }
         ) {
             Icon(imageVector = icon, contentDescription = text, tint = Color.Black)
             Spacer(modifier = Modifier.width(20.dp))
