@@ -192,7 +192,7 @@ class AddDealViewModel(
             placeId = uiState.value.selectedRestaurant.placeId,
             coordinates = uiState.value.selectedRestaurant.coordinates,
             restaurantName = uiState.value.selectedRestaurant.restaurantName,
-            displayAddress = "restaurant_addy", // will be added in the BE
+            displayAddress = uiState.value.selectedRestaurant.displayAddress ?: "",
             rawDeals = listOf(
                 RawDeal( // TODO: add price to raw deal obj
                     id = "default_deal_id", // will be added in the BE
