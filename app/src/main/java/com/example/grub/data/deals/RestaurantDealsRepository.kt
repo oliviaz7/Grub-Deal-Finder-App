@@ -110,7 +110,7 @@ interface RestaurantDealsRepository {
 
     suspend fun getSavedDeals(
         userId: String
-    ): Result<List<String>>
+    ): Result<List<RestaurantDealsResponse>>
 
     suspend fun deleteDeal(
         dealId: String,

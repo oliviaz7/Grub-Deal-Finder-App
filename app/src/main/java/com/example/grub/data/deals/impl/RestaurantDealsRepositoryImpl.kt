@@ -223,7 +223,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         }
     }
 
-    override suspend fun getSavedDeals(userId: String): Result<List<String>> {
+    override suspend fun getSavedDeals(userId: String): Result<List<RestaurantDealsResponse>> {
         return try {
             val response = apiService.getSavedDeals(userId)
             Result.Success(response)
