@@ -189,6 +189,59 @@ def get_all_restaurant_deals_in_db():
 		logger.error(f"Failed to fetch restaurant deals: {str(e)}", exc_info=True)
 		return []
 
+def group_deals_by_restaurant(response_data):
+	restaurant_map = {}
+
+	for deal in response_data:
+		rest_id = deal["restaurant_id"]
+
+		# initialize restaurant
+		restaurant = restaurant_map.setdefault(rest_id, {
+			"id": rest_id,
+			"place_id": deal["place_id"],
+			"coordinates": {
+				"latitude": deal["latitude"],
+				"longitude": deal["longitude"]
+			},
+			"restaurant_name": deal["restaurant_name"],
+			"display_address": deal["display_address"],
+			"image_url": deal["image_url"],
+			"Deal": []
+		})
+
+		# Append deal details to restaurant
+		restaurant["Deal"].append({
+			"id": deal["id"],
+			"item": deal["item"],
+			"description": deal["description"],
+			"type": deal["type"],
+			"expiry_date": deal["expiry_date"],
+			"date_posted": deal["date_posted"],
+			"user_id": deal["user_id"],
+			"image_id": deal["image_id"],
+			"user_saved": deal["user_saved"],
+			"user_vote": deal["user_vote"],
+			"applicable_group": deal["applicable_group"],
+			"daily_start_times": deal["start_times"],
+			"daily_end_times": deal["end_times"],
+			"num_upvote": deal["upvotes"],
+			"num_downvote": deal["downvotes"]
+		})
+
+	return list(restaurant_map.values())
+
+def get_user_saved_restaurant_deals(user_id):
+	"""Fetches all saved restaurants and their deals from Supabase, along with user saved status."""
+	try:
+		response = supabase.rpc('get_user_saved_restaurant_deals', params={"target_user_id": user_id}).execute()
+		data = response.data
+
+		return group_deals_by_restaurant(data)
+
+	except Exception as e:
+		logger.error(f"Failed to fetch saved restaurant data: {str(e)}", exc_info=True)
+		return []
+
 def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 	"""Fetches all restaurants and their deals from Supabase, along with user saved status."""
 	try:
@@ -197,49 +250,10 @@ def get_all_restaurant_deals_with_user_details_in_db(user_id=None):
 		response = supabase.rpc('get_all_restaurant_deals', params={"target_user_id": user_id}).execute()
 		data = response.data
 
-		# Group deals by restaurant
-		restaurant_map = {}
-
-		for deal in data:
-			rest_id = deal["restaurant_id"]
-
-			# initialize restaurant
-			restaurant = restaurant_map.setdefault(rest_id, {
-				"id": rest_id,
-				"place_id": deal["place_id"],
-				"coordinates": {
-					"latitude": deal["latitude"],
-					"longitude": deal["longitude"]
-					},
-				"restaurant_name": deal["restaurant_name"],
-				"display_address": deal["display_address"],
-				"image_url": deal["image_url"],
-				"Deal": []
-			})
-
-			# Append deal details to restaurant
-			restaurant["Deal"].append({
-				"id": deal["id"],
-				"item": deal["item"],
-				"description": deal["description"],
-				"type": deal["type"],
-				"expiry_date": deal["expiry_date"],
-				"date_posted": deal["date_posted"],
-				"user_id": deal["user_id"],
-				"image_id": deal["image_id"],
-				"user_saved": deal["user_saved"],
-				"user_vote": deal["user_vote"],
-				"applicable_group": deal["applicable_group"],
-				"daily_start_times": deal["start_times"],
-				"daily_end_times": deal["end_times"],
-				"num_upvote": deal["upvotes"],
-				"num_downvote": deal["downvotes"]
-			})
-
-		return list(restaurant_map.values())
+		return group_deals_by_restaurant(data)
 
 	except Exception as e:
-		logger.error(f"Failed to fetch data: {str(e)}", exc_info=True)
+		logger.error(f"Failed to fetch restaurant data: {str(e)}", exc_info=True)
 		return []
 
 def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
@@ -447,9 +461,10 @@ def unsave_deal():
 def get_saved_deals():
 	user_id = request.args.get("user_id")
 
-	saved_deals = get_saved_deals_by_user_id(user_id)
+	saved_deals = get_user_saved_restaurant_deals(user_id)
+	restaurants = process_and_filter_restaurant_deals(saved_deals)
 
-	return jsonify(saved_deals)
+	return jsonify(restaurants)
 
 @app.route('/delete_deal', methods=["GET"])
 def delete_deal():

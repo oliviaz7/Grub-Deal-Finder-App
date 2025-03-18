@@ -232,13 +232,6 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         AddDealResponse("10796322-ab95-4aea-9a7c-a006cae8eaca")
     }
 
-    private val fakeSavedDeals by lazy {
-        listOf(
-            "10796322-ab95-4aea-9a7c-a006cae8eaca",
-            "5073a84e-d3a9-4ae7-8194-03bb28ad3c21"
-        )
-    }
-
     override suspend fun getRestaurantDeals(coordinates: LatLng, radius: Double, userId: String?): Result<Unit> {
         _accumulatedDeals.update { currentDeals ->
             (currentDeals + fakeDeals).distinctBy { it.id }
@@ -282,8 +275,8 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
 
     override suspend fun getSavedDeals(
         userId: String
-    ): Result<List<String>>{
-        return Result.Success(fakeSavedDeals)
+    ): Result<List<RestaurantDealsResponse>>{
+        return Result.Success(fakeDeals)
     }
 
     override suspend fun deleteDeal(

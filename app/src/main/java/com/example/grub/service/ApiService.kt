@@ -54,7 +54,7 @@ interface ApiService {
     @GET("get_saved_deals")
     suspend fun getSavedDeals(
         @Query("user_id") userId: String
-    ): List<String>
+    ): List<RestaurantDealsResponse>
 
     @GET("delete_deal")
     suspend fun deleteDeal(
