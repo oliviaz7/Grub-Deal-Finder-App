@@ -72,7 +72,6 @@ private data class AddDealViewModelState(
     val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
-    val imageExtension: String? = null,
     val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
     val dealState: DealState = DealState(),
@@ -123,10 +122,6 @@ class AddDealViewModel(
             viewModelState.value.toUiState()
         )
 
-    fun updateImageExtension(extension: String) {
-        viewModelState.update { it.copy(imageExtension = extension) }
-    }
-
     // this is the unique id/key/name of the image in the firebase storage bucket
     // this is what we will store in the database, and is used to reconstruct the full URL
     // to display the image later
@@ -137,17 +132,16 @@ class AddDealViewModel(
     fun uploadImageToFirebase(androidUri: Uri) {
         Log.d("uploadImage", "UPLOADING IMAGE: $androidUri")
         val imageKey = "deal_${viewModelState.value.userId}_${System.currentTimeMillis()}"
-        val ext = viewModelState.value.imageExtension ?: ".jpg"
 
         storageService.uploadDealImage(
             dealId = imageKey,
             fileUri = androidUri,
             onSuccess = { uploadedUrl: String ->
                 Log.d("uploadImage", "UPLOAD SUCCESS $uploadedUrl")
-                updateImageKey("$imageKey.$ext")
+                updateImageKey(imageKey)
             },
             onFailure = {
-                Log.e("uploadImage", "UPLOAD FAILED, extension: $ext")
+                Log.e("uploadImage", "UPLOAD FAILED RIP")
             },
         )
     }

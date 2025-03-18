@@ -1,10 +1,8 @@
 package com.example.grub.ui.addDealFlow.screens
 
-import android.content.ContentResolver
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -44,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -59,22 +56,14 @@ fun AddImagesScreen(
     navController: NavController,
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
     updateAndroidImageUri: (Uri?) -> Unit,
-    updateImageExtension: (String) -> Unit,
     onPermissionsChanged: (Boolean) -> Unit,
     prevStep: () -> Unit,
     nextStep: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentResolver: ContentResolver = LocalContext.current.contentResolver
-    val mimeTypeMap = MimeTypeMap.getSingleton()
 
     fun updateImage(uri: Uri?) {
         updateAndroidImageUri(uri)
-        uri?.let {
-            contentResolver.getType(it)
-            val extension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
-            updateImageExtension(extension ?: "")
-        }
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -156,7 +145,7 @@ fun AddImagesScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (openCamerPreview) {
-                Box (
+                Box(
                     modifier = Modifier
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center,

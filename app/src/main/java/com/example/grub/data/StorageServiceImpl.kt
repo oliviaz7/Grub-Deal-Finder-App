@@ -17,7 +17,7 @@ interface StorageService {
 class FirebaseStorageService : StorageService {
     private val storage = FirebaseStorage.getInstance().reference
     override fun getDealImageReference(dealId: String): StorageReference {
-        return storage.child("deal_images/$dealId.jpg")
+        return storage.child("deal_images/$dealId")
     }
 
     override fun uploadDealImage(
