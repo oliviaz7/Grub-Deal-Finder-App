@@ -29,6 +29,7 @@ data class RawDeal(
     @SerializedName("expiry_date") val expiryDate: Long? = null,
     @SerializedName("date_posted") val datePosted: Long,
     @SerializedName("user_id") val userId: String,
+    @SerializedName("username") val username: String,
     @SerializedName("image_id") val imageId: String?,
     @SerializedName("user_saved") val userSaved: Boolean = false,
     @SerializedName("user_vote") val userVote: VoteType = VoteType.NEUTRAL,

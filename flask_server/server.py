@@ -205,6 +205,7 @@ def group_deals_by_restaurant(response_data):
 			"expiry_date": deal["expiry_date"],
 			"date_posted": deal["date_posted"],
 			"user_id": deal["user_id"],
+			"username": deal["username"],
 			"image_id": deal["image_id"],
 			"user_saved": deal["user_saved"],
 			"user_vote": deal["user_vote"],
