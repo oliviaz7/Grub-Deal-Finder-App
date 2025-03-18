@@ -152,19 +152,6 @@ def unmark_deal_saved_in_db(deal_id, user_id):
 		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
 
-def get_saved_deals_by_user_id(user_id):
-	"""Fetches the saved deals by the user id from Supabase."""
-	try:
-		result = supabase.from_('Saved').select('deal_id').eq('user_id', user_id).execute()
-
-		deal_ids = [item['deal_id'] for item in result.data]
-
-		return deal_ids
-
-	except Exception as e:
-		logger.error(f"Failed to fetch saved deals from user {user_id}: {str(e)}", exc_info=True)
-		return []
-
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
 	try:
