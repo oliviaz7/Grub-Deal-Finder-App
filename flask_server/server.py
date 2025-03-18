@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from datetime import datetime, timezone
 import google_maps
 import math
 import logging
@@ -47,7 +47,7 @@ def iso_to_unix(iso_string):
 	try:
 		dt = datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
 		utc_dt = dt.astimezone(pytz.UTC)
-		return int(utc_dt.timestamp())
+		return int(utc_dt.timestamp() * 1000)
 	except ValueError as e:
 		logger.error(f"Error parsing ISO string: {str(e)}", exc_info=True)
 		return None
@@ -271,7 +271,7 @@ def process_and_filter_restaurant_deals(restaurants):
 					deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
 					# Check if the deal is expired
-					expiry_date = datetime.fromtimestamp(deal['expiry_date'], tz=pytz.UTC)
+					expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
 					today = datetime.now(tz=pytz.UTC)
 
 					# Only keep non-expired deals
