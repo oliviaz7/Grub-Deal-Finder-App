@@ -1,19 +1,3 @@
-/*
- * Copyright 2021 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.grub.ui.list
 
 import CustomFilter
@@ -94,9 +78,15 @@ class ListViewModel(
 
     fun onFilter() {
         val sortedDeals: List<RestaurantDeal> = when (uiState.value.selectedSort) {
-            "Distance" -> sortByDistance(uiState.value.restaurantDeals) //todo: figure out curr coords
-            "Date Posted" -> uiState.value.restaurantDeals.sortedByDescending { it.deals.firstOrNull()?.datePosted }
-            "Up Votes" -> uiState.value.restaurantDeals // todo: need upvotes from be first
+            "Distance" -> sortByDistance(uiState.value.restaurantDeals)
+            "Date Posted" -> uiState.value.restaurantDeals
+                .map { it.copy(deals = it.deals.sortedByDescending { deal -> deal.datePosted }) }
+                .sortedByDescending { it.deals.firstOrNull()?.datePosted }
+
+            "Up Votes" -> uiState.value.restaurantDeals
+                .map { it.copy(deals = it.deals.sortedByDescending { deal -> deal.numUpVotes-deal.numDownVotes }) }
+                .sortedByDescending { it.deals.firstOrNull()?.numUpVotes }
+
             else -> uiState.value.restaurantDeals
         }
         viewModelState.update { currentState ->

@@ -1,23 +1,25 @@
 package com.example.grub.ui.profile
 
-import java.util.UUID
-
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.grub.data.auth.AuthRepository
+import com.example.grub.data.deals.RestaurantDealsRepository
+import com.example.grub.data.successOr
+import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.User
+import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.content.Context
-import android.util.Log
-import com.example.grub.data.deals.RestaurantDealsRepository
-import com.example.grub.model.RestaurantDeal
-import com.example.grub.model.mappers.RestaurantDealMapper
+import java.util.UUID
 
 
 /**
@@ -72,6 +74,7 @@ class ProfileViewModel(
             }
         }
     }
+
     fun setShowBottomSheet(show: Boolean) {
         _uiState.update {
             it.copy(
@@ -80,12 +83,18 @@ class ProfileViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onClickFavDeals() {
-        _uiState.update {
-            it.copy(
-                //TODO: get fav deals from restaurant repo, idk how to do this
-                favouriteDeals = emptyList(),
-            )
+        viewModelScope.launch {
+            try {
+                val mappedDeals = restaurantRepo
+                    .getSavedDeals(_uiState.value.currentUser!!.id)
+                    .successOr(emptyList()).map { dealMapper.mapResponseToRestaurantDeals(it) }
+
+                _uiState.update { it.copy(favouriteDeals = mappedDeals) }
+            } catch (e: Exception) {
+                Log.d("ProfileViewModel", "Error fetching favourite deals: ${e.message}")
+            }
         }
         setShowBottomSheet(true)
     }
@@ -127,7 +136,12 @@ class ProfileViewModel(
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(appViewModel, authRepository, restaurantRepo, dealMapper) as T
+                return ProfileViewModel(
+                    appViewModel,
+                    authRepository,
+                    restaurantRepo,
+                    dealMapper
+                ) as T
             }
         }
     }
