@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,6 +28,9 @@ fun TitledOutlinedTextField (
     trailingIcon: @Composable (() -> Unit)? = null,
     maxLines: Int = Int.MAX_VALUE,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    isError: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     Column (
         modifier = modifier.padding(8.dp)
@@ -50,6 +55,9 @@ fun TitledOutlinedTextField (
             trailingIcon = trailingIcon,
             maxLines = maxLines,
             readOnly = readOnly,
+            isError = isError,
+            keyboardOptions = keyboardOptions,
+                    visualTransformation = visualTransformation
         )
     }
 }

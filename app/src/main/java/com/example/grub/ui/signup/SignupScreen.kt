@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
@@ -73,22 +76,29 @@ fun SignupScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TODO: current UI is ass
             Text(
                 text = "Welcome to Grub! Sign up to get started.",
                 style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
-            // TODO: validation that this is a single word and there's no whitespace
+
             TitledOutlinedTextField(
                 value = uiState.username,
-                onValueChange = onUsernameChanged,
+                onValueChange = { newValue ->
+                    if (!newValue.contains(" ") && newValue.all { it.isLetterOrDigit() || it == '_' }) {
+                        onUsernameChanged(newValue)
+                    }
+                },
                 label = "Username",
                 text = null,
                 placeholder = "eg. meow_deals_123",
                 modifier = Modifier.fillMaxWidth(),
                 titleStyle = MaterialTheme.typography.labelLarge,
                 optional = false,
+                isError = uiState.username.isNotEmpty() &&
+                        (uiState.username.contains(" ") || !uiState.username.all { it.isLetterOrDigit() || it == '_' })
             )
+
             TitledOutlinedTextField(
                 value = uiState.firstName,
                 onValueChange = onFirstNameChanged,
@@ -98,6 +108,7 @@ fun SignupScreen(
                 titleStyle = MaterialTheme.typography.labelLarge,
                 optional = false,
             )
+
             TitledOutlinedTextField(
                 value = uiState.lastName,
                 onValueChange = onLastNameChanged,
@@ -107,33 +118,46 @@ fun SignupScreen(
                 titleStyle = MaterialTheme.typography.labelLarge,
                 optional = false,
             )
-            // TODO: check if it's a valid email address
+
             TitledOutlinedTextField(
                 value = uiState.email,
                 onValueChange = onEmailChanged,
                 label = "Email",
                 text = null,
                 placeholder = "eg. example@gmail.com",
+                modifier = Modifier.fillMaxWidth(),
                 titleStyle = MaterialTheme.typography.labelLarge,
                 optional = false,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = uiState.email.isNotEmpty() && !isValidEmail(uiState.email)
             )
-            // TODO: come up with a placeholder for the password field
+
             TitledOutlinedTextField(
                 value = uiState.password,
                 onValueChange = onPasswordChanged,
                 label = "Password",
                 text = null,
-                placeholder = "",
+                placeholder = "Enter at least 8 characters",
                 modifier = Modifier.fillMaxWidth(),
                 titleStyle = MaterialTheme.typography.labelLarge,
                 optional = false,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
-            // TODO: make the button disabled if any of the fields are empty
             // also all the fields must be valid
+            val isFormValid = uiState.username.isNotEmpty() &&
+                    !uiState.username.contains(" ") &&
+                    uiState.username.all { it.isLetterOrDigit() || it == '_' } &&
+                    uiState.firstName.isNotEmpty() &&
+                    uiState.lastName.isNotEmpty() &&
+                    uiState.email.isNotEmpty() &&
+                    isValidEmail(uiState.email) &&
+                    uiState.password.isNotEmpty()
+
             Button(
                 onClick = onSignupClicked,
-                enabled = !uiState.isLoading,
+                enabled = !uiState.isLoading && isFormValid,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
@@ -154,4 +178,9 @@ fun SignupScreen(
             }
         }
     }
+}
+
+// Helper function for email validation
+private fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
