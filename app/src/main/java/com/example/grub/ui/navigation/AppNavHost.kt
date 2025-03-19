@@ -19,11 +19,15 @@ import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
+import com.example.grub.ui.login.LoginRoute
+import com.example.grub.ui.login.LoginViewModel
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.profile.ProfileRoute
 import com.example.grub.ui.profile.ProfileViewModel
 import com.example.grub.ui.screenWithScaffold.ScreenWithScaffold
+import com.example.grub.ui.signup.SignupRoute
+import com.example.grub.ui.signup.SignupViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -31,6 +35,8 @@ object Destinations {
     const val ADD_DEAL_ROUTE = "selectRestaurant"
     const val DEAL_DETAIL_ROUTE = "deal"
     const val PROFILE_ROUTE = "profile"
+    const val SIGNUP_ROUTE = "signup"
+    const val LOGIN_ROUTE = "login"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -101,6 +107,36 @@ fun AppNavHost(
                 showFloatingActionButton = false
             ) {
                 ProfileRoute(profileViewModel, navController)
+            }
+        }
+        composable(Destinations.SIGNUP_ROUTE) {
+            val signupViewModel: SignupViewModel = viewModel(
+                factory = SignupViewModel.provideFactory(
+                    appViewModel = appViewModel,
+                    authRepository = appContainer.authRepository,
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                SignupRoute(signupViewModel, navController)
+            }
+        }
+        composable(Destinations.LOGIN_ROUTE) {
+            val loginViewModel: LoginViewModel = viewModel(
+                factory = LoginViewModel.provideFactory(
+                    appViewModel = appViewModel,
+                    authRepository = appContainer.authRepository,
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                LoginRoute(loginViewModel, navController)
             }
         }
         composable(Destinations.ADD_DEAL_ROUTE) {

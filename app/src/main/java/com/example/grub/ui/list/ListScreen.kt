@@ -182,6 +182,7 @@ fun ListScreen(
                 },
                 sheetState = sheetState,
                 dragHandle = null,
+                containerColor = Color.White,
             ) {
                 SortingOptions(
                     onSortOptionSelected = { option ->

@@ -473,6 +473,130 @@ def delete_deal():
 	except Exception as e:
 		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"})
 
+# TODO: OLIVIA FIX THIS TO USE THE ERROR CODES AND NOT USE THE GENERIC RESPONSE
+@app.route('/create_new_user_account', methods=["POST"])
+def create_new_user_account():
+	"""Creates a new user account in the User table."""
+	try:
+		# Get query parameters from the request
+		username = request.args.get("username")
+		password = request.args.get("password")
+		first_name = request.args.get("firstName")
+		last_name = request.args.get("lastName")
+		email = request.args.get("email")
+
+		logger.info(f"Received new user signup request for username: {username}")
+
+		# Basic validation
+		if not all([username, password, first_name, last_name, email]):
+			logger.warning("Missing required fields in create_new_user_account request")
+			return jsonify({"success": False, "message": "Error: Missing required fields"})
+
+		# TODO: check that this actually catches duplicates
+		# Check if username or email already exists
+		# Fetch user from Supabase by username
+		existing_user = supabase.from_('User').select('id').or_(
+			f"username.eq.{username},email.eq.{email}"
+		).execute()
+		if existing_user.data:
+			logger.warning(f"User with username {username} or email {email} already exists")
+			return jsonify({"success": False, "message": "Error: Username or email already taken"})
+
+		# Prepare user data for insertion
+		user_data = {
+			"username": username,
+			"first_name": first_name,
+			"last_name": last_name,
+			"created_at": datetime.utcnow().isoformat(),
+			"email": email,
+			"password_hash": password  # Storing plain password for now (no hashing)
+		}
+
+		# Insert the user into the User table
+		response = supabase.from_('User').insert([user_data]).execute()
+
+		if not response.data:
+			logger.error("Failed to insert user into User table")
+			return jsonify({"error": "Failed to create user"})
+
+		logger.info(f"Successfully created new user: {username}")
+
+		user_id = response.data[0]['id'] if response.data else None
+
+		# TODO: should have a better return object (for one user_id should not be in "message")
+		return jsonify({"success": True, "message": user_id})
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred in create_new_user_account: {error_message}", exc_info=True)
+		return jsonify({"success": False, "message": "Error: Invalid fields could not create user"})
+
+@app.route('/login', methods=["GET"])
+def login():
+	"""Logs in a user and returns their full user object."""
+	try:
+		# Get query parameters from the request
+		username = request.args.get("username")
+		password = request.args.get("password")
+
+		logger.info(f"Received login request for username: {username}")
+
+		# Basic validation
+		if not all([username, password]):
+			logger.warning("Missing required fields in login request")
+			return jsonify({
+				"success": False,
+				"message": "ERROR: Username and password are required"
+			})
+
+		# Fetch user from Supabase by username
+		response = supabase.from_('User').select('*').eq('username', username).execute()
+
+		if not response.data or len(response.data) == 0:
+			logger.warning(f"No user found with username: {username}")
+			return jsonify({
+				"success": False,
+				"message": "ERROR: Invalid username or password"
+			})
+
+		# Get the user data
+		user = response.data[0]
+
+		# Verify password (plain text comparison for now)
+		if user['password_hash'] != password:
+			logger.warning(f"Password mismatch for username: {username}")
+			return jsonify({
+				"success": False,
+				"message": "ERROR: Invalid username or password"
+			})
+
+		# Prepare the full user object to return
+		user_response = {
+			"id": user['id'],
+			"username": user['username'],
+			"password": user['password_hash'],  # Returning plain password for now
+			"firstName": user['first_name'],
+			"lastName": user['last_name'],
+			"email": user['email']
+		}
+
+		logger.info(f"Successfully logged in user: {username}")
+
+		# Return success response with user object
+		return jsonify({
+			"success": True,
+			"message": "Login successful",
+			"user": user_response
+		})
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred in login: {error_message}", exc_info=True)
+		return jsonify({
+			"success": False,
+			"message": "ERROR: An error occurred during login"
+		})
+
 @app.route('/')
 def index():
 	return "Successfully connected "

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.grub.data.auth.AuthRepository
@@ -34,7 +33,6 @@ import com.example.grub.ui.fab.Fab
 import com.example.grub.ui.navigation.BottomNavigation
 import com.example.grub.ui.navigation.Destinations
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +63,7 @@ fun ScreenWithScaffold(
     Scaffold(
         floatingActionButton = {
             if (showFloatingActionButton) {
-                    Fab(onclick = onFabClick)
+                Fab(onclick = onFabClick)
             }
         },
         floatingActionButtonPosition = FabPosition.Start,
@@ -87,6 +85,7 @@ fun ScreenWithScaffold(
                 },
                 sheetState = sheetState,
                 dragHandle = null,
+                containerColor = Color.White,
             ) {
                 Column(
                     modifier = Modifier
@@ -96,23 +95,25 @@ fun ScreenWithScaffold(
                 ) {
                     Text("Sign in to post a deal", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(12.dp))
-                    val context = LocalContext.current
-
                     Button(
-                        onClick = {
-                            val rawNonce = UUID.randomUUID().toString()
-                            scope.launch {
-                                try {
-                                    authRepository?.googleSignInButton(context, rawNonce)
-                                } catch (e: Exception) {
-                                    Log.d("sign in bottom sheet", "failed lol: ${e.message}")
-                                }
-                            }
-                            showBottomSheet = false
-                        },
+                        onClick = { navController.navigate(Destinations.LOGIN_ROUTE) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Sign in with Google")
+                        Text(
+                            "Login",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Sign up",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
                     }
                 }
             }

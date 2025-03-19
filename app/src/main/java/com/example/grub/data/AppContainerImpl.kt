@@ -18,6 +18,7 @@ package com.example.grub.data
 
 import android.content.Context
 import com.example.grub.data.auth.AuthRepository
+import com.example.grub.data.auth.impl.AuthRepositoryImpl
 import com.example.grub.data.auth.impl.FakeAuthRepositoryImpl
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.impl.FakeRestaurantDealsRepository
@@ -56,6 +57,6 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
     }
 
     override val authRepository: AuthRepository by lazy {
-        FakeAuthRepositoryImpl()
+        AuthRepositoryImpl()
     }
 }

@@ -53,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.R
+import com.example.grub.ui.navigation.Destinations
 import kotlinx.coroutines.launch
 
 
@@ -177,7 +178,21 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.weight(4f))
                     }
                 }
-                GoogleSignInButton()
+//                GoogleSignInButton()
+                Button(onClick = { navController.navigate(Destinations.LOGIN_ROUTE) }) {
+                    Text(
+                        "Login",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black
+                    )
+                }
+                Button(onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) }) {
+                    Text(
+                        "Sign up",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
             }
         }

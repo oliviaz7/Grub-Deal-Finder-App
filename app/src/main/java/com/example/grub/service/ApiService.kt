@@ -1,5 +1,6 @@
 package com.example.grub.service
 
+import com.example.grub.data.auth.impl.LoginResponse
 import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.SimpleRestaurant
@@ -23,6 +24,21 @@ interface ApiService {
     suspend fun addRestaurantDeal(
         @Body deal: RestaurantDealsResponse
     ): AddDealResponse
+
+    @POST("create_new_user_account")
+    suspend fun createNewUserAccount(
+        @Query("username") username: String,
+        @Query("password") password: String,
+        @Query("firstName") firstName: String,
+        @Query("lastName") lastName: String,
+        @Query("email") email: String
+    ): ApiResponse
+
+    @GET("login")
+    suspend fun login(
+        @Query("username") username: String,
+        @Query("password") password: String,
+    ): LoginResponse
 
     @GET("search_nearby_restaurants")
     suspend fun searchNearbyRestaurants(

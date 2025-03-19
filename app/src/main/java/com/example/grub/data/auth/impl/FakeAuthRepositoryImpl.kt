@@ -43,6 +43,24 @@ class FakeAuthRepositoryImpl : AuthRepository {
         loggedInUserToken = null
     }
 
+    override suspend fun createUserAccount(
+        username: String,
+        password: String,
+        firstName: String,
+        lastName: String,
+        email: String
+    ): Result<String> {
+        delay(500)
+
+        return if (username.isNotBlank() && password.isNotBlank()) {
+            _loggedInUser.value = fakeUserProfile
+            loggedInUserToken = "fake_token_${username.hashCode()}"
+            Result.Success(loggedInUserToken!!)
+        } else {
+            Result.Error(Exception("Invalid username or password"))
+        }
+    }
+
     // TODO: OLIVIA FIGURE OUT WHERE TO STORE LOGGED IN STATE AND HOW WE GET IT
     // BETWEEN APP COLD BOOTS WHERE DO WE PERSIST IT?
     suspend fun getUserProfile(): Result<User> {

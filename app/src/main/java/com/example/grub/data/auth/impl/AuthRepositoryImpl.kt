@@ -2,31 +2,31 @@ package com.example.grub.data.auth.impl
 
 import android.util.Log
 import android.widget.Toast
-
 import com.example.grub.data.auth.AuthRepository
 import com.example.grub.model.User
 import com.example.grub.data.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-
 import android.content.Context
-
 import androidx.credentials.CredentialManager
-
 import androidx.credentials.GetCredentialRequest
-
 import androidx.credentials.exceptions.GetCredentialException
+import com.example.grub.service.RetrofitClient.apiService
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
-
+import kotlinx.coroutines.flow.update
 import java.security.MessageDigest
 
+data class LoginResponse(
+    val success: Boolean,
+    val message: String,
+    val user: User?
+)
 
 class AuthRepositoryImpl : AuthRepository {
     // TODO: look into using android shared preferences to persist any tokens
@@ -81,12 +81,53 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun login(username: String, password: String): Result<String> {
-        auth = Firebase.auth
+        val response = apiService.login(username, password)
+        if (response.success) {
+
+            val user = User(
+                id = response.user?.id ?: "",
+                username = username,
+                firstName = response.user?.firstName ?: "",
+                lastName = response.user?.lastName ?: "",
+                email = response.user?.email ?: ""
+            )
+            _loggedInUser.update { user }
+            return Result.Success(response.message)
+        } else {
+            return Result.Error(Exception(response.message))
+        }
+//        auth = Firebase.auth
         // Add the login logic for email/password authentication
-        return Result.Success("Logged in successfully")
+//        return Result.Success("Logged in successfully")
     }
 
     override suspend fun logout() {
-        firebaseAuth.signOut()
+        _loggedInUser.value = null
+
+//        firebaseAuth.signOut()
+    }
+
+    override suspend fun createUserAccount(
+        username: String,
+        password: String,
+        firstName: String,
+        lastName: String,
+        email: String
+    ): Result<String> {
+        // THIS IS SO JANk fix olivia
+        val response = apiService.createNewUserAccount(username, password, firstName, lastName, email)
+        if (response.success) {
+            val user = User(
+                id = response.message, // SO BAD FIX TODO:
+                username = username,
+                firstName = firstName,
+                lastName = lastName,
+                email = email
+            )
+            _loggedInUser.update { user }
+            return Result.Success(response.message)
+        } else {
+            return Result.Error(Exception(response.message))
+        }
     }
 }
