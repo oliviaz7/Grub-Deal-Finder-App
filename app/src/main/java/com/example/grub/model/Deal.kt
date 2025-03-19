@@ -20,6 +20,7 @@ data class Deal(
     val activeDayTime: DayOfWeekAndTimeRestriction,
     val numUpVotes: Int,
     val numDownVotes: Int,
+    val userName: String,
 ) : Parcelable
 
 enum class DealType {

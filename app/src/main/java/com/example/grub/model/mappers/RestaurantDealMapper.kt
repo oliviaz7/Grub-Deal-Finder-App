@@ -111,6 +111,7 @@ object RestaurantDealMapper {
             ),
             numUpVotes = rawDeal.numUpvote,
             numDownVotes = rawDeal.numDownvote,
+            userName = rawDeal.username,
         )
     }
 

@@ -58,6 +58,7 @@ import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.VoteType
+import com.example.grub.ui.navigation.Destinations
 import com.example.grub.ui.theme.defaultTextStyle
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
@@ -376,7 +377,7 @@ fun DealDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Posted By: ${deal.userId}",
+                        text = "Posted By: ${deal.userName}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White,
                         maxLines = 1,
@@ -426,15 +427,24 @@ fun DealDetailScreen(
                     val context = LocalContext.current
 
                     Button(
-                        onClick = {
-                            scope.launch {
-                                onLogin(context)
-                            }
-                            setShowBottomSheet(false)
-                        },
+                        onClick = { navController.navigate(Destinations.LOGIN_ROUTE) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Sign in with Google")
+                        Text(
+                            "Login",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Sign up",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
                     }
                 }
             }
