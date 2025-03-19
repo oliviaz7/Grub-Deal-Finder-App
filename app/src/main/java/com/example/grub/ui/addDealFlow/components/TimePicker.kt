@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
@@ -45,6 +50,8 @@ fun TimeSelector(
 ) {
     val isToggledList = remember { mutableStateListOf<Boolean>().apply { addAll(List(labels.size) { false }) } }
     var isAllDayChecked by remember { mutableStateOf(true) }
+    var isStartTimeDialogOpen by remember { mutableStateOf(false) }
+    var isEndTimeDialogOpen by remember { mutableStateOf(false) }
 
     val currentTime = Calendar.getInstance()
 
@@ -90,6 +97,20 @@ fun TimeSelector(
     // Update the start and end times when the time picker state changes
     LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
         onUpdateAllDayCheck(isAllDayChecked)
+    }
+
+    if (isStartTimeDialogOpen) {
+        TimePickerDialog(
+            onConfirm = {},
+            onDismiss = { isStartTimeDialogOpen = false },
+        )
+    }
+
+    if (isEndTimeDialogOpen) {
+        TimePickerDialog(
+            onConfirm = {},
+            onDismiss = { isEndTimeDialogOpen = false },
+        )
     }
 
     Column {
@@ -146,35 +167,74 @@ fun TimeSelector(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
-                Column (
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .padding(0.dp),
-                ){
-                    Text(
-                        text = "Start Time"
-                    )
-                    TimeInput(
-                        state = startTimePickerState,
-                        modifier = Modifier.scale(0.75f),
-                    )
-
-                }
-                Column (
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Text(
-                        text = "End Time"
-                    )
-                    TimeInput(
-                        state = endTimePickerState,
-                        modifier = Modifier.scale(0.8f),
+                    TitledOutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = "Start Date",
+                        text = null,
+                        placeholder = "--:--",
+                        modifier = Modifier.fillMaxWidth(0.4f),
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { isStartTimeDialogOpen = true }) {
+                                Icon(Icons.Default.AccessTime, contentDescription = "Select Start Time")
+                            }
+                        },
+                        maxLines = 1,
                     )
 
-                }
+
+                    TitledOutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = "End Date",
+                        text = null,
+                        placeholder = "--:--",
+                        modifier = Modifier.fillMaxWidth(0.4f),
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { isEndTimeDialogOpen = true }) {
+                                Icon(Icons.Default.AccessTime, contentDescription = "Select End Time")
+                            }
+                        },
+                        maxLines = 1,
+                    )
+
             }
+//            Row (
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//
+//                Column (
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.Center,
+//                    modifier = Modifier
+//                        .fillMaxWidth(0.5f)
+//                        .padding(0.dp),
+//                ){
+//                    Text(
+//                        text = "Start Time"
+//                    )
+//                    TimeInput(
+//                        state = startTimePickerState,
+//                        modifier = Modifier.scale(0.75f),
+//                    )
+//
+//                }
+//                Column (
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ){
+//                    Text(
+//                        text = "End Time"
+//                    )
+//                    TimeInput(
+//                        state = endTimePickerState,
+//                        modifier = Modifier.scale(0.8f),
+//                    )
+//
+//                }
+//            }
 
         }
     }
