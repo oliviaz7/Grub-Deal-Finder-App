@@ -205,6 +205,8 @@ def group_deals_by_restaurant(response_data):
 			"expiry_date": deal["expiry_date"],
 			"date_posted": deal["date_posted"],
 			"user_id": deal["user_id"],
+			"username": deal["username"],
+			"price": deal["price"],
 			"image_id": deal["image_id"],
 			"user_saved": deal["user_saved"],
 			"user_vote": deal["user_vote"],
@@ -382,6 +384,7 @@ def add_restaurant_deal():
 				"applicable_group": deal.get("applicable_group"),
 				"start_times": deal.get("daily_start_times"),
 				"end_times": deal.get("daily_end_times"),
+				"price": deal.get("price"),
 			}
 
 			response = supabase.from_('Deal').insert([deal_item]).execute()
