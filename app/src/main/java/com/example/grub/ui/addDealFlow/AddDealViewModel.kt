@@ -207,8 +207,7 @@ class AddDealViewModel(
 
     fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            val coordinates = appViewModel.currentUserLocation.value
-                ?: appViewModel.mapCameraCentroidCoordinates.value
+            val coordinates = appViewModel.mapCameraCentroidCoordinates.value
             if (coordinates == null) {
                 Log.e("searchNearbyRestaurants", "No location available")
                 return@launch

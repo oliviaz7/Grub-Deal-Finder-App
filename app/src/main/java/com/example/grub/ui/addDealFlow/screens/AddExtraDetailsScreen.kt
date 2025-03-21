@@ -151,10 +151,24 @@ fun AddExtraDetailsScreen(
         return true
     }
 
+    @SuppressLint("NewApi")
+    fun isExpiryDateValid() : Boolean {
+        val expiryDate = uiState.dealState.expiryDate?.toLocalDate()
+        if (expiryDate == null) {
+            return true
+        }
+        val currentDate = ZonedDateTime.now().toLocalDate()
+        return expiryDate!!.isAfter(currentDate) || expiryDate!!.isEqual(currentDate)
+    }
+
     fun errorCheck() {
         if (!isValidTimeRange()) {
             Log.d("AddExtraDetailsScreen", "Start time: ${uiState.dealState.startTimes}, End time: ${uiState.dealState.endTimes}")
             throw Exception("Invalid time range")
+        }
+        if (!isExpiryDateValid()) {
+            Log.d("AddExtraDetailsScreen", "Expiry date: ${uiState.dealState.expiryDate}")
+            throw Exception("Invalid expiry date")
         }
     }
 
