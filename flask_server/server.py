@@ -98,10 +98,10 @@ def mark_deal_removed_in_db(deal_id):
 		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
-			logger.error("Error marking deal as expired")
+			logger.error("Error marking deal as removed")
 
 	except Exception as e:
-		logger.error(f"Error marking deal as expired: {str(e)}", exc_info=True)
+		logger.error(f"Error marking deal as removed: {str(e)}", exc_info=True)
 
 def mark_deal_saved_in_db(deal_id, user_id):
 	"""Marks deal as saved given the deal id and user_id."""
@@ -264,25 +264,30 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 def format_deal(deal):
 	"""Format the deal object."""
 	deal['date_posted'] = iso_to_unix(deal['date_posted'])
-	if deal.get('expiry_date'):
+	if "expiry_date" in deal:
 		deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
 		# Check if the deal is expired
 		expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
 		today = datetime.now(tz=pytz.UTC)
 
-		# Only keep non-expired deals and high karma deals
-		bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
-
-		if expiry_date >= today and not bad_karma_deals:
-			return deal
-		else:
+		# Only keep non-expired deals
+		if expiry_date < today:
 			deal_id = deal['id']
 			logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
 			mark_deal_removed_in_db(deal_id)
 			return None
-	else:
-		return deal
+
+	if "num_downvote" in deal and "num_upvote" in deal:
+		bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
+
+		if bad_karma_deals:
+			deal_id = deal['id']
+			logger.info(f"Deal {deal_id} has bad karma and was removed from the valid deals list.")
+			mark_deal_removed_in_db(deal_id)
+			return None
+
+	return deal
 
 def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
