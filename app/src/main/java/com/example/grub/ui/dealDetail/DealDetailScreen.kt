@@ -117,6 +117,13 @@ fun DealDetailScreen(
                     .fillMaxWidth()
                     .aspectRatio(8f / 5f)
                     .background(MaterialTheme.colorScheme.background)
+                    .clickable{
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "dealImageURL",
+                            value = deal.imageUrl
+                        )
+                        navController.navigate(Destinations.IMAGE_ROUTE)
+                    }
             ) {
                 DealImage(
                     deal.imageUrl,
