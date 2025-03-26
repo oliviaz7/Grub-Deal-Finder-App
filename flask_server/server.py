@@ -92,10 +92,10 @@ def update_vote_in_db(user_id, deal_id, vote_type):
 		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"})
 
-def mark_deal_expired_in_db(deal_id):
+def mark_deal_removed_in_db(deal_id):
 	"""Marks deal as expired given the deal id."""
 	try:
-		response = supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
 			logger.error("Error marking deal as expired")
@@ -262,25 +262,27 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 	return filtered_restaurants
 
 def format_deal(deal):
-    """Format the deal object."""
-    deal['date_posted'] = iso_to_unix(deal['date_posted'])
-    if deal.get('expiry_date'):
-        deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
+	"""Format the deal object."""
+	deal['date_posted'] = iso_to_unix(deal['date_posted'])
+	if deal.get('expiry_date'):
+		deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
-        # Check if the deal is expired
-        expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
-        today = datetime.now(tz=pytz.UTC)
+		# Check if the deal is expired
+		expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
+		today = datetime.now(tz=pytz.UTC)
 
-        # Only keep non-expired deals
-        if expiry_date >= today:
-            return deal
-        else:
-            deal_id = deal['id']
-            logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
-            mark_deal_expired_in_db(deal_id)
-            return None
-    else:
-        return deal
+		# Only keep non-expired deals and high karma deals
+		bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
+
+		if expiry_date >= today and not bad_karma_deals:
+			return deal
+		else:
+			deal_id = deal['id']
+			logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
+			mark_deal_removed_in_db(deal_id)
+			return None
+	else:
+		return deal
 
 def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
@@ -306,8 +308,8 @@ def get_restaurant_image_url(place_id):
 			return None
 
 		domain = website.replace("https://", "").replace("http://", "").split("/")[0]
-		favicon_url = f"https://www.google.com/s2/favicons?sz=128&domain={domain}"
-		return favicon_url
+		domain_url = f"https://logo.clearbit.com/{domain}"
+		return domain_url
 
 	except Exception as e:
 		logger.error(f"Failed to get image URL for place_id {place_id}: {str(e)}", exc_info=True)
@@ -472,8 +474,8 @@ def delete_deal():
 		return jsonify({"success": False, "message": "Unauthorized: You are not the creator of this deal"})
 
 	try:
-		mark_deal_expired_in_db(deal_id)
-		return jsonify({"success": True, "message": "Deal successfully marked as expired"})
+		mark_deal_removed_in_db(deal_id)
+		return jsonify({"success": True, "message": "Deal successfully removed"})
 
 	except Exception as e:
 		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"})
