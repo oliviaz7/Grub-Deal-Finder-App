@@ -278,7 +278,7 @@ def format_deal(deal):
 			mark_deal_removed_in_db(deal_id)
 			return None
 
-	if "num_downvotes" in deal and "num_upvotes" in deal:
+	if "num_downvote" in deal and "num_upvote" in deal:
 		bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
 
 		if bad_karma_deals:
