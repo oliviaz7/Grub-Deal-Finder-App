@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.ui.addDealFlow.AddDealUiState
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.CameraCaptureScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -57,8 +58,8 @@ fun AddImagesScreen(
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
     updateAndroidImageUri: (Uri?) -> Unit,
     onPermissionsChanged: (Boolean) -> Unit,
-    prevStep: () -> Unit,
-    nextStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
+    nextStep: (Step?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -73,8 +74,6 @@ fun AddImagesScreen(
 
     var openCamerPreview by remember { mutableStateOf(false) }
 
-
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -87,7 +86,7 @@ fun AddImagesScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(Step.Step1) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
@@ -106,7 +105,7 @@ fun AddImagesScreen(
                 OutlinedButton(
                     onClick = {
                         updateAndroidImageUri(null)
-                        nextStep()
+                        nextStep(null)
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -123,7 +122,7 @@ fun AddImagesScreen(
                             // uploads image to firebase and saves the image key in the deal state
                             uploadImageToFirebase(uri)
                         }
-                        nextStep()
+                        nextStep(null)
                     },
                     enabled = uiState.imageUri != null
                 ) {

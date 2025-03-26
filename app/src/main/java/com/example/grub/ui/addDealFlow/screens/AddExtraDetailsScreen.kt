@@ -36,23 +36,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.data.Result
-import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.NOT_AVAILABLE
 import com.example.grub.model.mappers.MAX_MINUTES_IN_DAY
 import com.example.grub.model.mappers.MIN_MINUTES_IN_DAY
 import com.example.grub.ui.addDealFlow.AddDealUiState
-import java.util.Calendar
-import com.example.grub.ui.addDealFlow.components.TimeSelector
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.CustomRadioButton
-import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
+import com.example.grub.ui.addDealFlow.components.TimeSelector
+import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +59,7 @@ fun AddExtraDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
     addNewRestaurantDeal: () -> Unit,
-    prevStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateExpiryDate: (ZonedDateTime) -> Unit,
@@ -199,7 +198,7 @@ fun AddExtraDetailsScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(null) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,

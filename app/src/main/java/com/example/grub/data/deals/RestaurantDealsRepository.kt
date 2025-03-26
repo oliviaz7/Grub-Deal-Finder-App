@@ -29,10 +29,10 @@ data class RawDeal(
     @SerializedName("expiry_date") val expiryDate: Long? = null,
     @SerializedName("date_posted") val datePosted: Long,
     @SerializedName("user_id") val userId: String,
-    @SerializedName("username") val username: String = "", // TODO: remove "" after implementing in FE
+    @SerializedName("username") val username: String? = "", // TODO: remove "" after implementing in FE
     @SerializedName("image_id") val imageId: String?,
     @SerializedName("user_saved") val userSaved: Boolean = false,
-    @SerializedName("user_vote") val userVote: VoteType = VoteType.NEUTRAL,
+    @SerializedName("user_vote") val userVote: VoteType? = VoteType.NEUTRAL,
     @SerializedName("applicable_group") val applicableGroup: ApplicableGroup = ApplicableGroup.NONE,
     @SerializedName("daily_start_times") val dailyStartTimes: List<Int>? = null,
     @SerializedName("daily_end_times") val dailyEndTimes: List<Int>? = null,
@@ -45,12 +45,8 @@ data class AddDealResponse(
     val dealId: String
 )
 
-data class SimpleRestaurant(
-    @SerializedName("place_id") val placeId: String,
-    @SerializedName("coordinates") val coordinates: LatLng,
-    @SerializedName("restaurant_name") val restaurantName: String,
-    @SerializedName("display_address") val displayAddress: String? = null,
-    @SerializedName("image_url") val imageUrl: String? =  null,
+data class GetRestaurantResponse(
+    val restaurant : RestaurantDealsResponse?
 )
 
 // for generic response
@@ -92,7 +88,7 @@ interface RestaurantDealsRepository {
         keyword: String,
         coordinates: LatLng,
         radius: Double = 1000.0
-    ): Result<List<SimpleRestaurant>>
+    ): Result<List<RestaurantDealsResponse>>
 
     suspend fun updateVote(
         dealId: String,
@@ -118,4 +114,8 @@ interface RestaurantDealsRepository {
         dealId: String,
         userId: String
     ): Result<ApiResponse>
+
+    suspend fun getRestaurant(
+        placeId: String,
+    ) : Result<GetRestaurantResponse>
 }

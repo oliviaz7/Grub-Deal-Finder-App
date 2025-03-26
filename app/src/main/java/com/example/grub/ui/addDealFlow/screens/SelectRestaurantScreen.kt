@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,10 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.data.deals.SimpleRestaurant
+import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.addDealFlow.AddDealUiState
+import com.example.grub.ui.addDealFlow.Step
+import com.example.grub.ui.addDealFlow.components.Loading
 import com.example.grub.ui.searchBar.CustomSearchBar
-import com.google.android.gms.maps.model.LatLng
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,8 +44,8 @@ fun SelectRestaurantScreen (
     uiState: AddDealUiState,
     navController: NavController,
     searchNearbyRestaurants: (String, Double) -> Unit,
-    updateRestaurant: (SimpleRestaurant) -> Unit,
-    nextStep : () -> Unit,
+    updateRestaurant: (RestaurantDeal) -> Unit,
+    nextStep : (Step?) -> Unit,
     onSearchTextChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -102,6 +102,10 @@ fun SelectRestaurantScreen (
                     }
                 )
             }
+            // loading bar
+            Loading(uiState.restaurants == null)
+
+            // Restaurant List
             when (uiState.restaurants) {
                 is List<*> -> {
                     if (uiState.restaurants.isEmpty()) {
@@ -120,29 +124,24 @@ fun SelectRestaurantScreen (
                                     modifier = Modifier
                                         .clickable(onClick = {
                                             updateRestaurant(
-                                                SimpleRestaurant(
-                                                    restaurant.placeId,
-                                                    restaurant.coordinates,
-                                                    restaurant.restaurantName,
-                                                    restaurant.displayAddress,
-                                                    restaurant.imageUrl,
+                                                RestaurantDeal(
+                                                    id = restaurant.id,
+                                                    placeId = restaurant.placeId,
+                                                    coordinates = restaurant.coordinates,
+                                                    restaurantName = restaurant.restaurantName,
+                                                    displayAddress = restaurant.displayAddress,
+                                                    imageUrl = restaurant.imageUrl,
+                                                    deals = restaurant.deals,
                                                 )
                                             )
-                                            nextStep()
+                                            nextStep(null)
                                         })
                                 )
                             }
                         }
                     }
                 }
-                null -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+                null -> {}
             }
         }
     }

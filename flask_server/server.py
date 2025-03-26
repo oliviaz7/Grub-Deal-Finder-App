@@ -261,32 +261,34 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 
 	return filtered_restaurants
 
+def format_deal(deal):
+    """Format the deal object."""
+    deal['date_posted'] = iso_to_unix(deal['date_posted'])
+    if deal.get('expiry_date'):
+        deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
+
+        # Check if the deal is expired
+        expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
+        today = datetime.now(tz=pytz.UTC)
+
+        # Only keep non-expired deals
+        if expiry_date >= today:
+            return deal
+        else:
+            deal_id = deal['id']
+            logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
+            mark_deal_expired_in_db(deal_id)
+            return None
+    else:
+        return deal
+
 def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
 	try:
 		for restaurant in restaurants:
-			valid_deals = []
-
-			for deal in restaurant["Deal"]:
-				deal['date_posted'] = iso_to_unix(deal['date_posted'])
-				if deal.get('expiry_date'):
-					deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
-
-					# Check if the deal is expired
-					expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
-					today = datetime.now(tz=pytz.UTC)
-
-					# Only keep non-expired deals
-					if expiry_date >= today:
-						valid_deals.append(deal)
-					else:
-						deal_id = deal['id']
-						logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
-						mark_deal_expired_in_db(deal_id)
-
-				else:
-					valid_deals.append(deal)
-
+			raw_deals = restaurant["Deal"]
+			formatted_deals = map(format_deal, raw_deals)
+			valid_deals = list(filter(None, formatted_deals))
 			restaurant["Deal"] = valid_deals
 
 		return restaurants
@@ -599,6 +601,49 @@ def login():
 			"success": False,
 			"message": "ERROR: An error occurred during login"
 		})
+
+@app.route('/get_restaurant', methods=["GET"])
+def get_restaurant():
+    """Get restaurant details from Supabase given a place_id."""
+    try:
+        place_id = request.args.get("place_id")
+        logger.info(f"Fetching deals for restaurant: {place_id}")
+
+        # Step 1: Search the restaurant table by place_id
+        response = supabase.from_("Restaurant").select("*").eq("place_id", place_id).execute()
+        # Check if any rows were returned
+        if not response.data:
+            logger.warning(f"No restaurant found with place_id: {place_id}")
+            return jsonify({"restaurant": None}) # No Content
+
+
+        # Get the first restaurant from the returned list
+        restaurant = response.data[0]
+        restaurant_id = restaurant["id"]
+
+        # Format restaurant obj
+        restaurant["coordinates"] = {
+            "latitude": restaurant["latitude"],
+            "longitude": restaurant["longitude"]
+        }
+
+        # Step 2: Fetch all deals from the deals table that match restaurant_id
+        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).execute()
+        raw_deals = deals_response.data if deals_response.data else []
+
+        # format deals obj
+        formatted_deals = map(format_deal, raw_deals)
+        valid_deals = list(filter(None, formatted_deals))
+
+        # Step 3: Attach deals to the restaurant object and return the result
+        restaurant["Deal"] = valid_deals
+        return jsonify({"restaurant": restaurant})
+
+    except Exception as e:
+        error_message = str(e)
+        logger.error(f"Error occurred: {error_message}", exc_info=True)
+        return jsonify({"error": "An error occurred while fetching restaurant deals"})
+
 
 @app.route('/')
 def index():
