@@ -1,6 +1,7 @@
 package com.example.grub.ui.addDealFlow.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.model.DealType
@@ -51,6 +54,7 @@ fun AddDetailsScreen(
     updateDealType: (DealType) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
     val dealTypes = DealType.entries.toList()
@@ -109,7 +113,11 @@ fun AddDetailsScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .padding(top = 40.dp)
-                .verticalScroll(scrollState),
+                .verticalScroll(scrollState)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                },
+
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // text field for item name
