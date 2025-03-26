@@ -92,10 +92,10 @@ def update_vote_in_db(user_id, deal_id, vote_type):
 		logger.error(f"Error updating vote deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error updating deal vote: {str(e)}"})
 
-def mark_deal_expired_in_db(deal_id):
+def mark_deal_removed_in_db(deal_id):
 	"""Marks deal as expired given the deal id."""
 	try:
-		response = supabase.table("Deal").update({"is_expired": True}).eq("id", deal_id).execute()
+		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
 			logger.error("Error marking deal as expired")
@@ -276,13 +276,16 @@ def process_and_filter_restaurant_deals(restaurants):
 					expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
 					today = datetime.now(tz=pytz.UTC)
 
-					# Only keep non-expired deals
-					if expiry_date >= today:
+					# Only keep non-expired deals and high karma deals
+					bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
+
+					if expiry_date >= today and not bad_karma_deals:
 						valid_deals.append(deal)
 					else:
 						deal_id = deal['id']
-						logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
-						mark_deal_expired_in_db(deal_id)
+						reason = "expired" if expiry_date < today else "had bad karma"
+						logger.info(f"Deal {deal_id} {reason} and was removed from the valid deals list.")
+						mark_deal_removed_in_db(deal_id)
 
 				else:
 					valid_deals.append(deal)
@@ -304,8 +307,8 @@ def get_restaurant_image_url(place_id):
 			return None
 
 		domain = website.replace("https://", "").replace("http://", "").split("/")[0]
-		favicon_url = f"https://www.google.com/s2/favicons?sz=128&domain={domain}"
-		return favicon_url
+		domain_url = f"https://logo.clearbit.com/{domain}"
+		return domain_url
 
 	except Exception as e:
 		logger.error(f"Failed to get image URL for place_id {place_id}: {str(e)}", exc_info=True)
@@ -470,8 +473,8 @@ def delete_deal():
 		return jsonify({"success": False, "message": "Unauthorized: You are not the creator of this deal"})
 
 	try:
-		mark_deal_expired_in_db(deal_id)
-		return jsonify({"success": True, "message": "Deal successfully marked as expired"})
+		mark_deal_removed_in_db(deal_id)
+		return jsonify({"success": True, "message": "Deal successfully removed"})
 
 	except Exception as e:
 		return jsonify({"success": False, "message": f"Error deleting deal: {str(e)}"})
