@@ -264,7 +264,7 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 def format_deal(deal):
 	"""Format the deal object."""
 	deal['date_posted'] = iso_to_unix(deal['date_posted'])
-	if "expiry_date" in deal:
+	if deal.get("expiry_date"):
 		deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
 		# Check if the deal is expired
