@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,7 +14,6 @@ import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
@@ -40,10 +40,11 @@ data class AddDealUiState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>?, // null means we haven't fetched the data yet, [] means no results
     val step: Step,
-    val selectedRestaurant: SimpleRestaurant,
+    val selectedRestaurant: RestaurantDeal,
     val restaurantSearchText: String,
     val imageUri: Uri?,
     val addDealResult: Result<AddDealResponse>?,
+    val restaurantDealLoading: Boolean,
     val userId: String,
     val dealState: DealState,
 )
@@ -69,11 +70,19 @@ private data class AddDealViewModelState(
     val deals: List<RestaurantDeal>,
     val restaurants: List<RestaurantDeal>?,
     val step: Step = Step.Step1,
-    val selectedRestaurant: SimpleRestaurant = SimpleRestaurant("", LatLng(0.0, 0.0), ""),
+    val selectedRestaurant: RestaurantDeal = RestaurantDeal(
+        id = "",
+        placeId = "",
+        restaurantName = "",
+        coordinates = LatLng (0.0, 0.0),
+        deals = emptyList(),
+        displayAddress = null,
+        imageUrl = null),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
     val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
+    val restaurantDealLoading: Boolean = false,
     val dealState: DealState = DealState(),
 ) {
 
@@ -90,6 +99,7 @@ private data class AddDealViewModelState(
             restaurantSearchText,
             imageUri,
             addDealResult,
+            restaurantDealLoading,
             userId,
             dealState
         )
@@ -122,6 +132,8 @@ class AddDealViewModel(
             viewModelState.value.toUiState()
         )
 
+    private var _prevSearchRestaurantsKeyword = mutableStateOf<String>("previous")
+
     // this is the unique id/key/name of the image in the firebase storage bucket
     // this is what we will store in the database, and is used to reconstruct the full URL
     // to display the image later
@@ -145,8 +157,6 @@ class AddDealViewModel(
             },
         )
     }
-
-
 
     init {
         viewModelScope.launch {
@@ -207,11 +217,16 @@ class AddDealViewModel(
 
     fun searchNearbyRestaurants(keyword: String, radius: Double) {
         viewModelScope.launch {
-            val coordinates = appViewModel.currentUserLocation.value
-                ?: appViewModel.mapCameraCentroidCoordinates.value
+            val coordinates = appViewModel.mapCameraCentroidCoordinates.value
             if (coordinates == null) {
                 Log.e("searchNearbyRestaurants", "No location available")
                 return@launch
+            }
+            if (keyword == _prevSearchRestaurantsKeyword.value) {
+                Log.d("searchNearbyRestaurants", "No need to search again")
+                return@launch
+            } else {
+                _prevSearchRestaurantsKeyword.value = keyword
             }
             // clear the previous search results
             viewModelState.update { it.copy(restaurants = null) }
@@ -231,22 +246,67 @@ class AddDealViewModel(
                 }
             }
         }
+        viewModelState.update { it.copy(restaurantDealLoading = true) } // show loading bar on next page
     }
 
-    fun nextStep() {
-        viewModelState.update {
-            it.copy(step = uiState.value.step.nextStep())
+    fun getRestaurantDeals() {
+        viewModelScope.launch {
+            val placeId = uiState.value.selectedRestaurant.placeId
+            if (placeId.isEmpty()) {
+                Log.e("getRestaurantDeals", "No placeId available")
+                return@launch
+            }
+
+            Log.d("getRestaurantDeals", "Searching for restaurant deals: $placeId")
+            try {
+                val result = dealsRepository.getRestaurant(placeId)  // Assuming getRestaurant() returns Result
+                viewModelState.update { it.copy(restaurantDealLoading = true) } // show loading bar
+                when (result) {
+                    is Result.Success -> {
+
+                        if (result.data.restaurant == null || result.data.restaurant.rawDeals.isEmpty()) {
+                            Log.d("getRestaurantDeals", "No restaurant deal data available in the response")
+                            nextStep(Step.Step3) // skip the show existing deals step
+                        } else {
+                            val mappedRestaurantDeal = dealMapper.mapResponseToRestaurantDeals(result.data.restaurant)
+                            viewModelState.update { it.copy(selectedRestaurant = mappedRestaurantDeal) } // copy to selected restaurant
+                            Log.d("ShowExistingDeals", "Successfully retrieved restaurant: ${mappedRestaurantDeal}")
+                        }
+                    }
+                    is Result.Error -> {
+                        Log.e("getRestaurantDeals", "Error retrieving restaurant deals: ${result.exception.localizedMessage}")
+                        nextStep(Step.Step3) // skip the show existing deals step
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("getRestaurantDeals", "Exception occurred: ${e.localizedMessage}")
+            }
+            viewModelState.update { it.copy(restaurantDealLoading = false) }
         }
     }
 
-    fun prevStep() {
+    fun nextStep(step: Step? = null) {
         viewModelState.update {
-            it.copy(step = uiState.value.step.prevStep())
+            if (step == null) {
+                it.copy(step = uiState.value.step.nextStep())
+            } else {
+                it.copy(step = step)
+            }
         }
     }
 
-    fun updateRestaurant(simpleRestaurant: SimpleRestaurant) {
-        viewModelState.update { it.copy(selectedRestaurant = simpleRestaurant) }
+    fun prevStep(step: Step? = null) {
+        viewModelState.update {
+            if (step == null) {
+                it.copy(step = uiState.value.step.prevStep())
+            } else {
+                it.copy(step = step)
+            }
+        }
+    }
+
+    fun updateRestaurant(restaurant: RestaurantDeal) {
+        viewModelState.update { it.copy(selectedRestaurant = restaurant) }
     }
 
     fun onSearchTextChange(searchText: String) {

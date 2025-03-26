@@ -1,12 +1,12 @@
 package com.example.grub.data.deals.impl
 
 import com.example.grub.data.Result
-import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.ApiResponse
+import com.example.grub.data.deals.GetRestaurantResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.VoteType
@@ -214,23 +214,32 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
 
     private val fakeSimpleRestaurants by lazy {
         listOf(
-            SimpleRestaurant(
+            RestaurantDealsResponse(
+                id = "",
                 placeId = "placeId_123",
                 coordinates = LatLng(1.35, 103.87),
                 restaurantName = "MCD",
                 displayAddress = "123 Philip St",
+                rawDeals = emptyList(),
+                imageUrl = null,
             ),
-            SimpleRestaurant(
+            RestaurantDealsResponse(
+                id = "",
                 placeId = "placeId_456",
                 coordinates = LatLng(1.37, 103.88),
                 restaurantName = "Chef Signature",
-                displayAddress = "Your moms house"
+                displayAddress = "Your moms house",
+                rawDeals = emptyList(),
+                imageUrl = null,
             ),
-            SimpleRestaurant(
+            RestaurantDealsResponse(
+                id = "",
                 placeId = "placeId_789",
                 coordinates = LatLng(1.35, 103.82),
                 restaurantName = "Mozy's Shawarma",
-                displayAddress = "Missisauga"
+                displayAddress = "Missisauga",
+                rawDeals = emptyList(),
+                imageUrl = null,
             )
         )
     }
@@ -254,7 +263,7 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         keyword: String,
         coordinates: LatLng,
         radius: Double
-    ): Result<List<SimpleRestaurant>> {
+    ): Result<List<RestaurantDealsResponse>> {
         return Result.Success(fakeSimpleRestaurants)
     }
 
@@ -291,5 +300,11 @@ class FakeRestaurantDealsRepository : RestaurantDealsRepository {
         userId: String
     ): Result<ApiResponse> {
         return Result.Success(ApiResponse(success = true, message = "Deal deleted"))
+    }
+
+    override suspend fun getRestaurant(
+        placeId: String
+    ): Result<GetRestaurantResponse> {
+        return Result.Success(GetRestaurantResponse(fakeDeals.firstOrNull()))
     }
 }

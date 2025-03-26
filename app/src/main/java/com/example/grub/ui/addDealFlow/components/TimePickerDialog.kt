@@ -37,15 +37,8 @@ fun _TimePickerDialog(
 fun TimePickerDialog(
     onConfirm: (TimePickerState) -> Unit,
     onDismiss: () -> Unit,
+    timePickerState: TimePickerState,
 ) {
-    val currentTime = Calendar.getInstance()
-
-    val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = true,
-    )
-
     _TimePickerDialog(
         onDismiss = { onDismiss() },
         onConfirm = { onConfirm(timePickerState) }

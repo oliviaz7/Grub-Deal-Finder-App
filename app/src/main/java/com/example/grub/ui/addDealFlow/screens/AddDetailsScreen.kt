@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.AddDealUiState
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 
@@ -42,8 +43,8 @@ import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 fun AddDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
-    prevStep: () -> Unit,
-    nextStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
+    nextStep: (Step?) -> Unit,
     updateItemName: (String) -> Unit,
     updateDescription: (String?) -> Unit,
     updatePrice: (String?) -> Unit,
@@ -73,7 +74,7 @@ fun AddDetailsScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(null) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
@@ -92,7 +93,7 @@ fun AddDetailsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isSubmitButtonEnabled(),
-                    onClick = nextStep,
+                    onClick = { nextStep(null) },
                 ) {
                     Text("Next")
                 }

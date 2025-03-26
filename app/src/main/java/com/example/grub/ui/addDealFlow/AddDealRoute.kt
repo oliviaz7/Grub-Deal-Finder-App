@@ -7,13 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
-import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
+import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.addDealFlow.screens.AddDetailsScreen
+import com.example.grub.ui.addDealFlow.screens.AddExtraDetailsScreen
 import com.example.grub.ui.addDealFlow.screens.AddImagesScreen
 import com.example.grub.ui.addDealFlow.screens.SelectRestaurantScreen
+import com.example.grub.ui.addDealFlow.screens.ShowExistingDeals
 import java.time.ZonedDateTime
 
 /**
@@ -51,6 +52,7 @@ fun AddDealRoute(
         updateEndTimes = addDealViewModel::updateEndTimes,
         updateApplicableGroups = addDealViewModel::updateApplicableGroup,
         onPermissionsChanged = addDealViewModel::onCameraPermissionsChanged,
+        getRestaurantDeals = addDealViewModel::getRestaurantDeals,
     )
 }
 
@@ -62,9 +64,9 @@ fun AddDealRoute(
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
     addNewRestaurantDeal: () -> Unit,
     searchNearbyRestaurants: (String, Double) -> Unit,
-    updateRestaurant: (SimpleRestaurant) -> Unit,
-    prevStep: () -> Unit,
-    nextStep: () -> Unit,
+    updateRestaurant: (RestaurantDeal) -> Unit,
+    prevStep: (Step?) -> Unit,
+    nextStep: (Step?) -> Unit,
     onSearchTextChange: (String) -> Unit,
     updateAndroidImageUri: (Uri?) -> Unit,
     updateItemName: (String) -> Unit,
@@ -76,6 +78,7 @@ fun AddDealRoute(
     updateEndTimes: (List<Int>) -> Unit,
     updateApplicableGroups: (ApplicableGroup) -> Unit,
     onPermissionsChanged: (Boolean) -> Unit,
+    getRestaurantDeals: () -> Unit
 ) {
     when (uiState.step) {
         Step.Step1 -> {
@@ -90,6 +93,16 @@ fun AddDealRoute(
         }
 
         Step.Step2 -> {
+            ShowExistingDeals(
+                uiState = uiState,
+                navController = navController,
+                getRestaurantDeals = getRestaurantDeals,
+                nextStep = nextStep,
+                prevStep = prevStep,
+            )
+        }
+
+        Step.Step3 -> {
             AddImagesScreen(
                 uiState = uiState,
                 navController = navController,
@@ -101,7 +114,7 @@ fun AddDealRoute(
             )
         }
 
-        Step.Step3 -> {
+        Step.Step4 -> {
             AddDetailsScreen(
                 uiState = uiState,
                 navController = navController,
@@ -114,7 +127,7 @@ fun AddDealRoute(
             )
         }
 
-        Step.Step4 -> {
+        Step.Step5 -> {
             AddExtraDetailsScreen(
                 uiState = uiState,
                 navController = navController,

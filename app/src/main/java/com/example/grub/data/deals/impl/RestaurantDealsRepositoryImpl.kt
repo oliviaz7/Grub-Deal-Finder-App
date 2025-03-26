@@ -4,10 +4,10 @@ import android.util.Log
 import com.example.grub.data.Result
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.ApiResponse
+import com.example.grub.data.deals.GetRestaurantResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.VoteType
 import com.example.grub.service.RetrofitClient.apiService
 import com.google.android.gms.maps.model.LatLng
@@ -92,7 +92,7 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         keyword: String,
         coordinates: LatLng,
         radius: Double
-    ): Result<List<SimpleRestaurant>> {
+    ): Result<List<RestaurantDealsResponse>> {
         return try {
             val latitude = coordinates.latitude
             val longitude = coordinates.longitude
@@ -243,6 +243,18 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
             Result.Success(response)
         } catch (e: Exception) {
             Log.e("RestaurantDealsError", "Error deleting deal", e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun getRestaurant(
+        placeId: String
+    ): Result<GetRestaurantResponse> {
+        return try {
+            val response = apiService.getRestaurant(placeId)
+            Result.Success(response)
+        } catch (e: Exception) {
+            Log.e("getRestaurant", "Error fetching restaurant $placeId", e)
             Result.Error(e)
         }
     }

@@ -58,6 +58,7 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
     for place in places.get("results", []):
         place_id = place["place_id"]
         place_info = {
+            "id": "", # empty id
             "place_id": place_id,
             "restaurant_name": place["name"],
             "coordinates": {
@@ -65,6 +66,7 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
                 "longitude": place["geometry"]["location"]["lng"]
             },
             "display_address": place["vicinity"],
+            "Deal": [], # empty deals
             "image_url": get_restaurant_image_url(place_id)
         }
 

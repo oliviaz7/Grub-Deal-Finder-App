@@ -1,6 +1,7 @@
 package com.example.grub.ui.addDealFlow.components
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,23 +96,32 @@ fun TimeSelector(
         }
     }
 
-    // Update the start and end times when the time picker state changes
-    LaunchedEffect(startTimePickerState.hour, startTimePickerState.minute, endTimePickerState.hour, endTimePickerState.minute) {
-        onUpdateAllDayCheck(isAllDayChecked)
-    }
-
     if (isStartTimeDialogOpen) {
         TimePickerDialog(
-            onConfirm = {},
+            onConfirm = {
+                onUpdateAllDayCheck(isAllDayChecked)
+                isStartTimeDialogOpen = false
+                        },
             onDismiss = { isStartTimeDialogOpen = false },
+            timePickerState = startTimePickerState,
         )
     }
 
     if (isEndTimeDialogOpen) {
         TimePickerDialog(
-            onConfirm = {},
+            onConfirm = {
+                onUpdateAllDayCheck(isAllDayChecked)
+                isEndTimeDialogOpen = false
+                        },
             onDismiss = { isEndTimeDialogOpen = false },
+            timePickerState = endTimePickerState,
         )
+    }
+
+    fun formatTime (timePickerState: TimePickerState) : String {
+        val formattedTime = String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)
+        return formattedTime
+
     }
 
     Column {
@@ -127,14 +138,8 @@ fun TimeSelector(
                     modifier = Modifier
                         .weight(1f) // Distribute buttons evenly
                         .aspectRatio(1f) // Make the button circular
-                        .padding(6.dp) // Add padding around the button
-                        .then(
-                            if (!isToggledList[i]) Modifier.border(
-                                1.dp,
-                                MaterialTheme.colorScheme.primary,
-                                CircleShape
-                            ) else Modifier
-                        ), // Conditionally add border
+                        .padding(6.dp), // Add padding around the button
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = CircleShape,
                     contentPadding = PaddingValues(0.dp), // Remove inner padding
                     colors = ButtonDefaults.buttonColors(
@@ -162,80 +167,36 @@ fun TimeSelector(
                 },
         ) {
             // TODO: Add time picker
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
 
-                    TitledOutlinedTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = "Start Date",
-                        text = null,
-                        placeholder = "--:--",
-                        modifier = Modifier.fillMaxWidth(0.4f),
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { isStartTimeDialogOpen = true }) {
-                                Icon(Icons.Default.AccessTime, contentDescription = "Select Start Time")
-                            }
-                        },
-                        maxLines = 1,
-                    )
+            TitledOutlinedTextField(
+                value = formatTime(startTimePickerState),
+                onValueChange = {},
+                label = "Start Date",
+                text = null,
+                placeholder = "--:--",
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(onClick = { isStartTimeDialogOpen = true }) {
+                        Icon(Icons.Default.AccessTime, contentDescription = "Select Start Time")
+                    }
+                },
+                maxLines = 1,
+            )
 
-
-                    TitledOutlinedTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = "End Date",
-                        text = null,
-                        placeholder = "--:--",
-                        modifier = Modifier.fillMaxWidth(0.4f),
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { isEndTimeDialogOpen = true }) {
-                                Icon(Icons.Default.AccessTime, contentDescription = "Select End Time")
-                            }
-                        },
-                        maxLines = 1,
-                    )
-
-            }
-//            Row (
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceEvenly
-//            ) {
-//
-//                Column (
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.Center,
-//                    modifier = Modifier
-//                        .fillMaxWidth(0.5f)
-//                        .padding(0.dp),
-//                ){
-//                    Text(
-//                        text = "Start Time"
-//                    )
-//                    TimeInput(
-//                        state = startTimePickerState,
-//                        modifier = Modifier.scale(0.75f),
-//                    )
-//
-//                }
-//                Column (
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ){
-//                    Text(
-//                        text = "End Time"
-//                    )
-//                    TimeInput(
-//                        state = endTimePickerState,
-//                        modifier = Modifier.scale(0.8f),
-//                    )
-//
-//                }
-//            }
-
+            TitledOutlinedTextField(
+                value = formatTime(endTimePickerState),
+                onValueChange = {},
+                label = "End Date",
+                text = null,
+                placeholder = "--:--",
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(onClick = { isEndTimeDialogOpen = true }) {
+                        Icon(Icons.Default.AccessTime, contentDescription = "Select End Time")
+                    }
+                },
+                maxLines = 1,
+            )
         }
     }
 }
