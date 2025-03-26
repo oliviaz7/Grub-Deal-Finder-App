@@ -268,21 +268,21 @@ def format_deal(deal):
 		deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
 		# Check if the deal is expired
-        expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
+		expiry_date = datetime.fromtimestamp(deal['expiry_date'] / 1000, tz=pytz.UTC)
 		today = datetime.now(tz=pytz.UTC)
 
 		# Only keep non-expired deals and high karma deals
 		bad_karma_deals = deal["num_downvote"] - deal["num_upvote"] >= 10
 
 		if expiry_date >= today and not bad_karma_deals:
-            return deal
-        else:
-            deal_id = deal['id']
-            logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
-            mark_deal_expired_in_db(deal_id)
-            return None
-    else:
-        return deal
+			return deal
+		else:
+			deal_id = deal['id']
+			logger.info(f"Deal {deal_id} expired and was removed from the valid deals list.")
+			mark_deal_removed_in_db(deal_id)
+			return None
+	else:
+		return deal
 
 def process_and_filter_restaurant_deals(restaurants):
 	"""Clean up and format restaurant data before sending to the Android app."""
