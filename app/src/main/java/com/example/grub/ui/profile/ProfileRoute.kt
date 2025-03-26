@@ -19,6 +19,7 @@ fun ProfileRoute(
     ProfileRoute(
         uiState = uiState,
         onClickFavDeals = { -> profileViewModel.onClickFavDeals() },
+        onClickAboutGrub = { -> profileViewModel.onClickAboutGrub() },
         setShowBottomSheet = { show: Boolean -> profileViewModel.setShowBottomSheet(show) },
         navController = navController,
         // **add view model functions here**
@@ -37,12 +38,14 @@ fun ProfileRoute(
 fun ProfileRoute(
     uiState: ProfileUiState,
     onClickFavDeals: () -> Unit,
+    onClickAboutGrub: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
     navController: NavController,
 ) {
     ProfileScreen(
         uiState = uiState,
         onClickFavDeals = onClickFavDeals,
+        onClickAboutGrub = onClickAboutGrub,
         setShowBottomSheet = setShowBottomSheet,
         navController = navController,
     )

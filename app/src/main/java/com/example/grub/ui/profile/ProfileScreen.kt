@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     uiState: ProfileUiState,
     onClickFavDeals: () -> Unit,
+    onClickAboutGrub: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = viewModel(),
@@ -125,7 +126,7 @@ fun ProfileScreen(
                 ) {
                     ProfileOption(Icons.Default.Favorite, "Favourite Deals", onClickFavDeals)
                     ProfileOption(Icons.Default.Person, "Account Details")
-                    ProfileOption(Icons.Default.Info, "About Grub")
+                    ProfileOption(Icons.Default.Info, "About Grub", onClickAboutGrub)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -141,6 +142,11 @@ fun ProfileScreen(
                 }
             }
             FavouriteDeals(
+                setShowBottomSheet,
+                uiState,
+                navController,
+            )
+            AboutGrub(
                 setShowBottomSheet,
                 uiState,
                 navController,
@@ -268,6 +274,66 @@ fun FavouriteDeals(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AboutGrub(
+    setShowBottomSheet: (Boolean) -> Unit,
+    uiState: ProfileUiState,
+    navController: NavController
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
+    if (uiState.showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    setShowBottomSheet(false)
+                }
+            },
+            sheetState = sheetState,
+            dragHandle = null,
+            containerColor = Color.White,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "About Grub",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Grub saves you big money and makes you no stare brrrrrrr " +
+                            "Give us good mark pls" +
+                            "Developed by students for students",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Version 1.0.0",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
 
 @Composable
 fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
@@ -290,7 +356,8 @@ fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
 fun ProfileOption(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     text: String,
-    onClickFavDeals: () -> Unit = {}
+    onClickFavDeals: () -> Unit = {},
+    onClickAboutGrub: () -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -305,7 +372,13 @@ fun ProfileOption(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .clickable { onClickFavDeals() }
+                .clickable {
+                    if (text == "Favorite Deals") {
+                        onClickFavDeals()
+                    } else if (text == "About Grub") {
+                        onClickAboutGrub()
+                    }
+                }
         ) {
             Icon(imageVector = icon, contentDescription = text, tint = Color.Black)
             Spacer(modifier = Modifier.width(20.dp))
