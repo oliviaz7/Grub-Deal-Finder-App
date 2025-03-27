@@ -8,6 +8,7 @@ import google_maps
 import math
 import logging
 import pytz
+import hashlib
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
@@ -521,7 +522,7 @@ def create_new_user_account():
 			"last_name": last_name,
 			"created_at": datetime.utcnow().isoformat(),
 			"email": email,
-			"password_hash": password  # Storing plain password for now (no hashing)
+			"password_hash": hash_password(password) # Storing plain password for now (no hashing)
 		}
 
 		# Insert the user into the User table
@@ -542,6 +543,10 @@ def create_new_user_account():
 		error_message = str(e)
 		logger.error(f"Error occurred in create_new_user_account: {error_message}", exc_info=True)
 		return jsonify({"success": False, "message": "Error: Invalid fields could not create user"})
+
+
+def hash_password(password):
+	return hashlib.sha256(password.encode()).hexdigest()
 
 @app.route('/login', methods=["GET"])
 def login():
@@ -575,11 +580,11 @@ def login():
 		user = response.data[0]
 
 		# Verify password (plain text comparison for now)
-		if user['password_hash'] != password:
+		if user['password_hash'] != hash_password(password):
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({
 				"success": False,
-				"message": "ERROR: Invalid username or password"
+				"message": "ERROR: Invalid username or password THIS IS PASS:" + password + " THIS IS HASH" + hash_password(password)
 			})
 
 		# Prepare the full user object to return
