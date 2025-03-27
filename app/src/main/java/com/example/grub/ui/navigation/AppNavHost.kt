@@ -183,7 +183,6 @@ fun AppNavHost(
                     restaurantName = restaurantName,
                     restaurantAddress = restaurantAddress,
                     appViewModel = appViewModel,
-                    authRepository = appContainer.authRepository,
                 )
             )
             ScreenWithScaffold(
