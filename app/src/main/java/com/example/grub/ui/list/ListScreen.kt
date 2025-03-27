@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +48,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.ui.searchBar.CustomSearchBar
@@ -63,14 +67,17 @@ fun ListScreen(
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
     onSearchTextChange: (String) -> Unit,
+    onSelectPriceRange: (Int, Int) -> Unit,
     onFilter: () -> Unit,
-    onSortOptionSelected: (String) -> Unit
+    onSortOptionSelected: (String) -> Unit,
+    onClearOptions:()->Unit,
 ) {
     val scrollState = rememberScrollState()
     val interactionSource = remember { MutableInteractionSource() }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         topBar = {
@@ -103,7 +110,7 @@ fun ListScreen(
                         .height(40.dp),
                     shape = MaterialTheme.shapes.small,
                     contentPadding = PaddingValues(8.dp),
-                    colors = if(uiState.selectedSort=="") ButtonColors(
+                    colors = if (uiState.selectedSort == "") ButtonColors(
                         containerColor = Color.White,
                         contentColor = MaterialTheme.colorScheme.primary,
                         disabledContainerColor = MaterialTheme.colorScheme.primary,
@@ -114,8 +121,7 @@ fun ListScreen(
                             contentColor = Color.White,
                             disabledContainerColor = MaterialTheme.colorScheme.primary,
                             disabledContentColor = Color.White,
-                        )
-                    ,
+                        ),
                 ) {
                     Text("Sort")
                 }
@@ -124,6 +130,11 @@ fun ListScreen(
             }
         },
         containerColor = Color.White,
+        modifier = Modifier
+            .imePadding()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            },
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -147,6 +158,8 @@ fun ListScreen(
                     onSelectCustomFilter = onSelectCustomFilter,
                     onSubmitCustomFilter = onSubmitCustomFilter,
                     onShowFilterDialog = onShowFilterDialog,
+                    onSelectPriceRange = onSelectPriceRange,
+                    onClearOptions= onClearOptions,
                 )
 
                 if (uiState.filteredDeals.isEmpty()) {
@@ -275,7 +288,9 @@ fun ListFilterButtons(
     onFilterSelected: (String) -> Unit,
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
+    onSelectPriceRange: (Int, Int) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onClearOptions: ()-> Unit,
 ) {
     val selectedFilter = uiState.selectedFilter
     val showFilterDialog = uiState.showFilterDialog
@@ -363,7 +378,9 @@ fun ListFilterButtons(
                     )
                 },
                 onSubmitCustomFilter = onSubmitCustomFilter,
-                onShowFilterDialog = onShowFilterDialog
+                onShowFilterDialog = onShowFilterDialog,
+                onSelectPriceRange = onSelectPriceRange,
+                onClearOptions = onClearOptions,
             )
     }
 }

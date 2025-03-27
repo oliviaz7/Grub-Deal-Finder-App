@@ -31,7 +31,10 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
 
     val currentRoute = navController.currentDestination?.route
 
-    NavigationBar(modifier = modifier) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
         items.forEach { item ->
             AddItem(
                 screen = item,

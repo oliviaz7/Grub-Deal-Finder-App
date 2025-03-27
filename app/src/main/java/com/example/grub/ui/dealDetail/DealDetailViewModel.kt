@@ -198,17 +198,6 @@ class DealDetailViewModel(
         }
     }
 
-    fun onLogin(context: Context) {
-        Log.d("deal Details", "login")
-        viewModelScope.launch {
-            try {
-                val rawNonce = UUID.randomUUID().toString()
-                authRepository?.googleSignInButton(context, rawNonce)
-            } catch (e: Exception) {
-                Log.d("sign in bottom sheet", "failed lol: ${e.message}")
-            }
-        }
-    }
 
     /**
      * Factory for HomeViewModel that takes PostsRepository as a dependency

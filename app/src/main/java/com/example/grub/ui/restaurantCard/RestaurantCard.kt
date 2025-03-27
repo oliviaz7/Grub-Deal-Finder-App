@@ -200,11 +200,17 @@ fun DealItem(
             Column(
                 Modifier.weight(0.7f)
             ) {
+                val dealTitle: String =
+                    if (deal.price != 0.0)
+                        "$" + deal.price.toString() + " " + deal.item
+                    else
+                        deal.item;
+
                 Text(
-                    text = deal.type.toString() + " " + deal.item,
+                    text = deal.type.toString() + " " + dealTitle,
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Black,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(start = 2.dp)
                 )
