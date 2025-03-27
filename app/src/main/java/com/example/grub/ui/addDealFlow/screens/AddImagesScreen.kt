@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -41,11 +45,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.ui.addDealFlow.AddDealUiState
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.CameraCaptureScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -57,10 +64,12 @@ fun AddImagesScreen(
     uploadImageToFirebase: (imageUri: Uri) -> Unit,
     updateAndroidImageUri: (Uri?) -> Unit,
     onPermissionsChanged: (Boolean) -> Unit,
-    prevStep: () -> Unit,
-    nextStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
+    nextStep: (Step?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
 
     fun updateImage(uri: Uri?) {
         updateAndroidImageUri(uri)
@@ -72,8 +81,6 @@ fun AddImagesScreen(
     }
 
     var openCamerPreview by remember { mutableStateOf(false) }
-
-
 
     Scaffold(
         topBar = {
@@ -87,7 +94,7 @@ fun AddImagesScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(Step.Step1) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
@@ -106,7 +113,7 @@ fun AddImagesScreen(
                 OutlinedButton(
                     onClick = {
                         updateAndroidImageUri(null)
-                        nextStep()
+                        nextStep(null)
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -123,7 +130,7 @@ fun AddImagesScreen(
                             // uploads image to firebase and saves the image key in the deal state
                             uploadImageToFirebase(uri)
                         }
-                        nextStep()
+                        nextStep(null)
                     },
                     enabled = uiState.imageUri != null
                 ) {
@@ -132,30 +139,29 @@ fun AddImagesScreen(
             }
         },
         containerColor = Color.White,
-        modifier = modifier,
+        modifier = modifier
+            .imePadding()
+            .pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
-                .fillMaxHeight()
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(Color.White)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (openCamerPreview) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CameraCaptureScreen(
-                        updateImageUri = { updateImage(it) },
-                        onPermissionsChanged = onPermissionsChanged,
-                        onDismiss = { openCamerPreview = false },
-                    )
-                }
+                CameraCaptureScreen(
+                    updateImageUri = { updateImage(it) },
+                    onPermissionsChanged = onPermissionsChanged,
+                    onDismiss = { openCamerPreview = false },
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
                 Text(
                     text = "Upload an image to share!",
@@ -168,14 +174,16 @@ fun AddImagesScreen(
                 )
             }
 
-            Button(
-                onClick = { openCamerPreview = true },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Open Camera",
-                )
+            if (!openCamerPreview) {
+                Button(
+                    onClick = { openCamerPreview = true },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Open Camera",
+                    )
+                }
             }
         }
     }

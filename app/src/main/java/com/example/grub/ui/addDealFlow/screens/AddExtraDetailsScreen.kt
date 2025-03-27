@@ -6,9 +6,11 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,27 +34,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.data.Result
-import com.example.grub.data.deals.RawDeal
-import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.NOT_AVAILABLE
 import com.example.grub.model.mappers.MAX_MINUTES_IN_DAY
 import com.example.grub.model.mappers.MIN_MINUTES_IN_DAY
 import com.example.grub.ui.addDealFlow.AddDealUiState
-import java.util.Calendar
-import com.example.grub.ui.addDealFlow.components.TimeSelector
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.ConfirmationDialog
 import com.example.grub.ui.addDealFlow.components.CustomRadioButton
-import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import com.example.grub.ui.addDealFlow.components.HidableSection
 import com.example.grub.ui.addDealFlow.components.SectionDivider
+import com.example.grub.ui.addDealFlow.components.TimeSelector
+import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +63,7 @@ fun AddExtraDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
     addNewRestaurantDeal: () -> Unit,
-    prevStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
     updateStartTimes: (List<Int>) -> Unit,
     updateEndTimes: (List<Int>) -> Unit,
     updateExpiryDate: (ZonedDateTime) -> Unit,
@@ -70,6 +73,7 @@ fun AddExtraDetailsScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
 
     // hide-able section states
     var isTimeSelectorChecked by remember { mutableStateOf(true) }
@@ -199,7 +203,7 @@ fun AddExtraDetailsScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(null) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
@@ -225,7 +229,11 @@ fun AddExtraDetailsScreen(
             }
         },
         containerColor = Color.White,
-        modifier = modifier,
+        modifier = modifier
+            .imePadding()
+            .pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier

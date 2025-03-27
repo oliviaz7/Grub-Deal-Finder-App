@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
 import androidx.compose.material.icons.outlined.BookmarkBorder
@@ -37,14 +36,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -74,10 +78,23 @@ fun DealDetailScreen(
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
-    onLogin: (Context) -> Unit,
+    clearSnackBarMsg: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        Log.d("deal deatails screen", "in launched")
+        uiState.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            clearSnackBarMsg()
+        }
+    }
+
     Scaffold(
         topBar = {
             Box(
@@ -98,6 +115,29 @@ fun DealDetailScreen(
                     )
                 }
             }
+        },
+        snackbarHost = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ){
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                ){data->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        actionColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.extraLarge,
+                    )
+                }
+            }
+
         }
     ) { innerPadding ->
         val screenModifier = Modifier.padding(innerPadding)
@@ -117,6 +157,13 @@ fun DealDetailScreen(
                     .fillMaxWidth()
                     .aspectRatio(8f / 5f)
                     .background(MaterialTheme.colorScheme.background)
+                    .clickable {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "dealImageURL",
+                            value = deal.imageUrl
+                        )
+                        navController.navigate(Destinations.IMAGE_ROUTE)
+                    }
             ) {
                 DealImage(
                     deal.imageUrl,
@@ -137,7 +184,8 @@ fun DealDetailScreen(
                 ) {
                     Text(
                         text = restaurantName,
-                        style = MaterialTheme.typography.displaySmall
+                        style = MaterialTheme.typography.displaySmall,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                     )
                     Row() {
                         Icon(
@@ -193,12 +241,6 @@ fun DealDetailScreen(
                         )
                     }
 
-                    Text(
-                        text = "Deal Details",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-
                     if (deal.expiryDate != null) {
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -209,11 +251,10 @@ fun DealDetailScreen(
                                 tint = Color.White,
                                 modifier = Modifier
                                     .size(18.dp)
-                                    .scale(0.95f)
                             )
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                text = "Valid Until: " + deal.expiryDate.format(
+                                text = " Valid Until: " + deal.expiryDate.format(
                                     DateTimeFormatter.ofPattern(
                                         "MMMM dd, yyyy"
                                     )
@@ -223,16 +264,16 @@ fun DealDetailScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row {
                         Icon(
                             Icons.Filled.ThumbUpOffAlt,
                             contentDescription = null,
                             tint =
-                                if (deal.userVote == VoteType.UPVOTE)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    Color.White,
+                            if (deal.userVote == VoteType.UPVOTE)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier
                                 .size(26.dp)
                                 .clickable { onUpVoteClicked() },
@@ -249,17 +290,17 @@ fun DealDetailScreen(
                             Icons.Filled.ThumbDownOffAlt,
                             contentDescription = null,
                             tint =
-                                if (deal.userVote == VoteType.DOWNVOTE)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    Color.White,
+                            if (deal.userVote == VoteType.DOWNVOTE)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier
                                 .size(26.dp)
                                 .clickable { onDownVoteClicked() },
                         )
 
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Box(
                         modifier = modifier
@@ -286,8 +327,14 @@ fun DealDetailScreen(
                             Modifier
                                 .padding(16.dp)
                         ) {
+                            val dealTitle: String =
+                                if (deal.price != 0.0)
+                                    "$" + deal.price.toString() + " " + deal.item
+                                else
+                                    deal.item;
+
                             Text(
-                                text = deal.item,
+                                text = dealTitle,
                                 style = defaultTextStyle.copy(
                                     fontSize = 20.sp,
                                     lineHeight = 20.sp,
@@ -295,7 +342,7 @@ fun DealDetailScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     lineBreak = LineBreak.Heading
                                 ),
-                                color = Color.Black
+                                color = MaterialTheme.colorScheme.primaryContainer,
                             )
                             if (deal.description != null && deal.description != "") {
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -313,69 +360,106 @@ fun DealDetailScreen(
                                 )
                             }
 
-                            if (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Available on:",
-                                    style = defaultTextStyle.copy(
-                                        fontSize = 16.sp,
-                                        lineHeight = 24.sp,
-                                        letterSpacing = 0.15.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        lineBreak = LineBreak.Heading
-                                    ),
-                                    color = Color.Black
-
-                                )
-                                Text(
-                                    text = deal.activeDayTime.toDisplayString(),
-                                    style = defaultTextStyle.copy(
-                                        fontSize = 16.sp,
-                                        lineHeight = 24.sp,
-                                        letterSpacing = 0.15.sp,
-                                        fontWeight = FontWeight.Light,
-                                        lineBreak = LineBreak.Heading
-                                    ),
-                                    color = MaterialTheme.colorScheme.primaryContainer
-
-                                )
-                            }
-
-                            if (
-                                deal.applicableGroup != ApplicableGroup.NONE
-                                && deal.applicableGroup != ApplicableGroup.ALL
-                            ) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Available to:",
-                                    style = defaultTextStyle.copy(
-                                        fontSize = 16.sp,
-                                        lineHeight = 24.sp,
-                                        letterSpacing = 0.15.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        lineBreak = LineBreak.Heading
-                                    ),
-                                    color = Color.Black
-
-                                )
-                                Text(
-                                    text = deal.applicableGroup.toString(),
-                                    style = defaultTextStyle.copy(
-                                        fontSize = 16.sp,
-                                        lineHeight = 24.sp,
-                                        letterSpacing = 0.15.sp,
-                                        fontWeight = FontWeight.Light,
-                                        lineBreak = LineBreak.Heading
-                                    ),
-                                    color = MaterialTheme.colorScheme.primaryContainer
-
-                                )
-                            }
-
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    if ((deal.applicableGroup != ApplicableGroup.NONE
+                                && deal.applicableGroup != ApplicableGroup.ALL) ||
+                        (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction)
+                    ) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .drawBehind {
+                                    val shadowSize = 2.dp.toPx()
+                                    drawRoundRect(
+                                        color = Color.Black.copy(alpha = 0.4f),
+                                        size = size.copy(
+                                            height = size.height + shadowSize,
+                                            width = size.width + shadowSize,
+                                        ),
+                                        topLeft = Offset(8f, 9f),
+                                        cornerRadius = CornerRadius(x = 20f, y = 20f)
+                                    )
+                                }
+                                .background(
+                                    MaterialTheme.colorScheme.background.copy(alpha = 1f),
+                                    MaterialTheme.shapes.large
+                                )
+                        ) {
+                            Column(
+                                Modifier
+                                    .padding(16.dp)
+                            ) {
+                                if (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction) {
+                                    Text(
+                                        text = "Available on:",
+                                        style = defaultTextStyle.copy(
+                                            fontSize = 16.sp,
+                                            lineHeight = 24.sp,
+                                            letterSpacing = 0.15.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            lineBreak = LineBreak.Heading
+                                        ),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+
+                                    )
+                                    Text(
+                                        text = deal.activeDayTime.toDisplayString(),
+                                        style = defaultTextStyle.copy(
+                                            fontSize = 16.sp,
+                                            lineHeight = 24.sp,
+                                            letterSpacing = 0.15.sp,
+                                            fontWeight = FontWeight.Light,
+                                            lineBreak = LineBreak.Heading
+                                        ),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                }
+
+                                if ((deal.applicableGroup != ApplicableGroup.NONE
+                                            && deal.applicableGroup != ApplicableGroup.ALL) &&
+                                    (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction)
+                                ) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                                if (
+                                    deal.applicableGroup != ApplicableGroup.NONE
+                                    && deal.applicableGroup != ApplicableGroup.ALL
+                                ) {
+
+
+                                    Text(
+                                        text = "Available to:",
+                                        style = defaultTextStyle.copy(
+                                            fontSize = 16.sp,
+                                            lineHeight = 24.sp,
+                                            letterSpacing = 0.15.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            lineBreak = LineBreak.Heading
+                                        ),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+
+                                    )
+                                    Text(
+                                        text = deal.applicableGroup.toString(),
+                                        style = defaultTextStyle.copy(
+                                            fontSize = 16.sp,
+                                            lineHeight = 24.sp,
+                                            letterSpacing = 0.15.sp,
+                                            fontWeight = FontWeight.Light,
+                                            lineBreak = LineBreak.Heading
+                                        ),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     Text(
                         text = "Posted By: ${deal.userName}",
                         style = MaterialTheme.typography.bodyMedium,
@@ -427,7 +511,10 @@ fun DealDetailScreen(
                     val context = LocalContext.current
 
                     Button(
-                        onClick = { navController.navigate(Destinations.LOGIN_ROUTE) },
+                        onClick = {
+                            navController.navigate(Destinations.LOGIN_ROUTE)
+                            setShowBottomSheet(false)
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
@@ -437,7 +524,10 @@ fun DealDetailScreen(
                         )
                     }
                     Button(
-                        onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) },
+                        onClick = {
+                            navController.navigate(Destinations.SIGNUP_ROUTE)
+                            setShowBottomSheet(false)
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(

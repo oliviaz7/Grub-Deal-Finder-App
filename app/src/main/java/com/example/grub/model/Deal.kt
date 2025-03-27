@@ -21,6 +21,7 @@ data class Deal(
     val numUpVotes: Int,
     val numDownVotes: Int,
     val userName: String,
+    val price: Double,
 ) : Parcelable
 
 enum class DealType {

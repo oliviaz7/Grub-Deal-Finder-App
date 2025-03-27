@@ -2,6 +2,7 @@ package com.example.grub.ui.list
 
 import CustomFilter
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -76,6 +77,13 @@ class ListViewModel(
         }
     }
 
+    fun onClearOptions() {
+        viewModelState.update { currentState ->
+            val updatedFilters = CustomFilter()
+            currentState.copy(selectedCustomFilter = updatedFilters)
+        }
+    }
+
     fun onFilter() {
         val sortedDeals: List<RestaurantDeal> = when (uiState.value.selectedSort) {
             "Distance" -> sortByDistance(uiState.value.restaurantDeals)
@@ -115,6 +123,17 @@ class ListViewModel(
         // Update state with intersection of search and filter results
         viewModelState.update { currentState ->
             currentState.copy(filteredDeals = finalFilteredList)
+        }
+    }
+
+    fun onSelectPriceRange(start: Int, end: Int) {
+        Log.d("LIST view model", "select price range ${start}, ${end}")
+        viewModelState.update { currentState ->
+            val updatedFilters = currentState.selectedCustomFilter.copy(
+                minPrice = start.toFloat(),
+                maxPrice = end.toFloat()
+            )
+            currentState.copy(selectedCustomFilter = updatedFilters)
         }
     }
 
@@ -170,7 +189,6 @@ class ListViewModel(
     }
 
     private fun filterCustomDeals(deals: List<RestaurantDeal>): List<RestaurantDeal> {
-        println(viewModelState.value.selectedCustomFilter.type)
         return deals.map { restaurantDeal ->
             val filteredDeals = restaurantDeal.deals.filter { deal ->
                 (viewModelState.value.selectedCustomFilter.type.isEmpty() || deal.type.name in viewModelState.value.selectedCustomFilter.type)
@@ -188,12 +206,15 @@ class ListViewModel(
                                     restriction.activeDays.any {
                                         it.toString() in viewModelState.value.selectedCustomFilter.day
                                     }
+
                                 is DayOfWeekAndTimeRestriction.BothDayAndTimeRestriction ->
                                     restriction.activeDaysAndTimes.any {
                                         it.dayOfWeek.toString() in viewModelState.value.selectedCustomFilter.day
                                     }
                             }
                         })
+                        &&
+                        (deal.price in viewModelState.value.selectedCustomFilter.minPrice..viewModelState.value.selectedCustomFilter.maxPrice)
             }
             restaurantDeal.copy(deals = filteredDeals)
         }.filter { it.deals.isNotEmpty() }

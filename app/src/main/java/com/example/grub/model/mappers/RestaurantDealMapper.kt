@@ -5,13 +5,13 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsResponse
-import com.example.grub.data.deals.SimpleRestaurant
 import com.example.grub.model.DayOfWeek
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.DayWithTimeInterval
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
 import com.example.grub.model.TimeInterval
+import com.example.grub.model.VoteType
 import com.example.grub.utils.ImageUrlHelper
 import java.time.Instant
 import java.time.ZoneId
@@ -103,7 +103,7 @@ object RestaurantDealMapper {
             userId = rawDeal.userId,
             imageUrl = ImageUrlHelper.getFullUrl(rawDeal.imageId),
             userSaved = rawDeal.userSaved,
-            userVote = rawDeal.userVote,
+            userVote = rawDeal.userVote ?: VoteType.NEUTRAL,
             applicableGroup = rawDeal.applicableGroup,
             activeDayTime = mapStartEndTimesToRestriction(
                 rawDeal.dailyStartTimes,
@@ -111,7 +111,8 @@ object RestaurantDealMapper {
             ),
             numUpVotes = rawDeal.numUpvote,
             numDownVotes = rawDeal.numDownvote,
-            userName = rawDeal.username,
+            userName = rawDeal.username ?: "",
+            price = rawDeal.price,
         )
     }
 
@@ -125,21 +126,6 @@ object RestaurantDealMapper {
             restaurantName = response.restaurantName,
             coordinates = response.coordinates,
             deals = deals,
-            displayAddress = response.displayAddress,
-            imageUrl = response.imageUrl,
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun mapResponseToRestaurantDeals(response: SimpleRestaurant): RestaurantDeal {
-        val zoneId = ZoneId.of("EST") // hardcoded time zone for now
-
-        return RestaurantDeal(
-            id = "",
-            placeId = response.placeId,
-            restaurantName = response.restaurantName,
-            coordinates = response.coordinates,
-            deals = emptyList(),
             displayAddress = response.displayAddress,
             imageUrl = response.imageUrl,
         )

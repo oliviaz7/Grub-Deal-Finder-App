@@ -1,10 +1,12 @@
 package com.example.grub.ui.addDealFlow.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,10 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.grub.model.DealType
 import com.example.grub.ui.addDealFlow.AddDealUiState
+import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.DollarInputField
 import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 
@@ -42,14 +47,15 @@ import com.example.grub.ui.addDealFlow.components.TitledOutlinedTextField
 fun AddDetailsScreen(
     uiState: AddDealUiState,
     navController: NavController,
-    prevStep: () -> Unit,
-    nextStep: () -> Unit,
+    prevStep: (Step?) -> Unit,
+    nextStep: (Step?) -> Unit,
     updateItemName: (String) -> Unit,
     updateDescription: (String?) -> Unit,
     updatePrice: (String?) -> Unit,
     updateDealType: (DealType) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
     val dealTypes = DealType.entries.toList()
@@ -73,7 +79,7 @@ fun AddDetailsScreen(
                 ),
                 navigationIcon = {
                     IconButton(
-                        onClick = prevStep,
+                        onClick = { prevStep(null) },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
@@ -92,14 +98,18 @@ fun AddDetailsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isSubmitButtonEnabled(),
-                    onClick = nextStep,
+                    onClick = { nextStep(null) },
                 ) {
                     Text("Next")
                 }
             }
         },
         containerColor = Color.White,
-        modifier = modifier,
+        modifier = modifier
+            .imePadding()
+            .pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier

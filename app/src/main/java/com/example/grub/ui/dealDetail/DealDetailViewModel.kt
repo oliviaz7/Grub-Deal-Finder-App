@@ -35,6 +35,7 @@ data class DealDetailUiState(
     val deal: Deal?,
     val restaurantName: String?,
     val restaurantAddress: String?,
+    val snackbarMessage: String?,
 ) {
     val isLoggedIn = currUser != null
 }
@@ -48,7 +49,8 @@ private data class DealDetailViewModelState(
     val currUser: User?,
     val deal: Deal?,
     val restaurantName: String?,
-    val restaurantAddress: String?
+    val restaurantAddress: String?,
+    val snackbarMessage: String?,
 ) {
 
     /**
@@ -56,7 +58,7 @@ private data class DealDetailViewModelState(
      * the ui.
      */
     fun toUiState(): DealDetailUiState =
-        DealDetailUiState(showBottomSheet, currUser, deal, restaurantName, restaurantAddress)
+        DealDetailUiState(showBottomSheet, currUser, deal, restaurantName, restaurantAddress, snackbarMessage)
 }
 
 /**
@@ -69,7 +71,6 @@ class DealDetailViewModel(
     private val deal: Deal?,
     private val restaurantName: String?,
     private val restaurantAddress: String?,
-    private val authRepository: AuthRepository?,
 ) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(
@@ -78,7 +79,8 @@ class DealDetailViewModel(
             currUser = null,
             deal = null,
             restaurantName = "",
-            restaurantAddress = ""
+            restaurantAddress = "",
+            snackbarMessage = null,
         )
     )
 
@@ -136,6 +138,12 @@ class DealDetailViewModel(
         }
     }
 
+    fun clearSnackBarMsg(){
+        viewModelState.update {
+            it.copy(snackbarMessage = null)
+        }
+    }
+
     fun setShowBottomSheet(show: Boolean) {
         viewModelState.update {
             it.copy(
@@ -154,6 +162,11 @@ class DealDetailViewModel(
                     dealId = viewModelState.value.deal!!.id,
                     userId = viewModelState.value.currUser!!.id,
                 )
+                viewModelState.update {
+                    it.copy(
+                        snackbarMessage = "Saved successfully!",
+                    )
+                }
             }
         } else if (viewModelState.value.deal!!.userSaved) {
             viewModelScope.launch {
@@ -161,6 +174,11 @@ class DealDetailViewModel(
                     dealId = viewModelState.value.deal!!.id,
                     userId = viewModelState.value.currUser!!.id,
                 )
+                viewModelState.update {
+                    it.copy(
+                        snackbarMessage = "Unsaved successfully!",
+                    )
+                }
             }
         }
 
@@ -178,6 +196,17 @@ class DealDetailViewModel(
                     userId = viewModelState.value.currUser!!.id,
                     userVote = if (alreadyUpvoted) VoteType.NEUTRAL else VoteType.UPVOTE,
                 )
+                viewModelState.update {
+                    if(alreadyUpvoted){
+                        it.copy(
+                            snackbarMessage = "Removed up vote successfully!",
+                        )
+                    }else{
+                        it.copy(
+                            snackbarMessage = "Up voted successfully!",
+                        )
+                    }
+                }
             }
         }
     }
@@ -194,21 +223,22 @@ class DealDetailViewModel(
                     userId = viewModelState.value.currUser!!.id,
                     userVote = if (alreadyDownvoted) VoteType.NEUTRAL else VoteType.DOWNVOTE,
                 )
+                viewModelState.update {
+                    if(!alreadyDownvoted){
+                        it.copy(
+                            snackbarMessage = "Down voted successfully!",
+                        )
+                    }else{
+                        it.copy(
+                            snackbarMessage = "Removed down vote successfully!",
+                        )
+                    }
+
+                }
             }
         }
     }
 
-    fun onLogin(context: Context) {
-        Log.d("deal Details", "login")
-        viewModelScope.launch {
-            try {
-                val rawNonce = UUID.randomUUID().toString()
-                authRepository?.googleSignInButton(context, rawNonce)
-            } catch (e: Exception) {
-                Log.d("sign in bottom sheet", "failed lol: ${e.message}")
-            }
-        }
-    }
 
     /**
      * Factory for HomeViewModel that takes PostsRepository as a dependency
@@ -217,7 +247,6 @@ class DealDetailViewModel(
         fun provideFactory(
             appViewModel: AppViewModel,
             restaurantDealRepo: RestaurantDealsRepository,
-            authRepository: AuthRepository?,
             deal: Deal?,
             restaurantName: String?,
             restaurantAddress: String?,
@@ -230,7 +259,6 @@ class DealDetailViewModel(
                     deal,
                     restaurantName,
                     restaurantAddress,
-                    authRepository,
                 ) as T
             }
         }
