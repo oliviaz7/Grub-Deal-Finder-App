@@ -99,23 +99,6 @@ class ProfileViewModel(
         setShowBottomSheet(true)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun onClickAboutGrub() {
-        viewModelScope.launch {
-            // Idk how this logic would work for the about grub page so idk just show something rn
-            try {
-                val mappedDeals = restaurantRepo
-                    .getSavedDeals(_uiState.value.currentUser!!.id)
-                    .successOr(emptyList()).map { dealMapper.mapResponseToRestaurantDeals(it) }
-
-                _uiState.update { it.copy(favouriteDeals = mappedDeals) }
-            } catch (e: Exception) {
-                Log.d("ProfileViewModel", "Error fetching favourite deals: ${e.message}")
-            }
-        }
-        setShowBottomSheet(true)
-    }
-
     fun onSignOut() {
         viewModelScope.launch {
             try {
