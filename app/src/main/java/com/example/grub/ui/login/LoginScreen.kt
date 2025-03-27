@@ -1,5 +1,6 @@
 package com.example.grub.ui.login
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,6 +34,8 @@ fun LoginScreen(
     onPasswordChanged: (String) -> Unit,
     onLoginClicked: () -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     Scaffold(
         topBar = {
             Box(
@@ -57,7 +62,10 @@ fun LoginScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-        }
+        },
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier

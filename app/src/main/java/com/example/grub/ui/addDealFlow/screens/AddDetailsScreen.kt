@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -104,7 +105,11 @@ fun AddDetailsScreen(
             }
         },
         containerColor = Color.White,
-        modifier = modifier,
+        modifier = modifier
+            .imePadding()
+            .pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -113,11 +118,7 @@ fun AddDetailsScreen(
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .padding(top = 40.dp)
-                .verticalScroll(scrollState)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = { focusManager.clearFocus() })
-                },
-
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // text field for item name
