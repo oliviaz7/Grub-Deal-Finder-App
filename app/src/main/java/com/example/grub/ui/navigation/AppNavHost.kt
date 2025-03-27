@@ -17,6 +17,8 @@ import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
+import com.example.grub.ui.dealImage.DealImageViewModel
+import com.example.grub.ui.list.DealImageRoute
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
 import com.example.grub.ui.login.LoginRoute
@@ -37,6 +39,7 @@ object Destinations {
     const val PROFILE_ROUTE = "profile"
     const val SIGNUP_ROUTE = "signup"
     const val LOGIN_ROUTE = "login"
+    const val IMAGE_ROUTE = "image"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -191,6 +194,29 @@ fun AppNavHost(
                 DealDetailRoute(
                     dealDetailViewModel = dealDetailViewModel,
                     navController
+                )
+            }
+        }
+
+        composable(
+            Destinations.IMAGE_ROUTE
+        ) { backStackEntry ->
+            val dealImageURL = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<String>("dealImageURL") ?: null
+            val dealImageViewModel: DealImageViewModel = viewModel(
+                factory = DealImageViewModel.provideFactory(
+                    dealURL = dealImageURL,
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = false,
+                showFloatingActionButton = false
+            ) {
+                DealImageRoute(
+                    dealImageViewModel = dealImageViewModel,
+                    navController = navController,
                 )
             }
         }

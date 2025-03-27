@@ -14,9 +14,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -43,8 +48,10 @@ import androidx.compose.ui.unit.dp
 fun CustomFilterDialog(
     selectedCustomFilter: CustomFilter,
     onSelectCustomFilter: (String, String) -> Unit,
+    onSelectPriceRange: (Int, Int) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onClearOptions: () -> Unit,
 ) {
     val filterTypes = listOf("FREE", "DISCOUNT", "BOGO", "OTHER")
     val filterDays =
@@ -142,6 +149,27 @@ fun CustomFilterDialog(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                var priceRange by remember { mutableStateOf(selectedCustomFilter.minPrice..selectedCustomFilter.maxPrice) }
+                Text(
+                    text = "Price Range: $${priceRange.start.toInt()} - $${priceRange.endInclusive.toInt()}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                RangeSlider(
+                    value = priceRange,
+                    onValueChange = { newRange -> priceRange = newRange },
+                    valueRange = 0f..100f, // Adjust this to match your price limits
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    onValueChangeFinished = {
+                        onSelectPriceRange(
+                            priceRange.start.toInt(),
+                            priceRange.endInclusive.toInt()
+                        )
+                    },
+                )
+
             }
 
         },
@@ -155,7 +183,7 @@ fun CustomFilterDialog(
 
         },
         dismissButton = {
-            TextButton(onClick = { onShowFilterDialog(false) }) { Text("Dismiss") }
+            TextButton(onClick = { onClearOptions() }) { Text("Clear") }
         }
     )
 
