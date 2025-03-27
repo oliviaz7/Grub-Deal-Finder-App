@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from datetime import datetime, timezone
+from datetime import datetime
 import google_maps
 import math
 import logging
@@ -13,9 +13,12 @@ import pytz
 logger = logging.getLogger('werkzeug')
 logger.propagate = False
 
-load_dotenv()
+load_dotenv() # remove when using railway server
 url = os.getenv("SUPABASE_URL")
 key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+	raise ValueError("SUPABASE_URL or SUPABASE_KEY is not set.")
 
 supabase: Client = create_client(url, key)
 
@@ -264,7 +267,7 @@ def get_restaurants_given_filters(user_lat, user_long, radius, user_id):
 def format_deal(deal):
 	"""Format the deal object."""
 	deal['date_posted'] = iso_to_unix(deal['date_posted'])
-	if "expiry_date" in deal:
+	if deal.get("expiry_date"):
 		deal['expiry_date'] = iso_to_unix(deal['expiry_date'])
 
 		# Check if the deal is expired

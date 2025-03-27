@@ -1,7 +1,6 @@
 import requests
 import os
 import logging
-from server import get_restaurant_image_url
 
 logger = logging.getLogger('werkzeug')
 
@@ -34,6 +33,8 @@ def get_restaurant_website(place_id):
     return data.get("result", {}).get("website", None)
 
 def search_nearby_restaurants(keyword, latitude, longitude, radius):
+    from server import get_restaurant_image_url
+
     if not _check_api_key():
         return []
 
