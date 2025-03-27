@@ -146,10 +146,9 @@ fun AddImagesScreen(
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
-                .fillMaxHeight()
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(scrollState),
@@ -157,17 +156,12 @@ fun AddImagesScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (openCamerPreview) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CameraCaptureScreen(
-                        updateImageUri = { updateImage(it) },
-                        onPermissionsChanged = onPermissionsChanged,
-                        onDismiss = { openCamerPreview = false },
-                    )
-                }
+                CameraCaptureScreen(
+                    updateImageUri = { updateImage(it) },
+                    onPermissionsChanged = onPermissionsChanged,
+                    onDismiss = { openCamerPreview = false },
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
                 Text(
                     text = "Upload an image to share!",
@@ -180,14 +174,16 @@ fun AddImagesScreen(
                 )
             }
 
-            Button(
-                onClick = { openCamerPreview = true },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Open Camera",
-                )
+            if (!openCamerPreview) {
+                Button(
+                    onClick = { openCamerPreview = true },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Open Camera",
+                    )
+                }
             }
         }
     }

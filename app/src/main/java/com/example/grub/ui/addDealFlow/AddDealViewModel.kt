@@ -53,7 +53,7 @@ data class DealState(
     val itemName: String = "",
     val description: String? = null,
     val price: String? = null,
-    val dealType: DealType? = null,
+    val dealType: DealType? = DealType.DISCOUNT,
     val imageKey: String? = null,
     val expiryDate: ZonedDateTime? = null,
     val startTimes: List<Int> = List(7){ MIN_MINUTES_IN_DAY }, // array of 7 integers, each representing a day of the week
