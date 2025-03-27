@@ -33,6 +33,8 @@ fun ListRoute(
         onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) },
         onSearchTextChange = { searchText: String -> listViewModel.onSearchTextChange(searchText) },
         onFilter = { -> listViewModel.onFilter() },
-        onSortOptionSelected = { option: String -> listViewModel.onSortOptionSelected(option) }
+        onSortOptionSelected = { option: String -> listViewModel.onSortOptionSelected(option) },
+        onSelectPriceRange = {start: Int, end: Int -> listViewModel.onSelectPriceRange(start, end)},
+        onClearOptions= {-> listViewModel.onClearOptions()}
     )
 }

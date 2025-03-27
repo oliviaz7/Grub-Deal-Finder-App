@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
 import androidx.compose.material.icons.outlined.BookmarkBorder
@@ -44,7 +43,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -74,7 +72,6 @@ fun DealDetailScreen(
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
-    onLogin: (Context) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -144,7 +141,8 @@ fun DealDetailScreen(
                 ) {
                     Text(
                         text = restaurantName,
-                        style = MaterialTheme.typography.displaySmall
+                        style = MaterialTheme.typography.displaySmall,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                     )
                     Row() {
                         Icon(
@@ -200,12 +198,6 @@ fun DealDetailScreen(
                         )
                     }
 
-                    Text(
-                        text = "Deal Details",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-
                     if (deal.expiryDate != null) {
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -216,11 +208,10 @@ fun DealDetailScreen(
                                 tint = Color.White,
                                 modifier = Modifier
                                     .size(18.dp)
-                                    .scale(0.95f)
                             )
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                text = "Valid Until: " + deal.expiryDate.format(
+                                text = " Valid Until: " + deal.expiryDate.format(
                                     DateTimeFormatter.ofPattern(
                                         "MMMM dd, yyyy"
                                     )
@@ -230,7 +221,7 @@ fun DealDetailScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row {
                         Icon(
                             Icons.Filled.ThumbUpOffAlt,
@@ -266,7 +257,7 @@ fun DealDetailScreen(
                         )
 
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Box(
                         modifier = modifier
@@ -308,7 +299,7 @@ fun DealDetailScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     lineBreak = LineBreak.Heading
                                 ),
-                                color = Color.Black
+                                color = MaterialTheme.colorScheme.primaryContainer,
                             )
                             if (deal.description != null && deal.description != "") {
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -369,7 +360,7 @@ fun DealDetailScreen(
                                             fontWeight = FontWeight.Medium,
                                             lineBreak = LineBreak.Heading
                                         ),
-                                        color = Color.Black
+                                        color = MaterialTheme.colorScheme.primaryContainer
 
                                     )
                                     Text(
@@ -406,7 +397,7 @@ fun DealDetailScreen(
                                             fontWeight = FontWeight.Medium,
                                             lineBreak = LineBreak.Heading
                                         ),
-                                        color = Color.Black
+                                        color = MaterialTheme.colorScheme.primaryContainer
 
                                     )
                                     Text(
@@ -477,7 +468,10 @@ fun DealDetailScreen(
                     val context = LocalContext.current
 
                     Button(
-                        onClick = { navController.navigate(Destinations.LOGIN_ROUTE) },
+                        onClick = {
+                            navController.navigate(Destinations.LOGIN_ROUTE)
+                            setShowBottomSheet(false)
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
@@ -487,7 +481,10 @@ fun DealDetailScreen(
                         )
                     }
                     Button(
-                        onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) },
+                        onClick = {
+                            navController.navigate(Destinations.SIGNUP_ROUTE)
+                            setShowBottomSheet(false)
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(

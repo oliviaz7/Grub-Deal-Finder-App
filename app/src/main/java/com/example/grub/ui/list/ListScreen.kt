@@ -67,8 +67,10 @@ fun ListScreen(
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
     onSearchTextChange: (String) -> Unit,
+    onSelectPriceRange: (Int, Int) -> Unit,
     onFilter: () -> Unit,
-    onSortOptionSelected: (String) -> Unit
+    onSortOptionSelected: (String) -> Unit,
+    onClearOptions:()->Unit,
 ) {
     val scrollState = rememberScrollState()
     val interactionSource = remember { MutableInteractionSource() }
@@ -108,7 +110,7 @@ fun ListScreen(
                         .height(40.dp),
                     shape = MaterialTheme.shapes.small,
                     contentPadding = PaddingValues(8.dp),
-                    colors = if(uiState.selectedSort=="") ButtonColors(
+                    colors = if (uiState.selectedSort == "") ButtonColors(
                         containerColor = Color.White,
                         contentColor = MaterialTheme.colorScheme.primary,
                         disabledContainerColor = MaterialTheme.colorScheme.primary,
@@ -119,8 +121,7 @@ fun ListScreen(
                             contentColor = Color.White,
                             disabledContainerColor = MaterialTheme.colorScheme.primary,
                             disabledContentColor = Color.White,
-                        )
-                    ,
+                        ),
                 ) {
                     Text("Sort")
                 }
@@ -157,6 +158,8 @@ fun ListScreen(
                     onSelectCustomFilter = onSelectCustomFilter,
                     onSubmitCustomFilter = onSubmitCustomFilter,
                     onShowFilterDialog = onShowFilterDialog,
+                    onSelectPriceRange = onSelectPriceRange,
+                    onClearOptions= onClearOptions,
                 )
 
                 if (uiState.filteredDeals.isEmpty()) {
@@ -285,7 +288,9 @@ fun ListFilterButtons(
     onFilterSelected: (String) -> Unit,
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
+    onSelectPriceRange: (Int, Int) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onClearOptions: ()-> Unit,
 ) {
     val selectedFilter = uiState.selectedFilter
     val showFilterDialog = uiState.showFilterDialog
@@ -373,7 +378,9 @@ fun ListFilterButtons(
                     )
                 },
                 onSubmitCustomFilter = onSubmitCustomFilter,
-                onShowFilterDialog = onShowFilterDialog
+                onShowFilterDialog = onShowFilterDialog,
+                onSelectPriceRange = onSelectPriceRange,
+                onClearOptions = onClearOptions,
             )
     }
 }
