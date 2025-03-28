@@ -584,7 +584,7 @@ def login():
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({
 				"success": False,
-				"message": "ERROR: Invalid username or password THIS IS PASS:" + password + " THIS IS HASH" + hash_password(password)
+				"message": "ERROR: Invalid username or password"
 			})
 
 		# Prepare the full user object to return
