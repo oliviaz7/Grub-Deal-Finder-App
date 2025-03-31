@@ -34,7 +34,7 @@ interface ApiService {
         @Query("email") email: String
     ): ApiResponse
 
-    @GET("login")
+    @POST("login")
     suspend fun login(
         @Query("username") username: String,
         @Query("password") password: String,
