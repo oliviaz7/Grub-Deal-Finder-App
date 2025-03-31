@@ -141,6 +141,8 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.logging.interceptor)
+    implementation(libs.okhttp.logging)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
