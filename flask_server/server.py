@@ -553,8 +553,10 @@ def login():
 	"""Logs in a user and returns their full user object."""
 	try:
 		# Get query parameters from the request
-		username = request.args.get("username")
-		password = request.args.get("password")
+		data = request.get_json()
+
+		username = data.get("username")
+		password = data.get("password")
 
 		logger.info(f"Received login request for username: {username}")
 

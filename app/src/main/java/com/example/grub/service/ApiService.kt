@@ -1,5 +1,6 @@
 package com.example.grub.service
 
+import com.example.grub.data.auth.impl.LoginRequest
 import com.example.grub.data.auth.impl.LoginResponse
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.ApiResponse
@@ -36,8 +37,7 @@ interface ApiService {
 
     @POST("login")
     suspend fun login(
-        @Query("username") username: String,
-        @Query("password") password: String,
+        @Body loginRequest: LoginRequest
     ): LoginResponse
 
     @GET("search_nearby_restaurants")
