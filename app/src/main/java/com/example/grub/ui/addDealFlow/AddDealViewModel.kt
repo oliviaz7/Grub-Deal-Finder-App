@@ -52,6 +52,7 @@ data class AddDealUiState(
     val restaurantDealLoading: Boolean,
     val userId: String,
     val dealState: DealState,
+    val autoPopulateLoading: Boolean,
 )
 
 data class DealState(
@@ -90,6 +91,8 @@ private data class AddDealViewModelState(
     val addDealResult: Result<AddDealResponse>? = null,
     val restaurantDealLoading: Boolean = false,
     val dealState: DealState = DealState(),
+    val autoPopulateLoading: Boolean = false,
+    val isGpuOnline: Boolean = false,
 ) {
 
     /**
@@ -107,7 +110,8 @@ private data class AddDealViewModelState(
             addDealResult,
             restaurantDealLoading,
             userId,
-            dealState
+            dealState,
+            autoPopulateLoading,
         )
 }
 
@@ -157,12 +161,27 @@ class AddDealViewModel(
             onSuccess = { uploadedUrl: String ->
                 Log.d("uploadImage", "UPLOAD SUCCESS $uploadedUrl")
                 updateImageKey(imageKey)
-                autoPopulateDealFromImage()
+                if (viewModelState.value.isGpuOnline) {
+                    Log.d("auto-populate-deal", "GPU is online")
+                    autoPopulateDealFromImage()
+                } else {
+                    Log.d("auto-populate-deal", "GPU is NOT online")
+                }
             },
             onFailure = {
                 Log.e("uploadImage", "UPLOAD FAILED RIP")
             },
         )
+    }
+
+    // TODO: change this from being hardcoded to making a request to the python server
+    //  and finding out if it's online
+    private fun isGpuOnlineCheck() {
+        // something like
+        // return apiService.gpuHandshake()
+
+        // delete this:
+        appViewModel.onGpuOnlineChange(true)
     }
 
     init {
@@ -175,6 +194,16 @@ class AddDealViewModel(
             }
             searchNearbyRestaurants("", 1000.0)
         }
+
+        // listen for the state of GPU server
+        viewModelScope.launch {
+            appViewModel.isGpuOnline.collect { isOnline ->
+                viewModelState.update { it.copy(isGpuOnline = isOnline) }
+            }
+        }
+
+        // trigger check on initial load
+        isGpuOnlineCheck()
     }
 
     fun addNewRestaurantDeal() {
@@ -237,12 +266,20 @@ class AddDealViewModel(
                 )
                 // Ensure imageId is available
                 val imageId = viewModelState.value.dealState.imageKey ?: return@launch
-                val response = gpuApiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+                // TODO: ADD ONLY IF THE GPU SERVER IS ONLINE
+                viewModelState.update { it.copy(autoPopulateLoading = true) }
+                val response =
+                    gpuApiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+                // SET LOADING TO BE TRUE
+                viewModelState.update { it.copy(autoPopulateLoading = false) }
+
                 updateAutoPopulateDealFields(response)
                 // Handle response, e.g., update uiState with result
                 Log.d("auto_populate_deal_from_image", "response: $response")
             } catch (e: Exception) {
+                // SET LOADING TO BE FALSE
                 // Handle error (e.g., network failure)
+                viewModelState.update { it.copy(autoPopulateLoading = false) }
                 Log.d("auto_populate_deal_from_image", "error: $e")
             }
         }
@@ -265,7 +302,9 @@ class AddDealViewModel(
                     expiryDate = uiState.value.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                     datePosted = System.currentTimeMillis(),
                     userId = uiState.value.userId,
-                    imageId = uiState.value.dealState.imageKey,
+                    // we could've uploaded an image to the server and gotten a URL back,
+                    // but then removed it (nulling our the imageUri) without wiping the imageKey
+                    imageId = if (uiState.value.imageUri != null) uiState.value.dealState.imageKey else null,
                     applicableGroup = uiState.value.dealState.applicableGroup,
                     dailyStartTimes = uiState.value.dealState.startTimes,
                     dailyEndTimes = uiState.value.dealState.endTimes,

@@ -72,6 +72,11 @@ fun AddImagesScreen(
 
     fun updateImage(uri: Uri?) {
         updateAndroidImageUri(uri)
+        // this will upload and try to send it to
+        // the auto-populate fields GPU (we want to do
+        // this as early as possible because it could
+        // take a while)
+        uri?.let { uploadImageToFirebase(it) }
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -111,7 +116,8 @@ fun AddImagesScreen(
             ) {
                 OutlinedButton(
                     onClick = {
-                        updateAndroidImageUri(null)
+                        // send it to the gpu server earlier (the second we have the url)
+                        // updateAndroidImageUri(null)
                         nextStep(null)
                     },
                     modifier = Modifier
