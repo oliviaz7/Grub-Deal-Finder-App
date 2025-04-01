@@ -1,6 +1,7 @@
 package com.example.grub.ui.shared.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
+import com.example.grub.model.User
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
@@ -97,10 +99,12 @@ fun AppNavHost(
                 ListRoute(listViewModel = listViewModel, navController)
             }
         }
+        composable("${Destinations.PROFILE_ROUTE}?userId={userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") // Might be null
 
-        composable(Destinations.PROFILE_ROUTE) {
             val profileViewModel: ProfileViewModel = viewModel(
                 factory = ProfileViewModel.provideFactory(
+                    userId = userId,
                     appViewModel = appViewModel,
                     authRepository = appContainer.authRepository,
                     dealMapper = RestaurantDealMapper,

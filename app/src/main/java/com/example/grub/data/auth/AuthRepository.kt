@@ -21,4 +21,6 @@ interface AuthRepository {
     ): Result<String>
     val loggedInUser: StateFlow<User?>
     suspend fun googleSignInButton(context: Context, rawNonce: String)
+
+    suspend fun getUserById(userId: String) : Result<User>
 }

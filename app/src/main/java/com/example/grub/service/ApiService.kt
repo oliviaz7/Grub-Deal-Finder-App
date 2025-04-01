@@ -93,5 +93,11 @@ interface ApiService {
 
     @GET("proxy/handshake")
     suspend fun proxyHandshake(): HandshakeResponse
+
+    @GET("get_user_by_id")
+    suspend fun getUserById(
+        @Query("user_id") userId: String
+    ): LoginResponse
+
 }
 

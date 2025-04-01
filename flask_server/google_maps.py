@@ -49,8 +49,8 @@ def search_nearby_restaurants(keyword, latitude, longitude, radius):
     # Make the request to the Google Places API
     response = requests.get(NEARBY_SEARCH_URL, params=params)
 
-    if response.status_code != 200:
-        logger.error(f"API Request Error for search_nearby_restaurants")
+    if response.status_code != 200 or response.json().get("status") != "OK":
+        logger.error(f"API Request Error for search_nearby_restaurants\nError:{response.json()}")
         return []
 
     places = response.json()

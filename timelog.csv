@@ -84,6 +84,8 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-28, 2, 0, 0, 0, 0, 0, Setting up new laptop w Van
 2025-03-31, 2, 0, 0, 2, 0, 0, Gpu setup and debugging and progress indicator for auto-populate
 2025-03-31, 0, 0, 0, 0, 5, 0, Debugged hashing pswd issue and removed password from API request
+2025-03-27, 0, 0, 0, 0, 5, 0, Migrated old text-based passwords, finished hashing, finished about page, and now have Olivia's laptop :D
+2025-03-31, 0, 6, 0, 0, 0, 0, Setting up view profile screen
 2025-03-31, 0, 0, 0, 0, 0, 4, refactor code, delete unused files
 2025-03-31, 0, 0, 3, 0, 0, 0, Helping merge servers together, fix bugs
 2025-04-01, 0, 0, 0, 0, 0, 2, ui fixes across screens

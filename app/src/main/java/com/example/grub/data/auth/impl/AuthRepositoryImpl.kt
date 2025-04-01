@@ -93,7 +93,9 @@ class AuthRepositoryImpl : AuthRepository {
                 username = username,
                 firstName = response.user?.firstName ?: "",
                 lastName = response.user?.lastName ?: "",
-                email = response.user?.email ?: ""
+                email = response.user?.email ?: "",
+                upvote = response.user?.upvote ?: 0,
+                downvote = response.user?.downvote ?: 0,
             )
             _loggedInUser.update { user }
             return Result.Success(response.message)
@@ -126,6 +128,26 @@ class AuthRepositoryImpl : AuthRepository {
             )
             _loggedInUser.update { user }
             return Result.Success(response.message)
+        } else {
+            return Result.Error(Exception(response.message))
+        }
+    }
+
+    override suspend fun getUserById(userId: String): Result<User> {
+        val response = apiService.getUserById(userId)
+        if (response.success) {
+            response.user?.let {
+                val user = User(
+                    id = it.id,
+                    username = it.username,
+                    firstName = it.firstName,
+                    lastName = it.lastName,
+                    email = it.email,
+                    upvote = it.upvote,
+                    downvote = it.downvote,
+                )
+                return Result.Success(user)
+            } ?: return Result.Error(Exception("User not found"))
         } else {
             return Result.Error(Exception(response.message))
         }

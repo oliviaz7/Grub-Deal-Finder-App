@@ -42,5 +42,6 @@ class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl()
+//        FakeAuthRepositoryImpl()
     }
 }
