@@ -20,31 +20,10 @@ fun MapRoute(
 ) {
     val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
 
-    MapRoute(
-        uiState = uiState,
-        navController = navController,
-        onPermissionsChanged = { mapViewModel.onPermissionsChanged(it) },
-        onEvent = { event: MapEvent -> mapViewModel.onMapEvent(event) },
-    )
-}
-
-/**
- * Displays the Map route.
- *
- * @param uiState (state) the data to show on the screen
- */
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun MapRoute(
-    uiState: MapUiState,
-    navController: NavController,
-    onPermissionsChanged: (Boolean) -> Unit,
-    onEvent: (MapEvent) -> Unit,
-) {
     MapScreen(
         uiState = uiState,
         navController = navController,
-        onPermissionsChanged = onPermissionsChanged,
-        onMapEvent = onEvent,
+        onPermissionsChanged = mapViewModel::onPermissionsChanged,
+        onMapEvent = mapViewModel::onMapEvent,
     )
 }

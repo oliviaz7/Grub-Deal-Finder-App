@@ -94,6 +94,8 @@ sealed class DayOfWeekAndTimeRestriction(
     @Parcelize
     data object NoRestriction : DayOfWeekAndTimeRestriction(RestrictionType.NONE) {
         override fun toDisplayString(): String = "Available anytime"
+        override fun toDisplayDay(): String = "Available any day"
+        override fun toDisplayTime(): String = "Available any time"
     }
 
     @Parcelize
@@ -105,6 +107,14 @@ sealed class DayOfWeekAndTimeRestriction(
                 it.name.lowercase().replaceFirstChar(Char::uppercase)
             }
         }
+
+        override fun toDisplayDay(): String {
+            return activeDays.joinToString("\n") {
+                it.name.lowercase().replaceFirstChar(Char::uppercase)
+            }
+        }
+
+        override fun toDisplayTime(): String = "Available all day"
     }
 
     @Parcelize
@@ -120,8 +130,11 @@ sealed class DayOfWeekAndTimeRestriction(
 
             if (filteredIntervals.isEmpty()) return "No specific time restrictions"
 
+            val dayColumnWidth = activeDaysAndTimes.maxOf { it.dayOfWeek.name.length }
+
             return filteredIntervals.joinToString("\n") { interval ->
                 val day = interval.dayOfWeek.name.lowercase().replaceFirstChar(Char::uppercase)
+                val paddedDay = day.padEnd(dayColumnWidth)
                 val startTime = String.format(
                     "%02d:%02d",
                     interval.timeInterval.startHour,
@@ -132,12 +145,48 @@ sealed class DayOfWeekAndTimeRestriction(
                     interval.timeInterval.endHour,
                     interval.timeInterval.endMinute
                 )
-                "$day: $startTime - $endTime"
+                "$paddedDay: $startTime - $endTime"
+            }
+        }
+        @SuppressLint("DefaultLocale")
+        override fun toDisplayTime(): String {
+            val filteredIntervals = activeDaysAndTimes.filterNot {
+                it.timeInterval.startHour == 0 && it.timeInterval.startMinute == 0 &&
+                        it.timeInterval.endHour == 0 && it.timeInterval.endMinute == 0
+            }
+
+            if (filteredIntervals.isEmpty()) return "No specific time restrictions"
+
+
+            return filteredIntervals.joinToString("\n") { interval ->
+                val startTime = String.format(
+                    "%02d:%02d",
+                    interval.timeInterval.startHour,
+                    interval.timeInterval.startMinute
+                )
+                val endTime = String.format(
+                    "%02d:%02d",
+                    interval.timeInterval.endHour,
+                    interval.timeInterval.endMinute
+                )
+                "$startTime - $endTime"
+            }
+        }
+        override fun toDisplayDay(): String {
+            val filteredIntervals = activeDaysAndTimes.filterNot {
+                it.timeInterval.startHour == 0 && it.timeInterval.startMinute == 0 &&
+                        it.timeInterval.endHour == 0 && it.timeInterval.endMinute == 0
+            }
+
+            if (filteredIntervals.isEmpty()) return "No specific time restrictions"
+
+            return filteredIntervals.joinToString("\n") { interval ->
+                val day = interval.dayOfWeek.name.lowercase().replaceFirstChar(Char::uppercase)
+                day
             }
         }
     }
 
-    abstract fun toDisplayString(): String
 
     /**
      * Checks if the deal is available at the given [dateTime].
@@ -154,4 +203,7 @@ sealed class DayOfWeekAndTimeRestriction(
             is BothDayAndTimeRestriction -> activeDaysAndTimes.any { it.isAvailableAt(dateTime) }
         }
     }
+    abstract fun toDisplayString(): String
+    abstract fun toDisplayDay(): String
+    abstract fun toDisplayTime(): String
 }

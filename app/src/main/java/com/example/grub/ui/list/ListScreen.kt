@@ -52,7 +52,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.ui.searchBar.CustomSearchBar
+import com.example.grub.ui.list.components.CustomSearchBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -70,7 +70,7 @@ fun ListScreen(
     onSelectPriceRange: (Int, Int) -> Unit,
     onFilter: () -> Unit,
     onSortOptionSelected: (String) -> Unit,
-    onClearOptions:()->Unit,
+    onClearOptions: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val interactionSource = remember { MutableInteractionSource() }
@@ -135,7 +135,7 @@ fun ListScreen(
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { focusManager.clearFocus() })
             },
-    ) { innerPadding ->
+    ) { _ ->
         Box(
             modifier = Modifier
                 .padding(top = 48.dp)
@@ -147,7 +147,7 @@ fun ListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 8.dp)
-                    .verticalScroll(scrollState) // Scrollable content
+                    .verticalScroll(scrollState)
             ) {
                 ListFilterButtons(
                     uiState,
@@ -159,7 +159,7 @@ fun ListScreen(
                     onSubmitCustomFilter = onSubmitCustomFilter,
                     onShowFilterDialog = onShowFilterDialog,
                     onSelectPriceRange = onSelectPriceRange,
-                    onClearOptions= onClearOptions,
+                    onClearOptions = onClearOptions,
                 )
 
                 if (uiState.filteredDeals.isEmpty()) {
@@ -175,7 +175,6 @@ fun ListScreen(
                         )
                     }
                 } else {
-                    // Display the list of filtered restaurant deals
                     uiState.filteredDeals.forEach { restaurant ->
                         RestaurantItem(
                             restaurant = restaurant,
@@ -290,7 +289,7 @@ fun ListFilterButtons(
     onSubmitCustomFilter: () -> Unit,
     onSelectPriceRange: (Int, Int) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
-    onClearOptions: ()-> Unit,
+    onClearOptions: () -> Unit,
 ) {
     val selectedFilter = uiState.selectedFilter
     val showFilterDialog = uiState.showFilterDialog
