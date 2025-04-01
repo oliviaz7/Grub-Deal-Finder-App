@@ -1,9 +1,9 @@
 package com.example.grub.ui.shared.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -12,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
-import com.example.grub.model.User
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
@@ -55,6 +54,10 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Destinations.HOME_ROUTE,
 ) {
+    LaunchedEffect (Unit) {
+        appContainer.authRepository.checkSavedCredentials()
+    }
+
     val appViewModel: AppViewModel = viewModel(
         factory = AppViewModel.provideFactory(
             authRepository = appContainer.authRepository,

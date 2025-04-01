@@ -30,6 +30,7 @@ class FakeAuthRepositoryImpl : AuthRepository {
 
     private val _loggedInUser = MutableStateFlow<User?>(null)
     override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
+    override suspend fun checkSavedCredentials() = Unit
 
     override suspend fun login(username: String, password: String): Result<String> {
         // Simulate a delay to mimic network call
