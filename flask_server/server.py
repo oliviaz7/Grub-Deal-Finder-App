@@ -638,7 +638,7 @@ def get_restaurant():
         }
 
         # Step 2: Fetch all deals from the deals table that match restaurant_id
-        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).execute()
+        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).eq("is_removed", False).execute()
         raw_deals = deals_response.data if deals_response.data else []
 
         # format deals obj
