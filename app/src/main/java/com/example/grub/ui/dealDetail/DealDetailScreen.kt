@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,6 +56,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
@@ -481,22 +483,37 @@ fun DealAvailability(
                         lineHeight = 24.sp,
                         letterSpacing = 0.15.sp,
                         fontWeight = FontWeight.Medium,
-                        lineBreak = LineBreak.Heading
+                        lineBreak = LineBreak.Heading,
                     ),
                     color = MaterialTheme.colorScheme.primaryContainer
 
                 )
-                Text(
-                    text = deal.activeDayTime.toDisplayString(),
-                    style = defaultTextStyle.copy(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        letterSpacing = 0.15.sp,
-                        fontWeight = FontWeight.Light,
-                        lineBreak = LineBreak.Heading
-                    ),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                )
+                Row(){
+                    Text(
+                        text = deal.activeDayTime.toDisplayDay(),
+                        style = defaultTextStyle.copy(
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            letterSpacing = 0.15.sp,
+                            fontWeight = FontWeight.Light,
+                            lineBreak = LineBreak.Heading,
+                        ),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = deal.activeDayTime.toDisplayTime(),
+                        style = defaultTextStyle.copy(
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            letterSpacing = 0.15.sp,
+                            fontWeight = FontWeight.Light,
+                            lineBreak = LineBreak.Heading,
+                        ),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    )
+                }
+
             }
 
             if ((deal.applicableGroup != ApplicableGroup.NONE
