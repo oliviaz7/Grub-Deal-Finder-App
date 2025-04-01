@@ -13,6 +13,8 @@ import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
+import com.example.grub.ui.about.AboutPageRoute
+import com.example.grub.ui.about.AboutPageViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
@@ -40,6 +42,7 @@ object Destinations {
     const val SIGNUP_ROUTE = "signup"
     const val LOGIN_ROUTE = "login"
     const val IMAGE_ROUTE = "image"
+    const val ABOUT_ROUTE = "about"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -183,7 +186,6 @@ fun AppNavHost(
                     restaurantName = restaurantName,
                     restaurantAddress = restaurantAddress,
                     appViewModel = appViewModel,
-                    authRepository = appContainer.authRepository,
                 )
             )
             ScreenWithScaffold(
@@ -195,6 +197,22 @@ fun AppNavHost(
                     dealDetailViewModel = dealDetailViewModel,
                     navController
                 )
+            }
+        }
+
+        composable(route = Destinations.ABOUT_ROUTE) {
+            val AboutPageViewModel: AboutPageViewModel = viewModel(
+                factory = AboutPageViewModel.provideFactory(
+                    appViewModel = appViewModel,
+
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                AboutPageRoute(AboutPageViewModel, navController)
             }
         }
 

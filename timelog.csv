@@ -10,7 +10,7 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-06, 3, 3, 3, 3, 3, 3, Team meeting and large design talks
 2025-02-10, 1, 0, 0, 0, 0, 0, Deals repo and object
 2025-02-10, 6, 6, 4, 4, 6, 6, Overall grind sesh and prep for demo
-2025-02-11, 0, 0, 0, 0, 2, 0, Design of List View
+2025-02-11, 0, 0, 0, 0, 3, 0, Design of List View
 2025-02-11, 0, 0, 0, 0, 0, 2, setting up deal details
 2025-02-11, 2, 0, 0, 0, 0, 0, location permissions
 2025-02-11, 4, 0, 0, 0, 0, 0, set up firebase and integrate
@@ -23,7 +23,7 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
 2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
 2025-02-23, 0, 5, 0, 0, 0, 0, add deal flow
-2025-02-23, 0, 0, 0, 0, 3, 0, Design of Restaurant Details + Deals Details 
+2025-02-23, 0, 0, 0, 0, 4, 0, Design of Restaurant Details + Deals Details
 2025-02-24, 0, 0, 0, 0, 0, 2, refactoring ui components
 2025-02-25, 2, 0, 2, 2, 2, 2, product meeting and goals for p2
 2025-02-27, 0, 0, 0, 0, 0, 2, search bar ui
@@ -32,21 +32,21 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-01, 0, 3, 0, 0, 0, 0, prettify add deal flow
 2025-03-01, 0, 0, 0, 5, 0, 0, get radius to send to backend based on cameraview
 2025-03-02, 0, 0, 0, 3, 0, 0, use radius with supabase
-2025-03-02, 0, 0, 0, 0, 1, 0, Design of profile page
+2025-03-02, 0, 0, 0, 0, 2, 0, Design of profile page
 2025-03-02, 4, 0, 0, 0, 0, 0, app organization for auth and user profile
 2025-03-03, 0, 0, 0, 0, 0, 5, deal details ui
 2025-03-03, 0, 0, 0, 5, 0, 0, debug random marker disappearing, bottom sheet
 2025-03-03, 2, 2, 2, 2, 2, 2, demo and team meeting and bug bash
 2025-03-02, 1, 0, 0, 0, 0, 0, refactor some login/user logic
-2025-03-05, 0, 0, 0, 0, 6, 0, Auth Setup - Dependencies and Auth Functions
+2025-03-05, 0, 0, 0, 0, 9, 0, Auth Setup - Dependencies and Auth Functions
 2025-03-06, 2, 2, 2, 2, 2, 2, team meeting on deal restrictions and filters
 2025-03-07, 2, 0, 0, 0, 0, 0, thinking about product UX and add deal flow
 2025-03-07, 2, 0, 0, 0, 0, 0, synchronize getDeals and observed results across different VM
-2025-03-07, 0, 0, 0, 0, 1, 0, Setup Google Sign in Button for Profile Screen
+2025-03-07, 0, 0, 0, 0, 4, 0, Setup Google Sign in Button for Profile Screen
 2025-03-08, 0, 0, 0, 0, 0, 4, ui fixes, be-fe integrations
 2025-03-09, 0, 0, 0, 0, 0, 3, sorting ui + mock impl
 2025-03-11, 0, 10, 0, 0, 0, 2, add deal flow
-2025-03-11, 0, 0, 0, 0, 4, 0, Profile Screen UI + Debugging GoogleCredentials Error
+2025-03-11, 0, 0, 2, 0, 6, 0, Profile Screen UI + Debugging GoogleCredentials Error
 2025-03-11, 2, 0, 0, 0, 0, 0, Debugging map not showing up and Google API key error
 2025-03-12, 2, 0, 0, 0, 0, 0, Refactor user coordinates and permissions to global state
 2025-03-12, 2, 2, 2, 2, 2, 2, Team meeting, class, and standup/planning
@@ -54,22 +54,34 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-12, 0, 0, 0, 0, 0, 4, app flow upon opening, login dialog
 2025-03-13, 0, 0, 0, 0, 0, 3, login ui and other ui changes
 2025-03-13, 2, 0, 0, 0, 0, 0, misc changes and map force re-centering bug
-2025-03-14, 0, 0, 3, 0, 0, 0,  updating backend endpoints
-2025-03-15, 0, 0, 6, 0, 0, 0,  updating SQL function and adding backend endpoints
-2025-03-15, 0, 6, 0, 0, 0, 0,  working on add deals flow
-2025-03-16, 0, 0, 3, 0, 0, 0,  adding backend endpoints and testing
-2025-03-16, 0, 0, 0, 0, 0, 3,  restrictions ui
-2025-03-17, 0, 0, 0, 0, 0, 2,  restrictions filter
-2025-03-17, 0, 0, 0, 0, 0, 5,  save, vote
+2025-03-14, 0, 0, 3, 0, 0, 0, updating backend endpoints
+2025-03-15, 0, 0, 6, 0, 0, 0, updating SQL function and adding backend endpoints
+2025-03-15, 0, 6, 0, 0, 0, 0, working on add deals flow
+2025-03-16, 0, 0, 3, 0, 0, 0, adding backend endpoints and testing
+2025-03-16, 0, 0, 0, 0, 0, 3, restrictions ui
+2025-03-17, 0, 0, 0, 0, 0, 2, restrictions filter
+2025-03-17, 0, 0, 0, 0, 0, 5, save, vote
 2025-03-17, 3, 0, 0, 0, 0, 0, misc and debugging image uploading
 2025-03-17, 3, 0, 0, 0, 0, 0, optimistic updates for votes and saves
-2025-03-17, 0, 3, 0, 0, 0, 0,  add deal camera
+2025-03-17, 0, 3, 0, 0, 0, 0, add deal camera
 2025-03-18, 5, 0, 0, 0, 0, 0, misc debugging and signup and testing
 2025-03-18, 0, 0, 4, 0, 0, 0, adding deals via phone + adding username + price
 2025-03-19, 2, 0, 0, 0, 0, 0, signup login debugging
 2025-03-19, 0, 2, 0, 0, 0, 0, Rework start time/end time input
 2025-03-19, 0, 0, 0, 0, 0, 2, misc ui fixes
 2025-03-24, 0, 5, 0, 0, 0, 0, Show existing deals page
+2025-03-24, 0, 0, 0, 0, 5, 0, Setting up About Page
+2025-03-26, 0, 6, 0, 0, 0, 0, misc and adding icon and splashscreen
 2025-03-26, 0, 0, 0, 0, 0, 2, full screen image with zoom
 2025-03-26, 0, 0, 0, 0, 0, 4, showing price + filter, ui fixes
 2025-03-26, 0, 0, 4, 0, 0, 0, deploy server on Railway + backend fixes
+2025-03-26, 0, 0, 0, 0, 6, 0, More About Page Work, Password Hashing, and New Laptop
+2025-03-27, 0, 0, 0, 0, 8, 0, Migrated old text-based passwords, finished hashing, finished about page, started change password
+2025-03-27, 5, 0, 0, 0, 0, 0, Team meeting and making auto populate work
+2025-03-28, 3, 0, 0, 0, 0, 0, Got hit with a heavy bill from google API and trying to resolve it
+2025-03-28, 2, 0, 0, 0, 0, 0, Setting up new laptop w Van
+2025-03-27, 0, 0, 0, 0, 6, 0, New Laptop setup, more change password work and debugging
+2025-03-31, 2, 0, 0, 2, 0, 0, Gpu setup and debugging and progress indicator for auto-populate
+2025-03-31, 0, 0, 0, 0, 5, 0, Debugged hashing pswd issue and removed password from API request
+2025-03-31, 0, 0, 3, 0, 0, 0, Helping merge servers together, fix bugs
+2025-03-01, 0, 0, 1, 0, 0, 0, Add expiry filtering

@@ -1,8 +1,9 @@
 package com.example.grub.service
 
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.grub.service.ApiService
 
 object RetrofitClient {
     // railway: "http://grub-production.up.railway.app"
@@ -14,5 +15,26 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
+    }
+}
+
+object RetrofitGpuClient {
+    private const val BASE_URL = "http://ece-nebula10.eng.uwaterloo.ca:8000/"
+
+    private val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY // Logs full request and response, including body
+    }
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(logging)
+        .build()
+
+    val gpuApiService: GpuApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GpuApiService::class.java)
     }
 }

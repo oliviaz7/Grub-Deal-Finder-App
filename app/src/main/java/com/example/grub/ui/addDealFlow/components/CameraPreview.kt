@@ -11,6 +11,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -81,7 +82,9 @@ fun CameraCaptureScreen(
         }, ContextCompat.getMainExecutor(context))
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { previewView }
@@ -104,7 +107,7 @@ fun CameraCaptureScreen(
                     })
                 onDismiss()
             },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+            modifier = Modifier.align(Alignment.BottomCenter),
         ) {
             Icon(
                 imageVector = Icons.Default.CameraAlt,
@@ -115,7 +118,7 @@ fun CameraCaptureScreen(
             onClick = onDismiss,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(16.dp)
+                .padding(end = 16.dp)
                 .background(Color.Black.copy(alpha = 0.5f), shape = CircleShape)
         ) {
             Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)

@@ -78,7 +78,7 @@ fun AddDealRoute(
     updateEndTimes: (List<Int>) -> Unit,
     updateApplicableGroups: (ApplicableGroup) -> Unit,
     onPermissionsChanged: (Boolean) -> Unit,
-    getRestaurantDeals: () -> Unit
+    getRestaurantDeals: () -> Unit,
 ) {
     when (uiState.step) {
         Step.Step1 -> {

@@ -44,6 +44,8 @@ class AppViewModel(
     private val _hasCameraPermission = MutableStateFlow(false)
     val hasCameraPermission: StateFlow<Boolean> = _hasCameraPermission.asStateFlow()
 
+    private val _isGpuOnline = MutableStateFlow(false)
+    val isGpuOnline: StateFlow<Boolean> = _isGpuOnline.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -70,6 +72,10 @@ class AppViewModel(
     fun onCameraPermissionsChange(permissionGranted: Boolean) {
         Log.i("camera-permission", "camera granted: $permissionGranted")
         _hasCameraPermission.value = permissionGranted
+    }
+
+    fun onGpuOnlineChange(isOnline: Boolean) {
+        _isGpuOnline.value = isOnline
     }
 
     /**

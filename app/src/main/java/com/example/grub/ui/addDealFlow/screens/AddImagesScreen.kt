@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -73,6 +72,11 @@ fun AddImagesScreen(
 
     fun updateImage(uri: Uri?) {
         updateAndroidImageUri(uri)
+        // this will upload and try to send it to
+        // the auto-populate fields GPU (we want to do
+        // this as early as possible because it could
+        // take a while)
+        uri?.let { uploadImageToFirebase(it) }
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -112,7 +116,8 @@ fun AddImagesScreen(
             ) {
                 OutlinedButton(
                     onClick = {
-                        updateAndroidImageUri(null)
+                        // send it to the gpu server earlier (the second we have the url)
+                        // updateAndroidImageUri(null)
                         nextStep(null)
                     },
                     modifier = Modifier
@@ -146,10 +151,9 @@ fun AddImagesScreen(
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
-                .fillMaxHeight()
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(Color.White)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(scrollState),
@@ -157,17 +161,12 @@ fun AddImagesScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (openCamerPreview) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CameraCaptureScreen(
-                        updateImageUri = { updateImage(it) },
-                        onPermissionsChanged = onPermissionsChanged,
-                        onDismiss = { openCamerPreview = false },
-                    )
-                }
+                CameraCaptureScreen(
+                    updateImageUri = { updateImage(it) },
+                    onPermissionsChanged = onPermissionsChanged,
+                    onDismiss = { openCamerPreview = false },
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
                 Text(
                     text = "Upload an image to share!",
@@ -180,14 +179,16 @@ fun AddImagesScreen(
                 )
             }
 
-            Button(
-                onClick = { openCamerPreview = true },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Open Camera",
-                )
+            if (!openCamerPreview) {
+                Button(
+                    onClick = { openCamerPreview = true },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Open Camera",
+                    )
+                }
             }
         }
     }

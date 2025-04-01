@@ -8,6 +8,7 @@ import google_maps
 import math
 import logging
 import pytz
+import hashlib
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
@@ -154,6 +155,21 @@ def unmark_deal_saved_in_db(deal_id, user_id):
 	except Exception as e:
 		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
+
+def get_user_by_id(user_id):
+	"""Fetch user details from Supabase by user_id."""
+	try:
+		result = supabase.from_('User').select('username, first_name, last_name, created_at, email').eq('id', user_id).execute()
+
+		if result.data:
+			return result.data[0]
+		else:
+			logger.error(f"No user with user_id: {user_id}")
+			return None
+
+	except Exception as e:
+		logger.error(f"Database query error: {str(e)}", exc_info=True)
+		return None
 
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
@@ -326,6 +342,37 @@ def get_restaurant_image_url(place_id):
 
 ######### ROUTES ##############
 
+@app.route('/get_user_by_id', methods=["GET"])
+def get_user_info():
+	"""Gets user info based on user id."""
+	try:
+		user_id = request.args.get('user_id')
+
+		user = get_user_by_id(user_id)
+
+		if not user:
+			return jsonify({"error": f"No user found with id {user_id}"})
+
+		user_response = {
+			"id": user_id,
+			"username": user['username'],
+			"firstName": user['first_name'],
+			"lastName": user['last_name'],
+			"email": user['email']
+		}
+
+		return jsonify({
+			"success": True,
+			"message": "User retrieval successful",
+			"user": user_response
+		})
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while fetching user info"})
+
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	"""Gets restaurant deals based on user location and radius."""
@@ -382,7 +429,7 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			user_id = restaurant.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
+			user_id = deal.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
 
 			deal_item = {
 				"restaurant_id": restaurant_id,
@@ -524,7 +571,7 @@ def create_new_user_account():
 			"last_name": last_name,
 			"created_at": datetime.utcnow().isoformat(),
 			"email": email,
-			"password_hash": password  # Storing plain password for now (no hashing)
+			"password_hash": hash_password(password) # Storing plain password for now (no hashing)
 		}
 
 		# Insert the user into the User table
@@ -545,6 +592,10 @@ def create_new_user_account():
 		error_message = str(e)
 		logger.error(f"Error occurred in create_new_user_account: {error_message}", exc_info=True)
 		return jsonify({"success": False, "message": "Error: Invalid fields could not create user"})
+
+
+def hash_password(password):
+	return hashlib.sha256(password.encode()).hexdigest()
 
 @app.route('/login', methods=["GET"])
 def login():
@@ -578,7 +629,7 @@ def login():
 		user = response.data[0]
 
 		# Verify password (plain text comparison for now)
-		if user['password_hash'] != password:
+		if user['password_hash'] != hash_password(password):
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({
 				"success": False,

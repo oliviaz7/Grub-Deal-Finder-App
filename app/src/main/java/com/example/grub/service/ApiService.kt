@@ -82,5 +82,13 @@ interface ApiService {
     suspend fun getRestaurant(
         @Query("place_id") placeId: String
     ): GetRestaurantResponse
+
+    // Grace: (can fully delete GpuApiService, and
+    // move the RetrofitGpuClient logic to python server
+    // once the route is up
+//    @POST("generate")
+//    suspend fun autoPopulateDealFromImage(
+//        @Body request: DealImageRequestBody
+//    ): AutoPopulateDealsResponse
 }
 

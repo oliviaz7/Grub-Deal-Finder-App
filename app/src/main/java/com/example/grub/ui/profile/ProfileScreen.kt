@@ -125,7 +125,10 @@ fun ProfileScreen(
                 ) {
                     ProfileOption(Icons.Default.Favorite, "Favourite Deals", onClickFavDeals)
                     ProfileOption(Icons.Default.Person, "Account Details")
-                    ProfileOption(Icons.Default.Info, "About Grub")
+                    ProfileOption(Icons.Default.Info, "About Grub") {
+                        navController.navigate(Destinations.ABOUT_ROUTE)
+                    }
+
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -268,6 +271,26 @@ fun FavouriteDeals(
     }
 }
 
+@Composable
+fun AboutPage() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "About Grub",
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Grub is an app that helps you find the best restaurant deals in your area. Save your favorite deals, manage your profile, and more.",
+            textAlign = TextAlign.Center
+        )
+    }
+}
 
 @Composable
 fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
@@ -290,7 +313,7 @@ fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
 fun ProfileOption(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     text: String,
-    onClickFavDeals: () -> Unit = {}
+    onClickFavDeals: () -> Unit = {},
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -305,7 +328,9 @@ fun ProfileOption(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
-                .clickable { onClickFavDeals() }
+                .clickable {
+                    onClickFavDeals()
+                }
         ) {
             Icon(imageVector = icon, contentDescription = text, tint = Color.Black)
             Spacer(modifier = Modifier.width(20.dp))

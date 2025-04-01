@@ -11,15 +11,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.AddDealResponse
+import com.example.grub.data.deals.AutoPopulateDealsResponse
 import com.example.grub.data.deals.RawDeal
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.data.deals.RestaurantDealsResponse
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DealType
 import com.example.grub.model.RestaurantDeal
+import com.example.grub.model.mappers.ApplicableGroupsMapper
+import com.example.grub.model.mappers.DealTypeMapper
 import com.example.grub.model.mappers.MAX_MINUTES_IN_DAY
 import com.example.grub.model.mappers.MIN_MINUTES_IN_DAY
 import com.example.grub.model.mappers.RestaurantDealMapper
+import com.example.grub.service.DealImageRequestBody
+import com.example.grub.service.RetrofitGpuClient.gpuApiService
 import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,17 +52,18 @@ data class AddDealUiState(
     val restaurantDealLoading: Boolean,
     val userId: String,
     val dealState: DealState,
+    val autoPopulateLoading: Boolean,
 )
 
 data class DealState(
     val itemName: String = "",
     val description: String? = null,
     val price: String? = null,
-    val dealType: DealType? = null,
+    val dealType: DealType? = DealType.DISCOUNT,
     val imageKey: String? = null,
     val expiryDate: ZonedDateTime? = null,
-    val startTimes: List<Int> = List(7){ MIN_MINUTES_IN_DAY }, // array of 7 integers, each representing a day of the week
-    val endTimes: List<Int> = List(7){ MAX_MINUTES_IN_DAY }, // integers representing the end time for each day of the week, in the range [0, 24]
+    val startTimes: List<Int> = List(7) { MIN_MINUTES_IN_DAY }, // array of 7 integers, each representing a day of the week
+    val endTimes: List<Int> = List(7) { MAX_MINUTES_IN_DAY }, // integers representing the end time for each day of the week, in the range [0, 24]
     val restrictions: String? = null,
     val applicableGroup: ApplicableGroup = ApplicableGroup.ALL // set of applicable groups
 )
@@ -74,16 +80,19 @@ private data class AddDealViewModelState(
         id = "",
         placeId = "",
         restaurantName = "",
-        coordinates = LatLng (0.0, 0.0),
+        coordinates = LatLng(0.0, 0.0),
         deals = emptyList(),
         displayAddress = null,
-        imageUrl = null),
+        imageUrl = null
+    ),
     val restaurantSearchText: String = "",
     val imageUri: Uri? = null,
     val userId: String = "",
     val addDealResult: Result<AddDealResponse>? = null,
     val restaurantDealLoading: Boolean = false,
     val dealState: DealState = DealState(),
+    val autoPopulateLoading: Boolean = false,
+    val isGpuOnline: Boolean = false,
 ) {
 
     /**
@@ -101,7 +110,8 @@ private data class AddDealViewModelState(
             addDealResult,
             restaurantDealLoading,
             userId,
-            dealState
+            dealState,
+            autoPopulateLoading,
         )
 }
 
@@ -151,11 +161,27 @@ class AddDealViewModel(
             onSuccess = { uploadedUrl: String ->
                 Log.d("uploadImage", "UPLOAD SUCCESS $uploadedUrl")
                 updateImageKey(imageKey)
+                if (viewModelState.value.isGpuOnline) {
+                    Log.d("auto-populate-deal", "GPU is online")
+                    autoPopulateDealFromImage()
+                } else {
+                    Log.d("auto-populate-deal", "GPU is NOT online")
+                }
             },
             onFailure = {
                 Log.e("uploadImage", "UPLOAD FAILED RIP")
             },
         )
+    }
+
+    // TODO: change this from being hardcoded to making a request to the python server
+    //  and finding out if it's online
+    private fun isGpuOnlineCheck() {
+        // something like
+        // return apiService.gpuHandshake()
+
+        // delete this:
+        appViewModel.onGpuOnlineChange(true)
     }
 
     init {
@@ -168,6 +194,16 @@ class AddDealViewModel(
             }
             searchNearbyRestaurants("", 1000.0)
         }
+
+        // listen for the state of GPU server
+        viewModelScope.launch {
+            appViewModel.isGpuOnline.collect { isOnline ->
+                viewModelState.update { it.copy(isGpuOnline = isOnline) }
+            }
+        }
+
+        // trigger check on initial load
+        isGpuOnlineCheck()
     }
 
     fun addNewRestaurantDeal() {
@@ -190,7 +226,66 @@ class AddDealViewModel(
         }
     }
 
-    fun getRestaurantDealsResponse() : RestaurantDealsResponse {
+    private fun updateAutoPopulateDealFields(response: AutoPopulateDealsResponse) {
+        val currentDealState = viewModelState.value.dealState
+
+        val newItemName =
+            response.itemName.takeIf { it != "null" } ?: currentDealState.itemName
+        val newDescription =
+            response.dealDescription.takeIf { it != "null" } ?: currentDealState.description
+        val newPrice = response.price.takeIf { it != "null" } ?: currentDealState.price
+        val newDealType =
+            response.dealType.takeIf { it != "null" }?.let { DealTypeMapper.mapToDealType(it) }
+                ?: currentDealState.dealType
+        val newApplicableGroup = response.applicableGroup.takeIf { it != "null" }
+            ?.let { ApplicableGroupsMapper.mapToApplicableGroups(it) }
+            ?: currentDealState.applicableGroup
+
+        viewModelState.update {
+            it.copy(
+                dealState = currentDealState.copy(
+                    itemName = newItemName,
+                    description = newDescription,
+                    price = newPrice,
+                    dealType = newDealType,
+                    applicableGroup = newApplicableGroup
+                )
+            )
+        }
+    }
+
+    // must guarantee that image key is available by this time
+    // the only way we can currently guarantee this is by calling this function
+    // on the success after the image has been uploaded
+    private fun autoPopulateDealFromImage() {
+        viewModelScope.launch {
+            try {
+                Log.d(
+                    "auto_populate_deal_from_image",
+                    "imageKey: ${viewModelState.value.dealState.imageKey}"
+                )
+                // Ensure imageId is available
+                val imageId = viewModelState.value.dealState.imageKey ?: return@launch
+                // TODO: ADD ONLY IF THE GPU SERVER IS ONLINE
+                viewModelState.update { it.copy(autoPopulateLoading = true) }
+                val response =
+                    gpuApiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+                // SET LOADING TO BE TRUE
+                viewModelState.update { it.copy(autoPopulateLoading = false) }
+
+                updateAutoPopulateDealFields(response)
+                // Handle response, e.g., update uiState with result
+                Log.d("auto_populate_deal_from_image", "response: $response")
+            } catch (e: Exception) {
+                // SET LOADING TO BE FALSE
+                // Handle error (e.g., network failure)
+                viewModelState.update { it.copy(autoPopulateLoading = false) }
+                Log.d("auto_populate_deal_from_image", "error: $e")
+            }
+        }
+    }
+
+    private fun getRestaurantDealsResponse(): RestaurantDealsResponse {
         return RestaurantDealsResponse(
             id = "default_id",
             placeId = uiState.value.selectedRestaurant.placeId,
@@ -198,7 +293,8 @@ class AddDealViewModel(
             restaurantName = uiState.value.selectedRestaurant.restaurantName,
             displayAddress = uiState.value.selectedRestaurant.displayAddress ?: "",
             rawDeals = listOf(
-                RawDeal( // TODO: add price to raw deal obj
+                RawDeal(
+                    // TODO: add price to raw deal obj
                     id = "default_deal_id", // will be added in the BE
                     item = uiState.value.dealState.itemName,
                     description = uiState.value.dealState.description,
@@ -206,7 +302,9 @@ class AddDealViewModel(
                     expiryDate = uiState.value.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                     datePosted = System.currentTimeMillis(),
                     userId = uiState.value.userId,
-                    imageId = uiState.value.dealState.imageKey,
+                    // we could've uploaded an image to the server and gotten a URL back,
+                    // but then removed it (nulling our the imageUri) without wiping the imageKey
+                    imageId = if (uiState.value.imageUri != null) uiState.value.dealState.imageKey else null,
                     applicableGroup = uiState.value.dealState.applicableGroup,
                     dailyStartTimes = uiState.value.dealState.startTimes,
                     dailyEndTimes = uiState.value.dealState.endTimes,
@@ -259,22 +357,34 @@ class AddDealViewModel(
 
             Log.d("getRestaurantDeals", "Searching for restaurant deals: $placeId")
             try {
-                val result = dealsRepository.getRestaurant(placeId)  // Assuming getRestaurant() returns Result
+                val result =
+                    dealsRepository.getRestaurant(placeId)  // Assuming getRestaurant() returns Result
                 viewModelState.update { it.copy(restaurantDealLoading = true) } // show loading bar
                 when (result) {
                     is Result.Success -> {
 
                         if (result.data.restaurant == null || result.data.restaurant.rawDeals.isEmpty()) {
-                            Log.d("getRestaurantDeals", "No restaurant deal data available in the response")
+                            Log.d(
+                                "getRestaurantDeals",
+                                "No restaurant deal data available in the response"
+                            )
                             nextStep(Step.Step3) // skip the show existing deals step
                         } else {
-                            val mappedRestaurantDeal = dealMapper.mapResponseToRestaurantDeals(result.data.restaurant)
+                            val mappedRestaurantDeal =
+                                dealMapper.mapResponseToRestaurantDeals(result.data.restaurant)
                             viewModelState.update { it.copy(selectedRestaurant = mappedRestaurantDeal) } // copy to selected restaurant
-                            Log.d("ShowExistingDeals", "Successfully retrieved restaurant: ${mappedRestaurantDeal}")
+                            Log.d(
+                                "ShowExistingDeals",
+                                "Successfully retrieved restaurant: ${mappedRestaurantDeal}"
+                            )
                         }
                     }
+
                     is Result.Error -> {
-                        Log.e("getRestaurantDeals", "Error retrieving restaurant deals: ${result.exception.localizedMessage}")
+                        Log.e(
+                            "getRestaurantDeals",
+                            "Error retrieving restaurant deals: ${result.exception.localizedMessage}"
+                        )
                         nextStep(Step.Step3) // skip the show existing deals step
                     }
                 }
@@ -347,7 +457,7 @@ class AddDealViewModel(
 
     fun updateEndTimes(endTimes: List<Int>) {
         if (endTimes.isEmpty()) { // reset to default - available every day 0-24
-            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7){ MAX_MINUTES_IN_DAY })) }
+            viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = List(7) { MAX_MINUTES_IN_DAY })) }
         } else {
             viewModelState.update { it.copy(dealState = it.dealState.copy(endTimes = endTimes)) }
         }

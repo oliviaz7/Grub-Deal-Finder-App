@@ -15,4 +15,14 @@
 -->
 <resources>
     <style name="Theme.Jetnews" parent="android:Theme.Material.NoActionBar"/>
+
+    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+        <!-- Use the app icon as the splash screen icon -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_grub_big</item>
+        <item name="windowSplashScreenAnimationDuration">500</item> <!-- Animation duration in ms -->
+        <item name="postSplashScreenTheme">@style/Theme.Jetnews</item>
+    </style>
 </resources>

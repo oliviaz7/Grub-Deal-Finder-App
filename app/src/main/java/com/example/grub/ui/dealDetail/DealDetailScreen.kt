@@ -36,9 +36,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,9 +78,23 @@ fun DealDetailScreen(
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
+    clearSnackBarMsg: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        Log.d("deal deatails screen", "in launched")
+        uiState.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            clearSnackBarMsg()
+        }
+    }
+
     Scaffold(
         topBar = {
             Box(
@@ -95,6 +115,29 @@ fun DealDetailScreen(
                     )
                 }
             }
+        },
+        snackbarHost = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ){
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                ){data->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        actionColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.extraLarge,
+                    )
+                }
+            }
+
         }
     ) { innerPadding ->
         val screenModifier = Modifier.padding(innerPadding)
