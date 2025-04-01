@@ -350,7 +350,15 @@ def get_user_info():
 		if not user:
 			return jsonify({"error": f"No user found with id {user_id}"})
 
-		return jsonify(user)
+		user_response = {
+			"id": user_id,
+			"username": user['username'],
+			"firstName": user['first_name'],
+			"lastName": user['last_name'],
+			"email": user['email']
+		}
+
+		return jsonify(user_response)
 
 	except Exception as e:
 		error_message = str(e)
