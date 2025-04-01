@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.grub.data.DealImageRequestBody
+import com.example.grub.data.HandshakeResponse
 import com.example.grub.data.Result
 import com.example.grub.data.StorageService
 import com.example.grub.data.deals.AddDealResponse
@@ -23,8 +25,7 @@ import com.example.grub.model.mappers.DealTypeMapper
 import com.example.grub.model.mappers.MAX_MINUTES_IN_DAY
 import com.example.grub.model.mappers.MIN_MINUTES_IN_DAY
 import com.example.grub.model.mappers.RestaurantDealMapper
-import com.example.grub.service.DealImageRequestBody
-import com.example.grub.service.RetrofitGpuClient.gpuApiService
+import com.example.grub.service.RetrofitClient.apiService
 import com.example.grub.ui.AppViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,7 @@ data class AddDealUiState(
     val restaurantDealLoading: Boolean,
     val userId: String,
     val dealState: DealState,
+    val autoPopulateLoading: Boolean,
 )
 
 data class DealState(
@@ -90,6 +92,8 @@ private data class AddDealViewModelState(
     val addDealResult: Result<AddDealResponse>? = null,
     val restaurantDealLoading: Boolean = false,
     val dealState: DealState = DealState(),
+    val autoPopulateLoading: Boolean = false,
+    val isGpuOnline: Boolean = false,
 ) {
 
     /**
@@ -107,7 +111,8 @@ private data class AddDealViewModelState(
             addDealResult,
             restaurantDealLoading,
             userId,
-            dealState
+            dealState,
+            autoPopulateLoading,
         )
 }
 
@@ -157,12 +162,28 @@ class AddDealViewModel(
             onSuccess = { uploadedUrl: String ->
                 Log.d("uploadImage", "UPLOAD SUCCESS $uploadedUrl")
                 updateImageKey(imageKey)
-                autoPopulateDealFromImage()
+                if (viewModelState.value.isGpuOnline) {
+                    Log.d("auto-populate-deal", "GPU is online")
+                    autoPopulateDealFromImage()
+                } else {
+                    Log.d("auto-populate-deal", "GPU is NOT online")
+                }
             },
             onFailure = {
                 Log.e("uploadImage", "UPLOAD FAILED RIP")
             },
         )
+    }
+
+    // TODO: change this from being hardcoded to making a request to the python server
+    //  and finding out if it's online
+    private suspend fun isGpuOnlineCheck(): Boolean {
+        return try {
+            apiService.proxyHandshake().gpu_status
+        } catch (e: Exception) {
+            Log.e("GPUHandshake", "Error checking GPU status: ${e.localizedMessage}")
+            false  // Return false if the check fails
+        }
     }
 
     init {
@@ -174,6 +195,17 @@ class AddDealViewModel(
                 viewModelState.update { it.copy(userId = appViewModel.currentUser.value!!.id) }
             }
             searchNearbyRestaurants("", 1000.0)
+
+            // Perform the initial GPU check and update local state.
+            val initialGpuStatus = isGpuOnlineCheck()
+            viewModelState.update { it.copy(isGpuOnline = initialGpuStatus) }
+        }
+
+        // listen for the state of GPU server
+        viewModelScope.launch {
+            appViewModel.isGpuOnline.collect { isOnline ->
+                viewModelState.update { it.copy(isGpuOnline = isOnline) }
+            }
         }
     }
 
@@ -229,6 +261,7 @@ class AddDealViewModel(
     // the only way we can currently guarantee this is by calling this function
     // on the success after the image has been uploaded
     private fun autoPopulateDealFromImage() {
+        Log.d("auto_populate_deal_from_image", "in autoPopulateDealFromImage")
         viewModelScope.launch {
             try {
                 Log.d(
@@ -237,16 +270,53 @@ class AddDealViewModel(
                 )
                 // Ensure imageId is available
                 val imageId = viewModelState.value.dealState.imageKey ?: return@launch
-                val response = gpuApiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
-                updateAutoPopulateDealFields(response)
-                // Handle response, e.g., update uiState with result
-                Log.d("auto_populate_deal_from_image", "response: $response")
+
+                // Only proceed if the GPU server is online
+                if (viewModelState.value.isGpuOnline) {
+                    viewModelState.update { it.copy(autoPopulateLoading = true) }
+                    val response = apiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+                    viewModelState.update { it.copy(autoPopulateLoading = false) }
+
+                    updateAutoPopulateDealFields(response)
+                    Log.d("auto_populate_deal_from_image", "response: $response")
+                } else {
+                    Log.d("auto_populate_deal_from_image", "GPU server is offline; skipping auto-populate")
+                }
             } catch (e: Exception) {
-                // Handle error (e.g., network failure)
+                viewModelState.update { it.copy(autoPopulateLoading = false) }
                 Log.d("auto_populate_deal_from_image", "error: $e")
             }
         }
     }
+
+//    private fun autoPopulateDealFromImage() {
+//        viewModelScope.launch {
+//            try {
+//                Log.d(
+//                    "auto_populate_deal_from_image",
+//                    "imageKey: ${viewModelState.value.dealState.imageKey}"
+//                )
+//                // Ensure imageId is available
+//                val imageId = viewModelState.value.dealState.imageKey ?: return@launch
+//                // TODO: ADD ONLY IF THE GPU SERVER IS ONLINE
+//                viewModelState.update { it.copy(autoPopulateLoading = true) }
+//                val response =
+////                    gpuApiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+//                    apiService.autoPopulateDealFromImage(DealImageRequestBody(imageId))
+//                // SET LOADING TO BE TRUE
+//                viewModelState.update { it.copy(autoPopulateLoading = false) }
+//
+//                updateAutoPopulateDealFields(response)
+//                // Handle response, e.g., update uiState with result
+//                Log.d("auto_populate_deal_from_image", "response: $response")
+//            } catch (e: Exception) {
+//                // SET LOADING TO BE FALSE
+//                // Handle error (e.g., network failure)
+//                viewModelState.update { it.copy(autoPopulateLoading = false) }
+//                Log.d("auto_populate_deal_from_image", "error: $e")
+//            }
+//        }
+//    }
 
     private fun getRestaurantDealsResponse(): RestaurantDealsResponse {
         return RestaurantDealsResponse(
@@ -265,7 +335,9 @@ class AddDealViewModel(
                     expiryDate = uiState.value.dealState.expiryDate?.toInstant()?.toEpochMilli(),
                     datePosted = System.currentTimeMillis(),
                     userId = uiState.value.userId,
-                    imageId = uiState.value.dealState.imageKey,
+                    // we could've uploaded an image to the server and gotten a URL back,
+                    // but then removed it (nulling our the imageUri) without wiping the imageKey
+                    imageId = if (uiState.value.imageUri != null) uiState.value.dealState.imageKey else null,
                     applicableGroup = uiState.value.dealState.applicableGroup,
                     dailyStartTimes = uiState.value.dealState.startTimes,
                     dailyEndTimes = uiState.value.dealState.endTimes,

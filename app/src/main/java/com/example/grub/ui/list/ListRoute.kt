@@ -22,19 +22,14 @@ fun ListRoute(
     ListScreen(
         navController,
         uiState,
-        onSelectCustomFilter = { type: String, filter: String ->
-            listViewModel.onSelectCustomFilter(
-                type,
-                filter
-            )
-        },
-        onSubmitCustomFilter = { -> listViewModel.onSubmitCustomFilter() },
-        onShowFilterDialog = { bool: Boolean -> listViewModel.onShowFilterDialog(bool) },
-        onFilterSelected = { filter: String -> listViewModel.onFilterSelected(filter) },
-        onSearchTextChange = { searchText: String -> listViewModel.onSearchTextChange(searchText) },
-        onFilter = { -> listViewModel.onFilter() },
-        onSortOptionSelected = { option: String -> listViewModel.onSortOptionSelected(option) },
-        onSelectPriceRange = {start: Int, end: Int -> listViewModel.onSelectPriceRange(start, end)},
-        onClearOptions= {-> listViewModel.onClearOptions()}
+        onSelectCustomFilter = listViewModel::onSelectCustomFilter,
+        onSubmitCustomFilter = listViewModel::onSubmitCustomFilter,
+        onShowFilterDialog = listViewModel::onShowFilterDialog,
+        onFilterSelected = listViewModel::onFilterSelected,
+        onSearchTextChange = listViewModel::onSearchTextChange,
+        onFilter = listViewModel::onFilter,
+        onSortOptionSelected = listViewModel::onSortOptionSelected,
+        onSelectPriceRange = listViewModel::onSelectPriceRange,
+        onClearOptions= listViewModel::onClearOptions,
     )
 }

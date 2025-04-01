@@ -26,6 +26,7 @@ fun DealDetailRoute(
         onSaveClicked = dealDetailViewModel::onSaveClicked,
         onUpVoteClicked = dealDetailViewModel::onUpVoteClicked,
         onDownVoteClicked = dealDetailViewModel::onDownVoteClicked,
+        onDeleteClicked = dealDetailViewModel::onDeleteClicked,
         setShowBottomSheet = dealDetailViewModel::setShowBottomSheet,
         clearSnackBarMsg = dealDetailViewModel::clearSnackBarMsg,
     )

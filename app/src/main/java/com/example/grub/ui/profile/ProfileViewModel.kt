@@ -1,6 +1,5 @@
 package com.example.grub.ui.profile
 
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 
 /**
@@ -52,25 +50,6 @@ class ProfileViewModel(
                         currentUser = currentUser,
                     )
                 }
-            }
-        }
-    }
-
-    // States for loading, success, and error
-    private val _googleSignInState = MutableStateFlow<GoogleSignInState>(GoogleSignInState.Idle)
-    val googleSignInState: StateFlow<GoogleSignInState> get() = _googleSignInState
-
-    fun googleSignIn(context: Context) {
-        _googleSignInState.value = GoogleSignInState.Loading
-
-        val rawNonce = UUID.randomUUID().toString()
-
-        viewModelScope.launch {
-            try {
-                authRepository.googleSignInButton(context, rawNonce)
-                _googleSignInState.value = GoogleSignInState.Success("Sign-in successful!")
-            } catch (e: Exception) {
-                _googleSignInState.value = GoogleSignInState.Error("Sign-in failed: ${e.message}")
             }
         }
     }
@@ -108,21 +87,6 @@ class ProfileViewModel(
             }
         }
     }
-
-    // States for Google Sign-In
-    sealed class GoogleSignInState {
-        object Idle : GoogleSignInState()
-        object Loading : GoogleSignInState()
-        data class Success(val message: String) : GoogleSignInState()
-        data class Error(val message: String) : GoogleSignInState()
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            authRepository.logout()
-        }
-    }
-
 
     /**
      * Factory for ProfileViewModel that takes AppViewModel as a dependency

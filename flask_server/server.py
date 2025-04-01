@@ -3,20 +3,24 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from datetime import datetime, timezone
+from datetime import datetime
 import google_maps
 import math
 import logging
 import pytz
 import hashlib
+import requests
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
 logger.propagate = False
 
-load_dotenv()
+load_dotenv() # remove when using railway server
 url = os.getenv("SUPABASE_URL")
 key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+	raise ValueError("SUPABASE_URL or SUPABASE_KEY is not set.")
 
 supabase: Client = create_client(url, key)
 
@@ -99,7 +103,7 @@ def mark_deal_removed_in_db(deal_id):
 		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
-			logger.error("Error marking deal as removed")
+			raise response.error
 
 	except Exception as e:
 		logger.error(f"Error marking deal as removed: {str(e)}", exc_info=True)
@@ -152,6 +156,21 @@ def unmark_deal_saved_in_db(deal_id, user_id):
 	except Exception as e:
 		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
+
+def get_user_by_id(user_id):
+	"""Fetch user details from Supabase by user_id."""
+	try:
+		result = supabase.from_('User').select('username, first_name, last_name, created_at, email').eq('id', user_id).execute()
+
+		if result.data:
+			return result.data[0]
+		else:
+			logger.error(f"No user with user_id: {user_id}")
+			return None
+
+	except Exception as e:
+		logger.error(f"Database query error: {str(e)}", exc_info=True)
+		return None
 
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
@@ -324,6 +343,37 @@ def get_restaurant_image_url(place_id):
 
 ######### ROUTES ##############
 
+@app.route('/get_user_by_id', methods=["GET"])
+def get_user_info():
+	"""Gets user info based on user id."""
+	try:
+		user_id = request.args.get('user_id')
+
+		user = get_user_by_id(user_id)
+
+		if not user:
+			return jsonify({"error": f"No user found with id {user_id}"})
+
+		user_response = {
+			"id": user_id,
+			"username": user['username'],
+			"firstName": user['first_name'],
+			"lastName": user['last_name'],
+			"email": user['email']
+		}
+
+		return jsonify({
+			"success": True,
+			"message": "User retrieval successful",
+			"user": user_response
+		})
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while fetching user info"})
+
+
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
 	"""Gets restaurant deals based on user location and radius."""
@@ -380,7 +430,7 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			user_id = restaurant.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
+			user_id = deal.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
 
 			deal_item = {
 				"restaurant_id": restaurant_id,
@@ -642,7 +692,7 @@ def get_restaurant():
         }
 
         # Step 2: Fetch all deals from the deals table that match restaurant_id
-        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).execute()
+        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).eq("is_removed", False).execute()
         raw_deals = deals_response.data if deals_response.data else []
 
         # format deals obj
@@ -658,6 +708,35 @@ def get_restaurant():
         logger.error(f"Error occurred: {error_message}", exc_info=True)
         return jsonify({"error": "An error occurred while fetching restaurant deals"})
 
+GPU_SERVER_URL = "http://ece-nebula10.eng.uwaterloo.ca:8000"
+
+# this is just to test if the server "is not up"
+# GPU_SERVER_URL = "http://ece-nebula10.eng.uwaterloo.ca:5000"
+
+@app.route("/proxy/generate", methods=["POST"])
+def proxy_generate():
+    try:
+        # forward request to the GPU server
+        response = requests.post(GPU_SERVER_URL + "/generate", json=request.json)
+        logger.warning(response)
+
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/proxy/handshake", methods=["GET"])
+def proxy_handshake():
+    try:
+        # attempt to call the GPU service handshake endpoint
+        response = requests.get(GPU_SERVER_URL, timeout=5) # timeout in 5 seconds
+        if response.status_code == 200:
+            return jsonify({"gpu_status": True}), 200
+        else:
+            return jsonify({"gpu_status": False, "detail": "GPU service responded with status code " + str(response.status_code)}), 503
+    except requests.exceptions.RequestException as e:
+        # any error, consider the gpu service as down
+        logger.warning(f"error: {e}")
+        return jsonify({"gpu_status": False, "error": str(e)}), 503
 
 @app.route('/')
 def index():

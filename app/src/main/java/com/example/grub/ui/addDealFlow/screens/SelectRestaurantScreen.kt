@@ -39,7 +39,7 @@ import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.addDealFlow.AddDealUiState
 import com.example.grub.ui.addDealFlow.Step
 import com.example.grub.ui.addDealFlow.components.Loading
-import com.example.grub.ui.searchBar.CustomSearchBar
+import com.example.grub.ui.list.components.CustomSearchBar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

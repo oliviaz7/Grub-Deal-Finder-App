@@ -31,7 +31,6 @@ Copy the `.env.example` file to a new file named `.env` with `cp .env.example .e
 ### Step 5: Run the Flask Server
 To start the Flask server, run: `python server.py`
 
-
 ## Post Setup Instructions
 After completing the setup, the Flask backend server can be run anytime by:
 

@@ -2,7 +2,6 @@ package com.example.grub.ui.list
 
 import CustomFilter
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -50,14 +49,10 @@ class ListViewModel(
 
     private val viewModelState = MutableStateFlow(ListUiState())
 
-    // UI state exposed to the UI
     var uiState: StateFlow<ListUiState> = viewModelState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            // List view model just needs to subscribe to accumulated deals,
-            // don't need to worry about making the call to getRestaurantDeals
-            // since map view model handles that
             restaurantDealsRepository.accumulatedDeals().collect { accumulatedDeals ->
                 val mappedDeals =
                     accumulatedDeals.map { dealMapper.mapResponseToRestaurantDeals(it) }
@@ -93,7 +88,10 @@ class ListViewModel(
 
             "Up Votes" -> uiState.value.restaurantDeals
                 .map { it.copy(deals = it.deals.sortedByDescending { deal -> deal.numUpVotes - deal.numDownVotes }) }
-                .sortedByDescending { it.deals.firstOrNull()?.numUpVotes }
+                .sortedByDescending {
+                    val topDeal = it.deals.firstOrNull()
+                    if (topDeal != null) topDeal.numUpVotes - topDeal.numDownVotes else Int.MIN_VALUE
+                }
 
             else -> uiState.value.restaurantDeals
         }
@@ -127,7 +125,6 @@ class ListViewModel(
     }
 
     fun onSelectPriceRange(start: Int, end: Int) {
-        Log.d("LIST view model", "select price range ${start}, ${end}")
         viewModelState.update { currentState ->
             val updatedFilters = currentState.selectedCustomFilter.copy(
                 minPrice = start.toFloat(),
@@ -278,9 +275,6 @@ class ListViewModel(
         return R * c // Distance in km
     }
 
-    /**
-     * Factory for HomeViewModel that takes PostsRepository as a dependency
-     */
     companion object {
         fun provideFactory(
             restaurantDealsRepository: RestaurantDealsRepository,

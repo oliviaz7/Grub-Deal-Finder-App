@@ -29,7 +29,6 @@ fun AddDealRoute(
     addDealViewModel: AddDealViewModel,
     navController: NavController,
 ) {
-    // UiState of the HomeScreen
     val uiState by addDealViewModel.uiState.collectAsStateWithLifecycle()
 
     AddDealRoute(

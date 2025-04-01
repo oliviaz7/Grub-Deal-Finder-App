@@ -2,18 +2,22 @@ package com.example.grub.ui.addDealFlow.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -108,87 +112,101 @@ fun AddDetailsScreen(
         modifier = modifier
             .imePadding()
             .pointerInput(Unit) {
-            detectTapGestures(onTap = { focusManager.clearFocus() })
-        },
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxHeight()
-                .background(Color.White)
-                .padding(horizontal = 20.dp)
-                .padding(top = 40.dp)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // text field for item name
-            TitledOutlinedTextField(
-                value = uiState.dealState.itemName,
-                onValueChange = updateItemName,
-                label = "Item Name",
-                text = null,
-                placeholder = "E.g. Whopper Deal",
-                optional = false,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // textfield for description
-            TitledOutlinedTextField(
-                value = uiState.dealState.description ?: "",
-                onValueChange = updateDescription,
-                label = "Description",
-                text = null,
-                placeholder = "E.g. Whopper deal includes whopper, fries and drink",
+        Box {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 100.dp),
-            )
-
-            // TextField for price
-            DollarInputField(
-                value = uiState.dealState.price ?: "",
-                onValueChange = updatePrice,
-                label = "Price",
-                text = null,
-                placeholder = "0.00",
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            // selecting deal type
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
+                    .padding(innerPadding)
+                    .fillMaxHeight()
+                    .background(Color.White)
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 40.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // text field for item name
                 TitledOutlinedTextField(
-                    value = uiState.dealState.dealType?.toString() ?: "",
-                    onValueChange = {},
-                    label = "Deal Type",
+                    value = uiState.dealState.itemName,
+                    onValueChange = updateItemName,
+                    label = "Item Name",
                     text = null,
-                    placeholder = "Select a deal type",
+                    placeholder = "E.g. Whopper Deal",
+                    optional = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // textfield for description
+                TitledOutlinedTextField(
+                    value = uiState.dealState.description ?: "",
+                    onValueChange = updateDescription,
+                    label = "Description",
+                    text = null,
+                    placeholder = "E.g. Whopper deal includes whopper, fries and drink",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
-                        .padding(bottom = 0.dp),
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    maxLines = 1,
-                    optional = false,
+                        .heightIn(min = 100.dp),
                 )
-                ExposedDropdownMenu(
+
+                // TextField for price
+                DollarInputField(
+                    value = uiState.dealState.price ?: "",
+                    onValueChange = updatePrice,
+                    label = "Price",
+                    text = null,
+                    placeholder = "0.00",
+                    modifier = Modifier.align(Alignment.Start)
+                )
+
+                // selecting deal type
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = !expanded },
                 ) {
-                    dealTypes.forEach { dealType ->
-                        DropdownMenuItem(
-                            text = { Text(dealType.name) },
-                            onClick = {
-                                updateDealType(dealType)
-                                expanded = false
-                            }
-                        )
+                    TitledOutlinedTextField(
+                        value = uiState.dealState.dealType?.toString() ?: "",
+                        onValueChange = {},
+                        label = "Deal Type",
+                        text = null,
+                        placeholder = "Select a deal type",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                            .padding(bottom = 0.dp),
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        maxLines = 1,
+                        optional = false,
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        dealTypes.forEach { dealType ->
+                            DropdownMenuItem(
+                                text = { Text(dealType.name) },
+                                onClick = {
+                                    updateDealType(dealType)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
+                }
+            }
+
+            if (uiState.autoPopulateLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(64.dp),
+                        strokeWidth = 4.dp,
+                    )
                 }
             }
         }

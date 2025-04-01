@@ -1,11 +1,13 @@
 package com.example.grub.service
 
-import com.example.grub.data.auth.impl.LoginRequest
+import com.example.grub.data.DealImageRequestBody
+import com.example.grub.data.HandshakeResponse
 import com.example.grub.data.auth.impl.LoginResponse
 import com.example.grub.data.deals.AddDealResponse
 import com.example.grub.data.deals.ApiResponse
 import com.example.grub.data.deals.GetRestaurantResponse
 import com.example.grub.data.deals.RestaurantDealsResponse
+import com.example.grub.data.deals.AutoPopulateDealsResponse
 import com.example.grub.model.VoteType
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -35,9 +37,10 @@ interface ApiService {
         @Query("email") email: String
     ): ApiResponse
 
-    @POST("login")
+    @GET("login")
     suspend fun login(
-        @Body loginRequest: LoginRequest
+        @Query("username") username: String,
+        @Query("password") password: String,
     ): LoginResponse
 
     @GET("search_nearby_restaurants")
@@ -82,5 +85,13 @@ interface ApiService {
     suspend fun getRestaurant(
         @Query("place_id") placeId: String
     ): GetRestaurantResponse
+
+    @POST("proxy/generate")
+    suspend fun autoPopulateDealFromImage(
+        @Body request: DealImageRequestBody
+    ): AutoPopulateDealsResponse
+
+    @GET("proxy/handshake")
+    suspend fun proxyHandshake(): HandshakeResponse
 }
 
