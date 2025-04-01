@@ -56,12 +56,20 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.Deal
@@ -95,6 +103,40 @@ fun DealDetailScreen(
                 duration = SnackbarDuration.Short
             )
             clearSnackBarMsg()
+        }
+    }
+
+    val postedByText = buildAnnotatedString {
+        append("Posted By: ")
+        withLink(
+            LinkAnnotation.Clickable(
+                tag = "USERNAME",
+                styles = TextLinkStyles(style = SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline
+                    )),
+                linkInteractionListener = {
+                    val userId = uiState.deal?.userId
+                    if (userId != null) {
+                        navController.navigate(
+                            "${Destinations.PROFILE_ROUTE}?userId=$userId"
+                        ) {
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = false
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // re-selecting the same item
+                            launchSingleTop = true
+                        }
+                    }
+
+                },
+            )
+        ) {
+            append(uiState.deal!!.userName)
         }
     }
 
@@ -174,7 +216,6 @@ fun DealDetailScreen(
                 )
             }
 
-
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -220,11 +261,11 @@ fun DealDetailScreen(
                         (deal.activeDayTime != DayOfWeekAndTimeRestriction.NoRestriction)
                     ) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        DealAvailability(deal)
+                        DealAvailability(deal, navController)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     Text(
-                        text = "Posted By: ${deal.userName}",
+                        text = postedByText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White,
                         maxLines = 1,
@@ -481,6 +522,7 @@ fun DealDetailBox(
 @Composable
 fun DealAvailability(
     deal: Deal,
+    navController: NavController,
 ) {
     Box(
         modifier = Modifier

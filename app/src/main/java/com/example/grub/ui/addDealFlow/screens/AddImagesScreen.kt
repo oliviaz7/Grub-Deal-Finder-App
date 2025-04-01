@@ -84,8 +84,6 @@ fun AddImagesScreen(
         updateImage(uri)
     }
 
-    var openCamerPreview by remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -160,36 +158,20 @@ fun AddImagesScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (openCamerPreview) {
-                CameraCaptureScreen(
-                    updateImageUri = { updateImage(it) },
-                    onPermissionsChanged = onPermissionsChanged,
-                    onDismiss = { openCamerPreview = false },
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Text(
-                    text = "Upload an image to share!",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
-                ImagePickerButton(
-                    onClick = { launcher.launch("image/*") },
-                    imageUri = uiState.imageUri
-                )
-            }
 
-            if (!openCamerPreview) {
-                Button(
-                    onClick = { openCamerPreview = true },
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Open Camera",
-                    )
-                }
-            }
+            Text(
+                text = "Upload an image to share!",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
+            ImagePickerButton(
+                onClick = { launcher.launch("image/*") },
+                imageUri = uiState.imageUri
+            )
+            CameraCaptureScreen(
+                updateImageUri = { updateImage(it) },
+                modifier = Modifier.padding(top = 20.dp)
+            )
         }
     }
 }

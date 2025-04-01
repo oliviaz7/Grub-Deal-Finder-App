@@ -20,6 +20,14 @@ class FakeAuthRepositoryImpl : AuthRepository {
         email = "example@gmail.com"
     )
 
+    private val fakeUserProfile2 = User(
+        id = "8d425cd5-27e9-472a-aff9-7aa9a1f2f288",
+        username = "angolina",
+        firstName = "angolina",
+        lastName = "banjolina",
+        email = "ds@gmail.com"
+    )
+
     private val _loggedInUser = MutableStateFlow<User?>(null)
     override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
 
@@ -76,5 +84,9 @@ class FakeAuthRepositoryImpl : AuthRepository {
 
     override suspend fun googleSignInButton(context: Context, rawNonce: String) {
         login("username", "password")
+    }
+
+    override suspend fun getUserById(userId: String): Result<User> {
+        return Result.Success(fakeUserProfile2)
     }
 }

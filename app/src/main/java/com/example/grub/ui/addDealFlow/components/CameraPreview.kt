@@ -1,8 +1,11 @@
 package com.example.grub.ui.addDealFlow.components
 
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -31,96 +34,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
-import androidx.lifecycle.LifecycleOwner
-import com.example.grub.ui.shared.permissions.RequestCameraPermission
+import androidx.core.content.FileProvider
 import java.io.File
-
 @Composable
 fun CameraCaptureScreen(
-    modifier: Modifier = Modifier,
     updateImageUri: (Uri?) -> Unit,
-    onPermissionsChanged: (Boolean) -> Unit,
-    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalContext.current as LifecycleOwner
-    var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val previewView = remember { PreviewView(context) }
-    var cameraProvider: ProcessCameraProvider? by remember { mutableStateOf(null) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    RequestCameraPermission { granted -> onPermissionsChanged(granted) }
-
-    LaunchedEffect(Unit) {
-        cameraProviderFuture.addListener({
-//            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            cameraProvider = cameraProviderFuture.get()
-
-            // **Unbind before rebinding**
-            cameraProvider?.unbindAll()
-
-            // Setup preview
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
-
-            // Setup image capture
-            val newImageCapture = ImageCapture.Builder().build()
-            imageCapture = newImageCapture
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            try {
-                cameraProvider?.bindToLifecycle(lifecycleOwner, cameraSelector, preview, newImageCapture)
-            } catch (exc: Exception) {
-                Log.e("CameraX", "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(context))
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            updateImageUri(imageUri)
+        }
     }
 
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { previewView }
+    fun launchCamera() {
+        val photoFile = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "IMG_${System.currentTimeMillis()}.jpg"
         )
 
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", photoFile)
+        imageUri = uri // Assign the URI first
+
+        imageUri?.let { cameraLauncher.launch(it) }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
         Button(
-            onClick = {
-                val photoFile = File(context.externalCacheDir, "${System.currentTimeMillis()}.jpg")
-                val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
-                imageCapture?.takePicture(outputOptions, ContextCompat.getMainExecutor(context),
-                    object : ImageCapture.OnImageSavedCallback {
-                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                            updateImageUri(photoFile.toUri())
-                        }
-
-                        override fun onError(exception: ImageCaptureException) {
-                            Toast.makeText(context, "Capture failed", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-                onDismiss()
-            },
-            modifier = Modifier.align(Alignment.BottomCenter),
+            onClick = { launchCamera() },
+            modifier = Modifier.align(Alignment.Center),
         ) {
             Icon(
                 imageVector = Icons.Default.CameraAlt,
                 contentDescription = "Open Camera",
             )
-        }
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 16.dp)
-                .background(Color.Black.copy(alpha = 0.5f), shape = CircleShape)
-        ) {
-            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
         }
     }
 }

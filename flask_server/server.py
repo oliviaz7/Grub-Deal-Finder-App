@@ -172,6 +172,24 @@ def get_user_by_id(user_id):
 		logger.error(f"Database query error: {str(e)}", exc_info=True)
 		return None
 
+def get_user_upvote(user_id):
+    response = supabase.table("Vote") \
+            .select("user_vote", count="exact") \
+            .eq("user_id", user_id) \
+            .eq("user_vote", "UPVOTE") \
+            .execute()
+
+    return response.count if response.count is not None else 0
+
+def get_user_downvote(user_id):
+    response = supabase.table("Vote") \
+                .select("user_vote", count="exact") \
+                .eq("user_id", user_id) \
+                .eq("user_vote", "DOWNVOTE") \
+                .execute()
+
+    return response.count if response.count is not None else 0
+
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
 	try:
@@ -359,7 +377,9 @@ def get_user_info():
 			"username": user['username'],
 			"firstName": user['first_name'],
 			"lastName": user['last_name'],
-			"email": user['email']
+			"email": user['email'],
+			"upvote": get_user_upvote(user_id),
+			"downvote": get_user_downvote(user_id),
 		}
 
 		return jsonify({
@@ -646,7 +666,9 @@ def login():
 			"password": user['password_hash'],  # Returning plain password for now
 			"firstName": user['first_name'],
 			"lastName": user['last_name'],
-			"email": user['email']
+			"email": user['email'],
+			"upvote": get_user_upvote(user['id']),
+			"downvote": get_user_downvote(user['id']),
 		}
 
 		logger.info(f"Successfully logged in user: {username}")

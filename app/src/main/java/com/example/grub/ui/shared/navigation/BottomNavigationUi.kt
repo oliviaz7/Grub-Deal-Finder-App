@@ -35,13 +35,22 @@ fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
     ) {
-        items.forEach { item ->
-            AddItem(
-                screen = item,
-                navController = navController,
-                selected = currentRoute == item.route
-            )
-        }
+        AddItem(
+            screen = BottomNavItem.List,
+            navController = navController,
+            selected = currentRoute?.startsWith(BottomNavItem.List.route) == true
+        )
+        AddItem(
+            screen = BottomNavItem.Map,
+            navController = navController,
+            selected = currentRoute?.startsWith(BottomNavItem.Map.route) == true
+        )
+        AddItem(
+            screen = BottomNavItem.Profile,
+            navController = navController,
+            selected = currentRoute?.startsWith(BottomNavItem.Profile.route) == true,
+            _restoreState = false
+        )
     }
 }
 
@@ -76,7 +85,8 @@ sealed class BottomNavItem(
 fun RowScope.AddItem(
     screen: BottomNavItem,
     navController: NavController,
-    selected: Boolean
+    selected: Boolean,
+    _restoreState: Boolean = true,
 ) {
     NavigationBarItem(
         label = {
@@ -108,7 +118,7 @@ fun RowScope.AddItem(
                 // re-selecting the same item
                 launchSingleTop = true
                 // Restore state when re-selecting a previously selected item
-                restoreState = true
+                restoreState = _restoreState
             }
         },
     )

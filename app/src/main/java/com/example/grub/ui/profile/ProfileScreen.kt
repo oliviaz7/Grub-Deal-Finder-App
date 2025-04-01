@@ -3,6 +3,7 @@ package com.example.grub.ui.profile
 
 import RestaurantItem
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -26,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ThumbDownOffAlt
+import androidx.compose.material.icons.filled.ThumbUpOffAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.R
+import com.example.grub.model.User
+import com.example.grub.model.VoteType
 import com.example.grub.ui.shared.navigation.Destinations
 import kotlinx.coroutines.launch
 
@@ -67,6 +72,8 @@ fun ProfileScreen(
     onSignOut: () -> Unit,
 ) {
 
+    Log.d("ProfileScreen", "ProfileScreen: ${uiState.profileUser}")
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -81,12 +88,13 @@ fun ProfileScreen(
         )
 
 
-        if (uiState.isLoggedIn && uiState.currentUser != null) {
+        if (uiState.profileUser != null) {
             UserProfile(
                 uiState = uiState,
                 navController = navController,
                 onClickFavDeals = onClickFavDeals,
                 onSignOut = onSignOut,
+                profileUser = uiState.profileUser,
             )
             if (uiState.showBottomSheet) {
                 FavouriteDeals(
@@ -107,6 +115,7 @@ fun UserProfile(
     navController: NavController,
     onClickFavDeals: () -> Unit,
     onSignOut: () -> Unit,
+    profileUser: User,
 ) {
     val scrollState = rememberScrollState()
 
@@ -118,8 +127,6 @@ fun UserProfile(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
-
         Image(
             painter = rememberAsyncImagePainter(R.mipmap.ic_grub_big_round),
             contentDescription = "Profile Picture",
@@ -130,16 +137,43 @@ fun UserProfile(
                 .clip(CircleShape)
 
         )
-
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // Username
         Text(
-            text = uiState.currentUser!!.username,
+            text = profileUser.username,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // karma
+        Row {
+            Icon(
+                Icons.Filled.ThumbUpOffAlt,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(26.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${profileUser.upvote - profileUser.downvote}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                Icons.Filled.ThumbDownOffAlt,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(26.dp),
+            )
+
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -160,13 +194,14 @@ fun UserProfile(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(text = "version 1.0.0.0", fontSize = 12.sp, color = Color.Gray)
+        if (uiState.isCurrentUserProfile) {
+            Spacer(modifier = Modifier.height(28.dp))
 
-        Spacer(modifier = Modifier.height(28.dp))
-
-        Button(
-            onClick = onSignOut
-        ) {
-            Text("Sign Out")
+            Button(
+                onClick = onSignOut
+            ) {
+                Text("Sign Out")
+            }
         }
     }
 }
@@ -256,7 +291,7 @@ fun FavouriteDeals(
         ) {
 
             Text(
-                text = "${uiState.currentUser!!.username}'s Favourite Deals",
+                text = "${uiState.profileUser!!.username}'s Favourite Deals",
                 color = Color.Black,
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
             )
