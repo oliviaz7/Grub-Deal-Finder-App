@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -64,10 +65,9 @@ fun ProfileScreen(
     onClickFavDeals: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    profileViewModel: ProfileViewModel = viewModel(),
     navController: NavController,
+    onSignOut: () -> Unit,
 ) {
-    val scrollState = rememberScrollState()
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -84,121 +84,146 @@ fun ProfileScreen(
 
 
         if (uiState.isLoggedIn && uiState.currentUser != null) {
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(vertical = 32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-
-
-                Image(
-                    painter = rememberAsyncImagePainter(R.drawable.grub),
-                    contentDescription = "Profile Picture",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .shadow(8.dp, CircleShape, clip = false)
-                        .clip(CircleShape)
-
-                )
-
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Username
-                Text(
-                    text = uiState.currentUser.username,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Centered Options
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    ProfileOption(Icons.Default.Favorite, "Favourite Deals", onClickFavDeals)
-                    ProfileOption(Icons.Default.Person, "Account Details")
-                    ProfileOption(Icons.Default.Info, "About Grub") {
-                        navController.navigate(Destinations.ABOUT_ROUTE)
-                    }
-
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(text = "version 1.0.0.0", fontSize = 12.sp, color = Color.Gray)
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Button(
-                    onClick = { profileViewModel.onSignOut() }
-                ) {
-                    Text("Sign Out")
-                }
-            }
-            FavouriteDeals(
-                setShowBottomSheet,
-                uiState,
-                navController,
+            UserProfile(
+                uiState = uiState,
+                navController = navController,
+                onClickFavDeals = onClickFavDeals,
+                onSignOut = onSignOut,
             )
+            if (uiState.showBottomSheet) {
+                FavouriteDeals(
+                    setShowBottomSheet,
+                    uiState,
+                    navController,
+                )
+            }
         } else {
+            WelcomeScreen(navController)
+        }
+    }
+}
+
+@Composable
+fun UserProfile(
+    uiState: ProfileUiState,
+    navController: NavController,
+    onClickFavDeals: () -> Unit,
+    onSignOut: () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(vertical = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+
+
+        Image(
+            painter = rememberAsyncImagePainter(R.mipmap.ic_grub_big_round),
+            contentDescription = "Profile Picture",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(150.dp)
+                .shadow(8.dp, CircleShape, clip = false)
+                .clip(CircleShape)
+
+        )
+
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Username
+        Text(
+            text = uiState.currentUser!!.username,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Centered Options
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            ProfileOption(Icons.Default.Favorite, "Saved Deals", onClickFavDeals)
+            ProfileOption(Icons.Default.Person, "Account Details")
+            ProfileOption(Icons.Default.Info, "About Grub") {
+                navController.navigate(Destinations.ABOUT_ROUTE)
+            }
+
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(text = "version 1.0.0.0", fontSize = 12.sp, color = Color.Gray)
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        Button(
+            onClick = onSignOut
+        ) {
+            Text("Sign Out")
+        }
+    }
+}
+
+@Composable
+fun WelcomeScreen(
+    navController: NavController
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier.weight(6f)
+        ) {
             Column(
-                modifier = modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Box(
-                    modifier = Modifier.weight(6f)
-                ) {
-                    Column(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Spacer(modifier = Modifier.weight(2f))
-                        Text(
-                            text = "Welcome to Grub!",
-                            style = MaterialTheme.typography.displaySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.weight(0.4f))
-                        Text(
-                            text = "Sign in to save deals, manage your profile, and more.",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.weight(4f))
-                    }
-                }
-//                GoogleSignInButton()
-                Button(onClick = { navController.navigate(Destinations.LOGIN_ROUTE) }) {
-                    Text(
-                        "Login",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.Black
-                    )
-                }
-                Button(onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) }) {
-                    Text(
-                        "Sign up",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.Black
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(2f))
+                Text(
+                    text = "Welcome to Grub!",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.weight(0.4f))
+                Text(
+                    text = "Sign in to save deals, manage your profile, and more.",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.weight(4f))
             }
         }
+        Button(onClick = { navController.navigate(Destinations.LOGIN_ROUTE) }) {
+            Text(
+                "Login",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
+            )
+        }
+        Button(onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) }) {
+            Text(
+                "Sign up",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -213,59 +238,58 @@ fun FavouriteDeals(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
 
-    if (uiState.showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    setShowBottomSheet(false)
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                setShowBottomSheet(false)
+            }
+        },
+        sheetState = sheetState,
+        dragHandle = null,
+        containerColor = Color.White,
+
+        ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                text = "${uiState.currentUser!!.username}'s Favourite Deals",
+                color = Color.Black,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
+            )
+            if (uiState.favouriteDeals.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No deals found",
+                        color = Color.Black,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
-            },
-            sheetState = sheetState,
-            dragHandle = null,
-            containerColor = Color.White,
-
-            ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, start = 24.dp, end = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    text = "${uiState.currentUser!!.username}'s Favourite Deals",
-                    color = Color.Black,
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
-                )
-                if (uiState.favouriteDeals.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No deals found",
-                            color = Color.Black,
-                            modifier = Modifier.padding(16.dp)
+            } else {
+                val scrollState = rememberScrollState()
+                Spacer(modifier = Modifier.height(12.dp))
+                Column(
+                    modifier = Modifier.verticalScroll(scrollState)
+                ) {
+                    // Display the list of filtered restaurant deals
+                    uiState.favouriteDeals.forEach { restaurant ->
+                        RestaurantItem(
+                            restaurant = restaurant,
+                            navController = navController,
                         )
                     }
-                } else {
-                    val scrollState = rememberScrollState()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Column(
-                        modifier = Modifier.verticalScroll(scrollState)
-                    ) {
-                        // Display the list of filtered restaurant deals
-                        uiState.favouriteDeals.forEach { restaurant ->
-                            RestaurantItem(
-                                restaurant = restaurant,
-                                navController = navController,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -293,25 +317,8 @@ fun AboutPage() {
 }
 
 @Composable
-fun GoogleSignInButton(profileViewModel: ProfileViewModel = viewModel()) {
-    val context = LocalContext.current
-
-    val onClick: () -> Unit = {
-        profileViewModel.googleSignIn(context)
-    }
-
-    Button(onClick = onClick) {
-        Text(
-            "Sign in with Google",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.Black
-        )
-    }
-}
-
-@Composable
 fun ProfileOption(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     text: String,
     onClickFavDeals: () -> Unit = {},
 ) {

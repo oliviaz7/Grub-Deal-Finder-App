@@ -16,34 +16,11 @@ fun ProfileRoute(
 ) {
     val uiState by profileViewModel.uiState.collectAsStateWithLifecycle()
 
-    ProfileRoute(
-        uiState = uiState,
-        onClickFavDeals = { -> profileViewModel.onClickFavDeals() },
-        setShowBottomSheet = { show: Boolean -> profileViewModel.setShowBottomSheet(show) },
-        navController = navController,
-        // **add view model functions here**
-    )
-}
-
-/**
- * Displays the Profile route.
- *
- * This composable is not coupled to any specific state management.
- *
- * @param uiState (state) the data to show on the screen
- */
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun ProfileRoute(
-    uiState: ProfileUiState,
-    onClickFavDeals: () -> Unit,
-    setShowBottomSheet: (Boolean) -> Unit,
-    navController: NavController,
-) {
     ProfileScreen(
         uiState = uiState,
-        onClickFavDeals = onClickFavDeals,
-        setShowBottomSheet = setShowBottomSheet,
+        onClickFavDeals = profileViewModel::onClickFavDeals,
+        setShowBottomSheet = profileViewModel::setShowBottomSheet,
         navController = navController,
+        onSignOut = profileViewModel::onSignOut,
     )
 }

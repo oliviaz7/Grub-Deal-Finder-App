@@ -147,7 +147,7 @@ fun ListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 8.dp)
-                    .verticalScroll(scrollState) // Scrollable content
+                    .verticalScroll(scrollState)
             ) {
                 ListFilterButtons(
                     uiState,
@@ -175,7 +175,6 @@ fun ListScreen(
                         )
                     }
                 } else {
-                    // Display the list of filtered restaurant deals
                     uiState.filteredDeals.forEach { restaurant ->
                         RestaurantItem(
                             restaurant = restaurant,
