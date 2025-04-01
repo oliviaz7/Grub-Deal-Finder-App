@@ -598,13 +598,15 @@ def create_new_user_account():
 def hash_password(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
-@app.route('/login', methods=["GET"])
+@app.route('/login', methods=["POST"])
 def login():
 	"""Logs in a user and returns their full user object."""
 	try:
 		# Get query parameters from the request
-		username = request.args.get("username")
-		password = request.args.get("password")
+		data = request.get_json()
+
+		username = data.get("username")
+		password = data.get("password")
 
 		logger.info(f"Received login request for username: {username}")
 
@@ -629,7 +631,7 @@ def login():
 		# Get the user data
 		user = response.data[0]
 
-		# Verify password (plain text comparison for now)
+		# Verify password
 		if user['password_hash'] != hash_password(password):
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({

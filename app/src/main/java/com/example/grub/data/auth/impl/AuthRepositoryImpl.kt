@@ -28,14 +28,15 @@ data class LoginResponse(
     val user: User?
 )
 
+data class LoginRequest(
+    val username: String,
+    val password: String
+)
+
 class AuthRepositoryImpl : AuthRepository {
     // TODO: look into using android shared preferences to persist any tokens
     private val _loggedInUser = MutableStateFlow<User?>(null)
     override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
-
-    private lateinit var auth: FirebaseAuth
-
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     override suspend fun googleSignInButton(context: Context, rawNonce: String) {
             val credentialManager = CredentialManager.create(context)
@@ -81,7 +82,10 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun login(username: String, password: String): Result<String> {
-        val response = apiService.login(username, password)
+        val loginRequest = LoginRequest(username, password)
+
+        val response = apiService.login(loginRequest)
+
         if (response.success) {
 
             val user = User(
@@ -96,15 +100,11 @@ class AuthRepositoryImpl : AuthRepository {
         } else {
             return Result.Error(Exception(response.message))
         }
-//        auth = Firebase.auth
-        // Add the login logic for email/password authentication
-//        return Result.Success("Logged in successfully")
     }
 
     override suspend fun logout() {
         _loggedInUser.value = null
 
-//        firebaseAuth.signOut()
     }
 
     override suspend fun createUserAccount(
