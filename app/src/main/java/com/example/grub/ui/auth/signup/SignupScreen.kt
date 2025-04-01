@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
@@ -86,6 +87,7 @@ fun SignupScreen(
             Text(
                 text = "Welcome to Grub! Sign up to get started.",
                 style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
