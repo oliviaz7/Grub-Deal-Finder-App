@@ -153,6 +153,21 @@ def unmark_deal_saved_in_db(deal_id, user_id):
 		logger.error(f"Error unsaving deal: {str(e)}", exc_info=True)
 		return jsonify({"success": False, "message": f"Error unsaving deal: {str(e)}"})
 
+def get_user_by_id(user_id):
+	"""Fetch user details from Supabase by user_id."""
+	try:
+		result = supabase.from_('User').select('username, first_name, last_name, created_at, email').eq('id', user_id).execute()
+
+		if result.data:
+			return result.data[0]
+		else:
+			logger.error(f"No user with user_id: {user_id}")
+			return None
+
+	except Exception as e:
+		logger.error(f"Database query error: {str(e)}", exc_info=True)
+		return None
+
 def get_deal_by_id(deal_id):
 	"""Fetches the deal by the id from Supabase."""
 	try:
@@ -323,6 +338,25 @@ def get_restaurant_image_url(place_id):
 
 
 ######### ROUTES ##############
+
+@app.route('/get_user_by_id', methods=["GET"])
+def get_user_info():
+	"""Gets user info based on user id."""
+	try:
+		user_id = request.args.get('user_id')
+
+		user = get_user_by_id(user_id)
+
+		if not user:
+			return jsonify({"error": f"No user found with id {user_id}"})
+
+		return jsonify(user)
+
+	except Exception as e:
+		error_message = str(e)
+		logger.error(f"Error occurred: {error_message}", exc_info=True)
+		return jsonify({"error": "An error occurred while fetching user info"})
+
 
 @app.route('/restaurant_deals', methods=["GET"])
 def get_deals():
