@@ -27,7 +27,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,8 +45,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -60,7 +65,6 @@ import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.Deal
-import com.example.grub.model.RestrictionType
 import com.example.grub.model.VoteType
 import com.example.grub.ui.shared.navigation.Destinations
 import com.example.grub.ui.theme.defaultTextStyle
@@ -76,6 +80,7 @@ fun DealDetailScreen(
     onSaveClicked: () -> Unit,
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
+    onDeleteClicked: () -> Unit,
     setShowBottomSheet: (Boolean) -> Unit,
     clearSnackBarMsg: () -> Unit,
     modifier: Modifier = Modifier
@@ -198,7 +203,11 @@ fun DealDetailScreen(
                         onSaveClicked = onSaveClicked,
                         onUpVoteClicked = onUpVoteClicked,
                         onDownVoteClicked = onDownVoteClicked,
-                        uiState = uiState
+                        onDeleteClicked = {
+                            onDeleteClicked()
+                            navController.popBackStack()
+                                          },
+                        uiState = uiState,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -290,7 +299,22 @@ fun DealDetailHeader(
     onSaveClicked: () -> Unit,
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
+    onDeleteClicked: () -> Unit,
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                onDeleteClicked()
+                showDeleteDialog = false
+            },
+            onDismiss = {
+                showDeleteDialog = false
+            }
+        )
+    }
+
     Row {
         Text(
             text = "${deal.type}",
@@ -298,6 +322,19 @@ fun DealDetailHeader(
             color = Color.White,
             modifier = Modifier.weight(1f)
         )
+        // delete
+        if (deal.userId == uiState.currUser?.id) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(top = 8.dp, end = 8.dp)
+                    .size(40.dp)
+                    .clickable { showDeleteDialog = true }
+            )
+        }
+        // save deal
         Icon(
             imageVector = if (deal.userSaved && uiState.isLoggedIn) {
                 Icons.Filled.Favorite
@@ -611,4 +648,30 @@ fun LoginPrompt(
             }
         }
     }
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Delete Deal")
+        },
+        text = {
+            Text(text = "Are you sure you want to delete this deal?")
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("No")
+            }
+        }
+    )
 }

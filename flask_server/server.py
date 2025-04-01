@@ -100,7 +100,7 @@ def mark_deal_removed_in_db(deal_id):
 		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
-			logger.error("Error marking deal as removed")
+			raise response.error
 
 	except Exception as e:
 		logger.error(f"Error marking deal as removed: {str(e)}", exc_info=True)

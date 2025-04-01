@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.grub.data.Result
+
 
 /**
  * UI state for the Map route.
@@ -185,7 +187,6 @@ class DealDetailViewModel(
                 }
             }
         }
-
     }
 
     fun onUpVoteClicked() {
@@ -238,6 +239,42 @@ class DealDetailViewModel(
                         )
                     }
 
+                }
+            }
+        }
+    }
+
+    fun onDeleteClicked() {
+        Log.d("deal Details", "delete")
+        if (viewModelState.value.currUser == null) {
+            setShowBottomSheet(true)
+        } else {
+            viewModelScope.launch {
+                val result = restaurantDealRepo.deleteDeal(
+                    dealId = viewModelState.value.deal!!.id,
+                    userId = viewModelState.value.currUser!!.id,
+                )
+
+                Log.d("deal Details", "delete result: $result")
+
+                var message = ""
+                when (result) {
+                    is Result.Success -> {
+                        if (result.data.success) {
+                            message = "Deleted successfully!"
+                        } else {
+                            message = "Error deleting deal!"
+                        }
+                    }
+                    is Result.Error -> {
+                        message = "Error deleting deal!"
+                    }
+                }
+                Log.d("deal Details", message)
+                viewModelState.update {
+                    it.copy(
+                        snackbarMessage = message,
+                    )
                 }
             }
         }
