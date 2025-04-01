@@ -179,6 +179,17 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
         _accumulatedDeals.value = updatedDeals
     }
 
+    private fun updateAccumulatedDealsWithDeleteAction(dealId: String) {
+        val updatedDeals = _accumulatedDeals.value.map { restaurant ->
+            restaurant.copy(
+                rawDeals = restaurant.rawDeals.filter { deal ->
+                    deal.id != dealId
+                }
+            )
+        }
+        _accumulatedDeals.value = updatedDeals
+    }
+
     override suspend fun updateVote(
         dealId: String,
         userId: String,
@@ -240,6 +251,11 @@ class RestaurantDealsRepositoryImpl : RestaurantDealsRepository {
     ): Result<ApiResponse> {
         return try {
             val response = apiService.deleteDeal(dealId, userId)
+            if (response.success) {
+                updateAccumulatedDealsWithDeleteAction(dealId)
+            } else {
+                Log.e("RestaurantDealsError", "Error deleting deal: ${response.message}")
+            }
             Result.Success(response)
         } catch (e: Exception) {
             Log.e("RestaurantDealsError", "Error deleting deal", e)
