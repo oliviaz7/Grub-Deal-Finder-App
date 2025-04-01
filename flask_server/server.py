@@ -426,7 +426,7 @@ def add_restaurant_deal():
 		# Insert deal
 		deal = restaurant.get("Deal", [None])[0]
 		if deal:
-			user_id = restaurant.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
+			user_id = deal.get("user_id", "9f7ab2ec-15d8-4f31-8a33-8e4218a03e90")
 
 			deal_item = {
 				"restaurant_id": restaurant_id,
