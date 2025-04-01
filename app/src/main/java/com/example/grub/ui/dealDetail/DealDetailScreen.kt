@@ -130,7 +130,7 @@ fun DealDetailScreen(
                 ){data->
                     Snackbar(
                         snackbarData = data,
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = Color.White,
                         actionColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.primaryContainer,
                         shape = MaterialTheme.shapes.extraLarge,
