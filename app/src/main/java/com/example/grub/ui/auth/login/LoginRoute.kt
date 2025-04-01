@@ -21,28 +21,11 @@ fun LoginRoute(
         }
     }
 
-    LoginRoute(
-        uiState = uiState,
-        navController = navController,
-        onUsernameChanged = { loginViewModel.setUsername(it) },
-        onPasswordChanged = { loginViewModel.setPassword(it) },
-        onLoginClicked = { loginViewModel.login() }
-    )
-}
-
-@Composable
-fun LoginRoute(
-    uiState: LoginUiState,
-    navController: NavController,
-    onUsernameChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onLoginClicked: () -> Unit,
-) {
     LoginScreen(
         uiState = uiState,
         navController = navController,
-        onUsernameChanged = onUsernameChanged,
-        onPasswordChanged = onPasswordChanged,
-        onLoginClicked = onLoginClicked
+        onUsernameChanged = loginViewModel::setUsername,
+        onPasswordChanged = loginViewModel::setPassword,
+        onLoginClicked = loginViewModel::login
     )
 }

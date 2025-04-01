@@ -27,49 +27,14 @@ fun SignupRoute(
         }
     }
 
-    SignupRoute(
-        uiState = uiState,
-        navController = navController,
-        onUsernameChanged = { signupViewModel.setUsername(it) },
-        onEmailChanged = { signupViewModel.setEmail(it) },
-        onPasswordChanged = { signupViewModel.setPassword(it) },
-        onFirstNameChanged = { signupViewModel.setFirstName(it) },
-        onLastNameChanged = { signupViewModel.setLastName(it) },
-        onSignupClicked = { signupViewModel.signup() }
-    )
-}
-
-/**
- * Displays the Signup route.
- *
- * @param uiState (state) the data to show on the screen
- * @param navController Navigation controller for handling navigation
- * @param onUsernameChanged Callback to update username
- * @param onEmailChanged Callback to update email
- * @param onPasswordChanged Callback to update password
- * @param onFirstNameChanged Callback to update first name
- * @param onLastNameChanged Callback to update last name
- * @param onSignupClicked Callback to trigger signup
- */
-@Composable
-fun SignupRoute(
-    uiState: SignupUiState,
-    navController: NavController,
-    onUsernameChanged: (String) -> Unit,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onFirstNameChanged: (String) -> Unit,
-    onLastNameChanged: (String) -> Unit,
-    onSignupClicked: () -> Unit,
-) {
     SignupScreen(
         uiState = uiState,
         navController = navController,
-        onUsernameChanged = onUsernameChanged,
-        onEmailChanged = onEmailChanged,
-        onPasswordChanged = onPasswordChanged,
-        onFirstNameChanged = onFirstNameChanged,
-        onLastNameChanged = onLastNameChanged,
-        onSignupClicked = onSignupClicked
+        onUsernameChanged = signupViewModel::setUsername,
+        onEmailChanged = signupViewModel::setEmail,
+        onPasswordChanged = signupViewModel::setPassword,
+        onFirstNameChanged = signupViewModel::setFirstName,
+        onLastNameChanged = signupViewModel::setLastName,
+        onSignupClicked = signupViewModel::signup
     )
 }

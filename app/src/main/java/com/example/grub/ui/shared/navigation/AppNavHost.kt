@@ -135,7 +135,6 @@ fun AppNavHost(
         composable(Destinations.LOGIN_ROUTE) {
             val loginViewModel: LoginViewModel = viewModel(
                 factory = LoginViewModel.provideFactory(
-                    appViewModel = appViewModel,
                     authRepository = appContainer.authRepository,
                 )
             )

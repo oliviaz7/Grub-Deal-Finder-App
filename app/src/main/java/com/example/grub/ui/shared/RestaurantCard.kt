@@ -195,6 +195,8 @@ fun DealItem(
                     .aspectRatio(5f / 4f)
                     .clip(MaterialTheme.shapes.small)
             )
+
+
             Spacer(modifier = Modifier.width(12.dp))
             Column(
                 Modifier.weight(0.7f)
@@ -213,6 +215,8 @@ fun DealItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(start = 2.dp)
                 )
+
+
                 if (!deal.description.isNullOrBlank()) {
                     Text(
                         text = deal.description,
@@ -223,6 +227,8 @@ fun DealItem(
                         modifier = Modifier.padding(start = 2.dp)
                     )
                 }
+
+
                 if (deal.expiryDate != null) {
                     Row() {
                         Icon(
@@ -244,19 +250,14 @@ fun DealItem(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-
                 }
-
             }
-
         }
     }
-
 }
 
 @Composable
 fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
-    Log.d("deal image", imageUrl.toString())
     AsyncImage(
         model = imageUrl,
         modifier = modifier,
@@ -269,8 +270,6 @@ fun DealImage(imageUrl: String?, modifier: Modifier = Modifier) {
 
 @Composable
 fun RestaurantImage(imageUrl: String?, modifier: Modifier = Modifier) {
-    Log.d("restaurant image", imageUrl.toString())
-
     AsyncImage(
         model = imageUrl,
         modifier = modifier,
