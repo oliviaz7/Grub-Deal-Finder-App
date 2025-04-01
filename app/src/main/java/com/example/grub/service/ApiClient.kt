@@ -16,24 +16,3 @@ object RetrofitClient {
             .create(ApiService::class.java)
     }
 }
-
-object RetrofitGpuClient {
-    private const val BASE_URL = "http://ece-nebula10.eng.uwaterloo.ca:8000/"
-
-    private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY // Logs full request and response, including body
-    }
-
-    private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .build()
-
-    val gpuApiService: GpuApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(GpuApiService::class.java)
-    }
-}
