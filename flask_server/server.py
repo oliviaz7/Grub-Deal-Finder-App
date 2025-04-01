@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from datetime import datetime, timezone
+from datetime import datetime
 import google_maps
 import math
 import logging
@@ -15,9 +15,12 @@ import requests
 logger = logging.getLogger('werkzeug')
 logger.propagate = False
 
-load_dotenv()
+load_dotenv() # remove when using railway server
 url = os.getenv("SUPABASE_URL")
 key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+	raise ValueError("SUPABASE_URL or SUPABASE_KEY is not set.")
 
 supabase: Client = create_client(url, key)
 
@@ -687,7 +690,7 @@ def get_restaurant():
         }
 
         # Step 2: Fetch all deals from the deals table that match restaurant_id
-        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).execute()
+        deals_response = supabase.from_("Deal").select("*").eq("restaurant_id", restaurant_id).eq("is_removed", False).execute()
         raw_deals = deals_response.data if deals_response.data else []
 
         # format deals obj
