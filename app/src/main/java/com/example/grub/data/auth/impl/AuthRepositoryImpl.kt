@@ -33,8 +33,7 @@ data class LoginRequest(
     val password: String
 )
 
-class AuthRepositoryImpl : AuthRepository {
-    // TODO: look into using android shared preferences to persist any tokens
+class AuthRepositoryImpl(private val applicationContext: Context) : AuthRepository {
     private val _loggedInUser = MutableStateFlow<User?>(null)
     override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
 
@@ -81,13 +80,32 @@ class AuthRepositoryImpl : AuthRepository {
             }
     }
 
+    override suspend fun checkSavedCredentials() {
+        val sharedPref = applicationContext.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val username = sharedPref.getString("username", null)
+        val password = sharedPref.getString("password", null)
+
+        if (username != null && password != null) {
+            login(username, password)
+        }
+    }
+
+    private fun saveCredentials(username: String, password: String) {
+        val sharedPref = applicationContext.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("username", username)
+            putString("password", password)
+            apply()
+        }
+    }
+
     override suspend fun login(username: String, password: String): Result<String> {
         val loginRequest = LoginRequest(username, password)
 
         val response = apiService.login(loginRequest)
 
         if (response.success) {
-
+            // 1. update the loggedInUser internal state
             val user = User(
                 id = response.user?.id ?: "",
                 username = username,
@@ -98,15 +116,27 @@ class AuthRepositoryImpl : AuthRepository {
                 downvote = response.user?.downvote ?: 0,
             )
             _loggedInUser.update { user }
+
+            // 2. save the username and password in Android shared preferences (to persist)
+            saveCredentials(username, password)
+
             return Result.Success(response.message)
         } else {
             return Result.Error(Exception(response.message))
         }
     }
 
+    private fun clearCredentials() {
+        val sharedPref = applicationContext.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            clear()
+            apply()
+        }
+    }
+
     override suspend fun logout() {
         _loggedInUser.value = null
-
+        clearCredentials()
     }
 
     override suspend fun createUserAccount(

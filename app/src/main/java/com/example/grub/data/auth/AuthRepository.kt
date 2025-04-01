@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Is the single source of truth for authentication data, functions, and user profile details
  */
 interface AuthRepository {
+    suspend fun checkSavedCredentials()
     suspend fun login(username: String, password: String): Result<String> // Returns token
     suspend fun logout()
     suspend fun createUserAccount(
