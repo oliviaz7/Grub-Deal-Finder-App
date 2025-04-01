@@ -1,6 +1,8 @@
 package com.example.grub.ui.auth.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,11 +22,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.grub.R
 
 @Composable
 fun LoginScreen(
@@ -73,18 +79,32 @@ fun LoginScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
+            Image(
+                painter = rememberAsyncImagePainter(R.drawable.grub),
+                contentDescription = "Logo Background",
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .size(200.dp)
+                    .graphicsLayer {
+                        scaleX = 1.5f
+                        scaleY = 1.5f
+                    }
+            )
             OutlinedTextField(
                 value = uiState.username,
                 onValueChange = onUsernameChanged,
                 label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
+                textStyle = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = onPasswordChanged,
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
+                textStyle = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth()
             )
             Button(

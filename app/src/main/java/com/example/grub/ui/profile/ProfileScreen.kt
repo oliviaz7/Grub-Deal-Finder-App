@@ -71,9 +71,6 @@ fun ProfileScreen(
     navController: NavController,
     onSignOut: () -> Unit,
 ) {
-
-    Log.d("ProfileScreen", "ProfileScreen: ${uiState.profileUser}")
-
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -83,7 +80,7 @@ fun ProfileScreen(
             contentDescription = "Logo Background",
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = 100.dp)
+                .offset(y = 50.dp)
                 .graphicsLayer(alpha = 0.2f)
         )
 
@@ -232,29 +229,36 @@ fun WelcomeScreen(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.weight(0.4f))
+                Spacer(modifier = Modifier.weight(0.2f))
                 Text(
                     text = "Sign in to save deals, manage your profile, and more.",
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.weight(4f))
+                Spacer(modifier = Modifier.weight(4.5f))
             }
         }
-        Button(onClick = { navController.navigate(Destinations.LOGIN_ROUTE) }) {
-            Text(
-                "Login",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
-            )
-        }
-        Button(onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) }) {
-            Text(
-                "Sign up",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
-            )
+        Column (modifier = Modifier.padding(horizontal = 24.dp)) {
+            Button(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                onClick = { navController.navigate(Destinations.LOGIN_ROUTE) }) {
+                Text(
+                    "Login",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+            }
+            Spacer(modifier = Modifier.padding(2.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                onClick = { navController.navigate(Destinations.SIGNUP_ROUTE) }) {
+                Text(
+                    "Sign up",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(1f))
     }
