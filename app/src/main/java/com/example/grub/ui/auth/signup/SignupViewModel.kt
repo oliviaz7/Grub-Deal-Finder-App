@@ -32,7 +32,6 @@ sealed class SignupNavigationEvent {
 }
 
 class SignupViewModel(
-    private val appViewModel: AppViewModel,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -121,13 +120,11 @@ class SignupViewModel(
 
     companion object {
         fun provideFactory(
-            appViewModel: AppViewModel,
             authRepository: AuthRepository,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return SignupViewModel(
-                    appViewModel,
                     authRepository,
                 ) as T
             }

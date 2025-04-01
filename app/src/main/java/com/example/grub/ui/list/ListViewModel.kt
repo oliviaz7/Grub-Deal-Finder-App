@@ -2,7 +2,6 @@ package com.example.grub.ui.list
 
 import CustomFilter
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -126,7 +125,6 @@ class ListViewModel(
     }
 
     fun onSelectPriceRange(start: Int, end: Int) {
-        Log.d("LIST view model", "select price range ${start}, ${end}")
         viewModelState.update { currentState ->
             val updatedFilters = currentState.selectedCustomFilter.copy(
                 minPrice = start.toFloat(),

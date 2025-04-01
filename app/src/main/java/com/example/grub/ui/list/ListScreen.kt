@@ -70,7 +70,7 @@ fun ListScreen(
     onSelectPriceRange: (Int, Int) -> Unit,
     onFilter: () -> Unit,
     onSortOptionSelected: (String) -> Unit,
-    onClearOptions:()->Unit,
+    onClearOptions: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val interactionSource = remember { MutableInteractionSource() }
@@ -135,7 +135,7 @@ fun ListScreen(
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { focusManager.clearFocus() })
             },
-    ) { innerPadding ->
+    ) { _ ->
         Box(
             modifier = Modifier
                 .padding(top = 48.dp)
@@ -159,7 +159,7 @@ fun ListScreen(
                     onSubmitCustomFilter = onSubmitCustomFilter,
                     onShowFilterDialog = onShowFilterDialog,
                     onSelectPriceRange = onSelectPriceRange,
-                    onClearOptions= onClearOptions,
+                    onClearOptions = onClearOptions,
                 )
 
                 if (uiState.filteredDeals.isEmpty()) {
@@ -289,7 +289,7 @@ fun ListFilterButtons(
     onSubmitCustomFilter: () -> Unit,
     onSelectPriceRange: (Int, Int) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
-    onClearOptions: ()-> Unit,
+    onClearOptions: () -> Unit,
 ) {
     val selectedFilter = uiState.selectedFilter
     val showFilterDialog = uiState.showFilterDialog

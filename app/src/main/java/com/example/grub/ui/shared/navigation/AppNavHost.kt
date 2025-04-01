@@ -13,25 +13,25 @@ import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
-import com.example.grub.ui.profile.about.AboutPageRoute
-import com.example.grub.ui.profile.about.AboutPageViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
+import com.example.grub.ui.auth.login.LoginRoute
+import com.example.grub.ui.auth.login.LoginViewModel
+import com.example.grub.ui.auth.signup.SignupRoute
+import com.example.grub.ui.auth.signup.SignupViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.dealDetail.dealImage.DealImageViewModel
 import com.example.grub.ui.list.DealImageRoute
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
-import com.example.grub.ui.auth.login.LoginRoute
-import com.example.grub.ui.auth.login.LoginViewModel
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.profile.ProfileRoute
 import com.example.grub.ui.profile.ProfileViewModel
+import com.example.grub.ui.profile.about.AboutPageRoute
+import com.example.grub.ui.profile.about.AboutPageViewModel
 import com.example.grub.ui.shared.ScreenWithScaffold
-import com.example.grub.ui.auth.signup.SignupRoute
-import com.example.grub.ui.auth.signup.SignupViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -119,7 +119,6 @@ fun AppNavHost(
         composable(Destinations.SIGNUP_ROUTE) {
             val signupViewModel: SignupViewModel = viewModel(
                 factory = SignupViewModel.provideFactory(
-                    appViewModel = appViewModel,
                     authRepository = appContainer.authRepository,
                 )
             )
@@ -170,16 +169,16 @@ fun AppNavHost(
 
         composable(
             Destinations.DEAL_DETAIL_ROUTE
-        ) { backStackEntry ->
+        ) { _ ->
             val deal = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<Deal>("deal") ?: null
+                ?.get<Deal>("deal")
             val restaurantName = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<String>("restaurantName") ?: null
+                ?.get<String>("restaurantName")
             val restaurantAddress = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<String>("restaurantAddress") ?: null
+                ?.get<String>("restaurantAddress")
 
             val dealDetailViewModel: DealDetailViewModel = viewModel(
                 factory = DealDetailViewModel.provideFactory(
@@ -203,27 +202,27 @@ fun AppNavHost(
         }
 
         composable(route = Destinations.ABOUT_ROUTE) {
-            val AboutPageViewModel: AboutPageViewModel = viewModel(
+            val aboutPageViewModel: AboutPageViewModel = viewModel(
                 factory = AboutPageViewModel.provideFactory(
                     appViewModel = appViewModel,
 
-                )
+                    )
             )
             ScreenWithScaffold(
                 navController,
                 showBottomNavItem = true,
                 showFloatingActionButton = false
             ) {
-                AboutPageRoute(AboutPageViewModel, navController)
+                AboutPageRoute(aboutPageViewModel, navController)
             }
         }
 
         composable(
             Destinations.IMAGE_ROUTE
-        ) { backStackEntry ->
+        ) { _ ->
             val dealImageURL = navController.previousBackStackEntry
                 ?.savedStateHandle
-                ?.get<String>("dealImageURL") ?: null
+                ?.get<String>("dealImageURL")
             val dealImageViewModel: DealImageViewModel = viewModel(
                 factory = DealImageViewModel.provideFactory(
                     dealURL = dealImageURL,

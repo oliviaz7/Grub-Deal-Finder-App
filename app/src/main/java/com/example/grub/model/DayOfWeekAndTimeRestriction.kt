@@ -109,7 +109,7 @@ sealed class DayOfWeekAndTimeRestriction(
         }
 
         override fun toDisplayDay(): String {
-            return activeDays.joinToString(", ") {
+            return activeDays.joinToString("\n") {
                 it.name.lowercase().replaceFirstChar(Char::uppercase)
             }
         }

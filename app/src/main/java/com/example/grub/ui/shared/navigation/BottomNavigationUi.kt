@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PersonPin
 import androidx.compose.material3.Icon
@@ -60,7 +60,7 @@ sealed class BottomNavItem(
     data object List :
         BottomNavItem(
             "List",
-            Icons.Outlined.ListAlt,
+            Icons.AutoMirrored.Outlined.ListAlt,
             Destinations.LIST_ROUTE,
         )
 

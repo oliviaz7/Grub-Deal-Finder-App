@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,15 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ThumbDownOffAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,8 +51,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,6 +60,7 @@ import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.Deal
+import com.example.grub.model.RestrictionType
 import com.example.grub.model.VoteType
 import com.example.grub.ui.shared.navigation.Destinations
 import com.example.grub.ui.theme.defaultTextStyle
@@ -89,7 +84,6 @@ fun DealDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarMessage) {
-        Log.d("deal deatails screen", "in launched")
         uiState.snackbarMessage?.let { message ->
             snackbarHostState.showSnackbar(
                 message = message,
@@ -113,7 +107,7 @@ fun DealDetailScreen(
                     modifier = Modifier.align(Alignment.TopStart)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
@@ -268,7 +262,7 @@ fun RestaurantDetails(
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.primaryContainer,
         )
-        Row() {
+        Row {
             Icon(
                 Icons.Filled.LocationOn,
                 contentDescription = null,
@@ -297,7 +291,7 @@ fun DealDetailHeader(
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
 ) {
-    Row() {
+    Row {
         Text(
             text = "${deal.type}",
             style = MaterialTheme.typography.displayMedium,
@@ -322,7 +316,7 @@ fun DealDetailHeader(
     if (deal.expiryDate != null) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row() {
+        Row {
             Icon(
                 Icons.Filled.CalendarMonth,
                 contentDescription = null,
@@ -413,7 +407,7 @@ fun DealDetailBox(
                 if (deal.price != 0.0)
                     "$" + deal.price.toString() + " " + deal.item
                 else
-                    deal.item;
+                    deal.item
 
             Text(
                 text = dealTitle,
@@ -488,7 +482,8 @@ fun DealAvailability(
                     color = MaterialTheme.colorScheme.primaryContainer
 
                 )
-                Row(){
+
+                Row {
                     Text(
                         text = deal.activeDayTime.toDisplayDay(),
                         style = defaultTextStyle.copy(
@@ -500,20 +495,22 @@ fun DealAvailability(
                         ),
                         color = MaterialTheme.colorScheme.primaryContainer
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = deal.activeDayTime.toDisplayTime(),
-                        style = defaultTextStyle.copy(
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            letterSpacing = 0.15.sp,
-                            fontWeight = FontWeight.Light,
-                            lineBreak = LineBreak.Heading,
-                        ),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    )
-                }
+                    if(deal.activeDayTime.toDisplayTime() != "Available all day"){
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = deal.activeDayTime.toDisplayTime(),
+                            style = defaultTextStyle.copy(
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                letterSpacing = 0.15.sp,
+                                fontWeight = FontWeight.Light,
+                                lineBreak = LineBreak.Heading,
+                            ),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    }
 
+                }
             }
 
             if ((deal.applicableGroup != ApplicableGroup.NONE
@@ -585,7 +582,6 @@ fun LoginPrompt(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
-            val context = LocalContext.current
 
             Button(
                 onClick = {

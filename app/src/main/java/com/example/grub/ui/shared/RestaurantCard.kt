@@ -1,5 +1,4 @@
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,27 +37,6 @@ import com.example.grub.model.RestaurantDeal
 import com.example.grub.ui.shared.navigation.Destinations
 import java.time.format.DateTimeFormatter
 
-
-/**
- * Composable function to display a restaurant item, including the restaurant's image,
- * name, address, and a list of deals associated with that restaurant.
- *
- * This component is intended to be used in list screens where restaurants are shown with
- * their deals. It accepts a `restaurant` object (of type `RestaurantDeal`) and displays:
- * 1. A restaurant image
- * 2. The restaurant's name and address
- * 3. A list of deals under that restaurant, indented for visual clarity
- *
- * The function also supports navigation, where clicking on a deal will navigate to
- * the `DealDetail` screen and pass the selected deal.
- *
- * Usage:
- * - Reusable across screens where restaurant and deal data need to be displayed.
- * - Pass in a `RestaurantDeal` object and a `NavController` for handling navigation.
- *
- * @param restaurant The `RestaurantDeal` object representing the restaurant and its deals.
- * @param navController The `NavController` used to handle navigation to the deal details.
- */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RestaurantItem(
@@ -125,7 +103,7 @@ fun RestaurantItem(
                 }
             }
 
-            Column() {
+            Column {
                 restaurant.deals.forEach { deal ->
                     DealItem(
                         restaurantName = restaurant.restaurantName,
@@ -205,7 +183,7 @@ fun DealItem(
                     if (deal.price != 0.0)
                         "$" + deal.price.toString() + " " + deal.item
                     else
-                        deal.item;
+                        deal.item
 
                 Text(
                     text = deal.type.toString() + " " + dealTitle,
@@ -230,7 +208,7 @@ fun DealItem(
 
 
                 if (deal.expiryDate != null) {
-                    Row() {
+                    Row {
                         Icon(
                             Icons.Filled.CalendarMonth,
                             contentDescription = "expiryIcon",
