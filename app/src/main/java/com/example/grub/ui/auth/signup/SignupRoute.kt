@@ -1,4 +1,4 @@
-package com.example.grub.ui.signup
+package com.example.grub.ui.auth.signup
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

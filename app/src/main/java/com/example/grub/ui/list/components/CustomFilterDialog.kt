@@ -93,6 +93,8 @@ fun CustomFilterDialog(
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
+
+
                 Text(text = "Available on", style = MaterialTheme.typography.bodyLarge)
                 LazyRow {
                     items(filterDays) { filterDay ->
@@ -121,6 +123,8 @@ fun CustomFilterDialog(
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
+
+
                 Text(text = "Available to", style = MaterialTheme.typography.bodyLarge)
                 LazyRow {
                     items(filterRestrictions) { filterRestriction ->
@@ -148,19 +152,21 @@ fun CustomFilterDialog(
                         Spacer(Modifier.width(6.dp))
                     }
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
 
-                var priceRange by remember { mutableStateOf(selectedCustomFilter.minPrice..selectedCustomFilter.maxPrice) }
+
+                val priceRangeInitial = selectedCustomFilter.minPrice..selectedCustomFilter.maxPrice
+                var priceRange by remember(priceRangeInitial) {
+                    mutableStateOf(priceRangeInitial)
+                }
                 Text(
                     text = "Price Range: $${priceRange.start.toInt()} - $${priceRange.endInclusive.toInt()}",
                     style = MaterialTheme.typography.bodyLarge
                 )
-
                 RangeSlider(
                     value = priceRange,
                     onValueChange = { newRange -> priceRange = newRange },
-                    valueRange = 0f..100f, // Adjust this to match your price limits
+                    valueRange = 0f..100f,
                     modifier = Modifier.padding(vertical = 4.dp),
                     onValueChangeFinished = {
                         onSelectPriceRange(

@@ -1,4 +1,4 @@
-package com.example.grub.ui.navigation
+package com.example.grub.ui.shared.navigation
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size

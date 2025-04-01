@@ -1,4 +1,4 @@
-package com.example.grub.ui.dealImage
+package com.example.grub.ui.dealDetail.dealImage
 
 import android.os.Build
 import androidx.annotation.RequiresApi

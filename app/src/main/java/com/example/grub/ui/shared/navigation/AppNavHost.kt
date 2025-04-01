@@ -1,4 +1,4 @@
-package com.example.grub.ui.navigation
+package com.example.grub.ui.shared.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -13,25 +13,25 @@ import com.example.grub.data.AppContainer
 import com.example.grub.model.Deal
 import com.example.grub.model.mappers.RestaurantDealMapper
 import com.example.grub.ui.AppViewModel
-import com.example.grub.ui.about.AboutPageRoute
-import com.example.grub.ui.about.AboutPageViewModel
+import com.example.grub.ui.profile.about.AboutPageRoute
+import com.example.grub.ui.profile.about.AboutPageViewModel
 import com.example.grub.ui.addDealFlow.AddDealRoute
 import com.example.grub.ui.addDealFlow.AddDealViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
-import com.example.grub.ui.dealImage.DealImageViewModel
+import com.example.grub.ui.dealDetail.dealImage.DealImageViewModel
 import com.example.grub.ui.list.DealImageRoute
 import com.example.grub.ui.list.ListRoute
 import com.example.grub.ui.list.ListViewModel
-import com.example.grub.ui.login.LoginRoute
-import com.example.grub.ui.login.LoginViewModel
+import com.example.grub.ui.auth.login.LoginRoute
+import com.example.grub.ui.auth.login.LoginViewModel
 import com.example.grub.ui.map.MapRoute
 import com.example.grub.ui.map.MapViewModel
 import com.example.grub.ui.profile.ProfileRoute
 import com.example.grub.ui.profile.ProfileViewModel
-import com.example.grub.ui.screenWithScaffold.ScreenWithScaffold
-import com.example.grub.ui.signup.SignupRoute
-import com.example.grub.ui.signup.SignupViewModel
+import com.example.grub.ui.shared.ScreenWithScaffold
+import com.example.grub.ui.auth.signup.SignupRoute
+import com.example.grub.ui.auth.signup.SignupViewModel
 
 object Destinations {
     const val HOME_ROUTE = "home"
@@ -76,12 +76,12 @@ fun AppNavHost(
             )
             ScreenWithScaffold(
                 navController,
-                authRepository = appContainer.authRepository,
                 appViewModel = appViewModel
             ) {
                 MapRoute(mapViewModel = mapViewModel, navController)
             }
         }
+
         composable(Destinations.LIST_ROUTE) {
             val listViewModel: ListViewModel = viewModel(
                 factory = ListViewModel.provideFactory(
@@ -92,12 +92,12 @@ fun AppNavHost(
             )
             ScreenWithScaffold(
                 navController,
-                authRepository = appContainer.authRepository,
                 appViewModel = appViewModel
             ) {
                 ListRoute(listViewModel = listViewModel, navController)
             }
         }
+
         composable(Destinations.PROFILE_ROUTE) {
             val profileViewModel: ProfileViewModel = viewModel(
                 factory = ProfileViewModel.provideFactory(
@@ -115,6 +115,7 @@ fun AppNavHost(
                 ProfileRoute(profileViewModel, navController)
             }
         }
+
         composable(Destinations.SIGNUP_ROUTE) {
             val signupViewModel: SignupViewModel = viewModel(
                 factory = SignupViewModel.provideFactory(
@@ -130,6 +131,7 @@ fun AppNavHost(
                 SignupRoute(signupViewModel, navController)
             }
         }
+
         composable(Destinations.LOGIN_ROUTE) {
             val loginViewModel: LoginViewModel = viewModel(
                 factory = LoginViewModel.provideFactory(
@@ -145,6 +147,7 @@ fun AppNavHost(
                 LoginRoute(loginViewModel, navController)
             }
         }
+
         composable(Destinations.ADD_DEAL_ROUTE) {
             val addDealViewModel: AddDealViewModel = viewModel(
                 factory = AddDealViewModel.provideFactory(

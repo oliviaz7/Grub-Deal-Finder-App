@@ -1,4 +1,4 @@
-package com.example.grub.ui.permissions
+package com.example.grub.ui.shared.permissions
 
 import android.Manifest
 import android.util.Log

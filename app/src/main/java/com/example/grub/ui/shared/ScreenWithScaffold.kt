@@ -1,4 +1,4 @@
-package com.example.grub.ui.screenWithScaffold
+package com.example.grub.ui.shared
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -27,11 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.grub.data.auth.AuthRepository
 import com.example.grub.ui.AppViewModel
-import com.example.grub.ui.fab.Fab
-import com.example.grub.ui.navigation.BottomNavigation
-import com.example.grub.ui.navigation.Destinations
+import com.example.grub.ui.shared.navigation.BottomNavigation
+import com.example.grub.ui.shared.navigation.Destinations
 import kotlinx.coroutines.launch
 
 
@@ -39,7 +37,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScreenWithScaffold(
     navController: NavHostController,
-    authRepository: AuthRepository? = null,
     appViewModel: AppViewModel? = null,
     showBottomNavItem: Boolean = true,
     showFloatingActionButton: Boolean = true,

@@ -1,4 +1,4 @@
-package com.example.grub.ui.fab
+package com.example.grub.ui.shared
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton

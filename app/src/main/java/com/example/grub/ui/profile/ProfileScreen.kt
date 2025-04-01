@@ -53,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.grub.R
-import com.example.grub.ui.navigation.Destinations
+import com.example.grub.ui.shared.navigation.Destinations
 import kotlinx.coroutines.launch
 
 

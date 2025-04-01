@@ -1,4 +1,4 @@
-package com.example.grub.ui.signup
+package com.example.grub.ui.auth.signup
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box

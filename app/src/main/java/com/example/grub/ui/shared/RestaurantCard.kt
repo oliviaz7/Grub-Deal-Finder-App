@@ -35,8 +35,7 @@ import coil.compose.AsyncImage
 import com.example.grub.R
 import com.example.grub.model.Deal
 import com.example.grub.model.RestaurantDeal
-import com.example.grub.ui.navigation.Destinations
-import com.example.grub.utils.ImageUrlHelper
+import com.example.grub.ui.shared.navigation.Destinations
 import java.time.format.DateTimeFormatter
 
 

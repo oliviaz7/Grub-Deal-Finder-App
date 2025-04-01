@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import com.example.grub.ui.dealImage.DealImageScreen
-import com.example.grub.ui.dealImage.DealImageViewModel
+import com.example.grub.ui.dealDetail.dealImage.DealImageScreen
+import com.example.grub.ui.dealDetail.dealImage.DealImageViewModel
 
 /**
  * Displays the Deal Image route.

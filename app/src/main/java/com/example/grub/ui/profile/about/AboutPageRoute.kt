@@ -1,4 +1,4 @@
-package com.example.grub.ui.about
+package com.example.grub.ui.profile.about
 
 import android.os.Build
 import androidx.annotation.RequiresApi

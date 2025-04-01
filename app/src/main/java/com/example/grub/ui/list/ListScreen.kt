@@ -52,7 +52,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.grub.ui.searchBar.CustomSearchBar
+import com.example.grub.ui.list.components.CustomSearchBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

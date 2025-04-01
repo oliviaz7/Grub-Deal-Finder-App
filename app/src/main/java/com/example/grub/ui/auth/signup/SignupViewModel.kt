@@ -1,4 +1,4 @@
-package com.example.grub.ui.signup
+package com.example.grub.ui.auth.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -1,7 +1,6 @@
 package com.example.grub.ui.dealDetail
 
 import DealImage
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -62,7 +61,7 @@ import androidx.navigation.NavController
 import com.example.grub.model.ApplicableGroup
 import com.example.grub.model.DayOfWeekAndTimeRestriction
 import com.example.grub.model.VoteType
-import com.example.grub.ui.navigation.Destinations
+import com.example.grub.ui.shared.navigation.Destinations
 import com.example.grub.ui.theme.defaultTextStyle
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
