@@ -358,7 +358,11 @@ def get_user_info():
 			"email": user['email']
 		}
 
-		return jsonify(user_response)
+		return jsonify({
+			"success": True,
+			"message": "User retrieval successful",
+			"user": user_response
+		})
 
 	except Exception as e:
 		error_message = str(e)
