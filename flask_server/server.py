@@ -9,6 +9,7 @@ import math
 import logging
 import pytz
 import hashlib
+import requests
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
@@ -102,7 +103,7 @@ def mark_deal_removed_in_db(deal_id):
 		response = supabase.table("Deal").update({"is_removed": True}).eq("id", deal_id).execute()
 
 		if not response.data:
-			logger.error("Error marking deal as removed")
+			raise response.error
 
 	except Exception as e:
 		logger.error(f"Error marking deal as removed: {str(e)}", exc_info=True)
@@ -705,6 +706,35 @@ def get_restaurant():
         logger.error(f"Error occurred: {error_message}", exc_info=True)
         return jsonify({"error": "An error occurred while fetching restaurant deals"})
 
+GPU_SERVER_URL = "http://ece-nebula10.eng.uwaterloo.ca:8000"
+
+# this is just to test if the server "is not up"
+# GPU_SERVER_URL = "http://ece-nebula10.eng.uwaterloo.ca:5000"
+
+@app.route("/proxy/generate", methods=["POST"])
+def proxy_generate():
+    try:
+        # forward request to the GPU server
+        response = requests.post(GPU_SERVER_URL + "/generate", json=request.json)
+        logger.warning(response)
+
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/proxy/handshake", methods=["GET"])
+def proxy_handshake():
+    try:
+        # attempt to call the GPU service handshake endpoint
+        response = requests.get(GPU_SERVER_URL, timeout=5) # timeout in 5 seconds
+        if response.status_code == 200:
+            return jsonify({"gpu_status": True}), 200
+        else:
+            return jsonify({"gpu_status": False, "detail": "GPU service responded with status code " + str(response.status_code)}), 503
+    except requests.exceptions.RequestException as e:
+        # any error, consider the gpu service as down
+        logger.warning(f"error: {e}")
+        return jsonify({"gpu_status": False, "error": str(e)}), 503
 
 @app.route('/')
 def index():

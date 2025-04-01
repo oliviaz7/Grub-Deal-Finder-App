@@ -1,13 +1,11 @@
 package com.example.grub.ui.dealDetail
 
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.grub.data.auth.AuthRepository
 import com.example.grub.data.deals.RestaurantDealsRepository
 import com.example.grub.model.Deal
 import com.example.grub.model.User
@@ -21,7 +19,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
+import com.example.grub.data.Result
+
 
 /**
  * UI state for the Map route.
@@ -58,7 +57,14 @@ private data class DealDetailViewModelState(
      * the ui.
      */
     fun toUiState(): DealDetailUiState =
-        DealDetailUiState(showBottomSheet, currUser, deal, restaurantName, restaurantAddress, snackbarMessage)
+        DealDetailUiState(
+            showBottomSheet,
+            currUser,
+            deal,
+            restaurantName,
+            restaurantAddress,
+            snackbarMessage
+        )
 }
 
 /**
@@ -138,7 +144,7 @@ class DealDetailViewModel(
         }
     }
 
-    fun clearSnackBarMsg(){
+    fun clearSnackBarMsg() {
         viewModelState.update {
             it.copy(snackbarMessage = null)
         }
@@ -181,7 +187,6 @@ class DealDetailViewModel(
                 }
             }
         }
-
     }
 
     fun onUpVoteClicked() {
@@ -197,11 +202,11 @@ class DealDetailViewModel(
                     userVote = if (alreadyUpvoted) VoteType.NEUTRAL else VoteType.UPVOTE,
                 )
                 viewModelState.update {
-                    if(alreadyUpvoted){
+                    if (alreadyUpvoted) {
                         it.copy(
                             snackbarMessage = "Removed up vote successfully!",
                         )
-                    }else{
+                    } else {
                         it.copy(
                             snackbarMessage = "Up voted successfully!",
                         )
@@ -224,16 +229,52 @@ class DealDetailViewModel(
                     userVote = if (alreadyDownvoted) VoteType.NEUTRAL else VoteType.DOWNVOTE,
                 )
                 viewModelState.update {
-                    if(!alreadyDownvoted){
+                    if (!alreadyDownvoted) {
                         it.copy(
                             snackbarMessage = "Down voted successfully!",
                         )
-                    }else{
+                    } else {
                         it.copy(
                             snackbarMessage = "Removed down vote successfully!",
                         )
                     }
 
+                }
+            }
+        }
+    }
+
+    fun onDeleteClicked() {
+        Log.d("deal Details", "delete")
+        if (viewModelState.value.currUser == null) {
+            setShowBottomSheet(true)
+        } else {
+            viewModelScope.launch {
+                val result = restaurantDealRepo.deleteDeal(
+                    dealId = viewModelState.value.deal!!.id,
+                    userId = viewModelState.value.currUser!!.id,
+                )
+
+                Log.d("deal Details", "delete result: $result")
+
+                var message = ""
+                when (result) {
+                    is Result.Success -> {
+                        if (result.data.success) {
+                            message = "Deleted successfully!"
+                        } else {
+                            message = "Error deleting deal!"
+                        }
+                    }
+                    is Result.Error -> {
+                        message = "Error deleting deal!"
+                    }
+                }
+                Log.d("deal Details", message)
+                viewModelState.update {
+                    it.copy(
+                        snackbarMessage = message,
+                    )
                 }
             }
         }
