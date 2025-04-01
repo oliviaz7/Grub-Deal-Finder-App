@@ -27,6 +27,7 @@ fun ListRoute(
         onShowFilterDialog = listViewModel::onShowFilterDialog,
         onFilterSelected = listViewModel::onFilterSelected,
         onSearchTextChange = listViewModel::onSearchTextChange,
+        onToggleAvailableNow = listViewModel::onToggleAvailableNow,
         onFilter = listViewModel::onFilter,
         onSortOptionSelected = listViewModel::onSortOptionSelected,
         onSelectPriceRange = listViewModel::onSelectPriceRange,

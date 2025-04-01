@@ -1,6 +1,7 @@
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,17 +12,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedFilterChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -43,6 +49,7 @@ import androidx.compose.ui.unit.dp
  *
  *
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CustomFilterDialog(
@@ -50,6 +57,7 @@ fun CustomFilterDialog(
     onSelectCustomFilter: (String, String) -> Unit,
     onSelectPriceRange: (Int, Int) -> Unit,
     onSubmitCustomFilter: () -> Unit,
+    onToggleAvailableNow: (Boolean) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
     onClearOptions: () -> Unit,
 ) {
@@ -95,6 +103,35 @@ fun CustomFilterDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
 
+                Text(text = "Available to", style = MaterialTheme.typography.bodyLarge)
+                LazyRow {
+                    items(filterRestrictions) { filterRestriction ->
+                        Spacer(Modifier.width(2.dp))
+                        ElevatedFilterChip(
+                            selected = selectedCustomFilter.restrictions.contains(filterRestriction),
+                            onClick = { onSelectCustomFilter("restrictions", filterRestriction) },
+                            label = { Text(filterRestriction) },
+                            leadingIcon =
+                                if (selectedCustomFilter.restrictions.contains(filterRestriction)) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .padding(end = 4.dp)
+                                                .size(16.dp)
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                            modifier = Modifier
+                        )
+                        Spacer(Modifier.width(6.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(text = "Available on", style = MaterialTheme.typography.bodyLarge)
                 LazyRow {
                     items(filterDays) { filterDay ->
@@ -125,32 +162,22 @@ fun CustomFilterDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
 
-                Text(text = "Available to", style = MaterialTheme.typography.bodyLarge)
-                LazyRow {
-                    items(filterRestrictions) { filterRestriction ->
-                        Spacer(Modifier.width(2.dp))
-                        ElevatedFilterChip(
-                            selected = selectedCustomFilter.restrictions.contains(filterRestriction),
-                            onClick = { onSelectCustomFilter("restrictions", filterRestriction) },
-                            label = { Text(filterRestriction) },
-                            leadingIcon =
-                            if (selectedCustomFilter.restrictions.contains(filterRestriction)) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Filled.Done,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(end = 4.dp)
-                                            .size(16.dp)
-                                    )
-                                }
-                            } else {
-                                null
-                            },
-                            modifier = Modifier
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 2.dp) {
+                        Checkbox(
+                            checked = selectedCustomFilter.onlyIncludeAvailableNow,
+                            onCheckedChange = { newValue -> onToggleAvailableNow(newValue) },
+                            modifier = Modifier//.background(Color.Cyan)
+                                .padding(end = 8.dp)
                         )
-                        Spacer(Modifier.width(6.dp))
                     }
+                    Text(
+                        text = "Available now",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -175,9 +202,7 @@ fun CustomFilterDialog(
                         )
                     },
                 )
-
             }
-
         },
         confirmButton = {
             TextButton(
@@ -192,5 +217,4 @@ fun CustomFilterDialog(
             TextButton(onClick = { onClearOptions() }) { Text("Clear") }
         }
     )
-
 }

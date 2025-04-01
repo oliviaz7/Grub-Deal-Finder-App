@@ -66,6 +66,7 @@ fun ListScreen(
     onSelectCustomFilter: (String, String) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
+    onToggleAvailableNow: (Boolean) -> Unit,
     onSearchTextChange: (String) -> Unit,
     onSelectPriceRange: (Int, Int) -> Unit,
     onFilter: () -> Unit,
@@ -158,6 +159,7 @@ fun ListScreen(
                     onSelectCustomFilter = onSelectCustomFilter,
                     onSubmitCustomFilter = onSubmitCustomFilter,
                     onShowFilterDialog = onShowFilterDialog,
+                    onToggleAvailableNow = onToggleAvailableNow,
                     onSelectPriceRange = onSelectPriceRange,
                     onClearOptions = onClearOptions,
                 )
@@ -286,6 +288,7 @@ fun ListFilterButtons(
     modifier: Modifier,
     onFilterSelected: (String) -> Unit,
     onSelectCustomFilter: (String, String) -> Unit,
+    onToggleAvailableNow: (Boolean) -> Unit,
     onSubmitCustomFilter: () -> Unit,
     onSelectPriceRange: (Int, Int) -> Unit,
     onShowFilterDialog: (Boolean) -> Unit,
@@ -378,6 +381,7 @@ fun ListFilterButtons(
                 },
                 onSubmitCustomFilter = onSubmitCustomFilter,
                 onShowFilterDialog = onShowFilterDialog,
+                onToggleAvailableNow = onToggleAvailableNow,
                 onSelectPriceRange = onSelectPriceRange,
                 onClearOptions = onClearOptions,
             )

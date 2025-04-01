@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -72,6 +73,18 @@ class ListViewModel(
         }
     }
 
+    fun onToggleAvailableNow(newValue: Boolean) {
+        viewModelState.update { currentState ->
+            currentState.copy(
+                selectedCustomFilter = currentState.selectedCustomFilter.copy(
+                    day = emptySet(),
+                    onlyIncludeAvailableNow = newValue,
+
+                )
+            )
+        }
+    }
+
     fun onClearOptions() {
         viewModelState.update { currentState ->
             val updatedFilters = CustomFilter()
@@ -112,6 +125,7 @@ class ListViewModel(
                 restaurantDeal.copy(deals = matchingDeals)
             }.filter { it.deals.isNotEmpty() }
         }
+
 
         // Apply deal type filtering on search results
         val finalFilteredList = if (uiState.value.selectedFilter == "Custom")
@@ -159,7 +173,7 @@ class ListViewModel(
                     } else {
                         currentDaySet + filter
                     }
-                    currentState.selectedCustomFilter.copy(day = newDaySet)
+                    currentState.selectedCustomFilter.copy(day = newDaySet, onlyIncludeAvailableNow = false)
                 }
 
                 "restrictions" -> {
@@ -212,6 +226,11 @@ class ListViewModel(
                         })
                         &&
                         (deal.price in viewModelState.value.selectedCustomFilter.minPrice..viewModelState.value.selectedCustomFilter.maxPrice)
+                        &&
+                        // If onlyIncludeAvailableNow is true, only show deals that are available now
+                        // otherwise, show all deals regardless of availability
+                        (!viewModelState.value.selectedCustomFilter.onlyIncludeAvailableNow ||
+                                deal.activeDayTime.isAvailableAt(ZonedDateTime.now()))
             }
             restaurantDeal.copy(deals = filteredDeals)
         }.filter { it.deals.isNotEmpty() }
