@@ -23,7 +23,6 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-21, 0, 0, 0, 0, 0, 3, list view ui setup
 2025-02-22, 0, 0, 0, 0, 0, 3, deal filter
 2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
-2025-02-22, 0, 0, 3, 0, 0, 0, Backend -> frontend integrations
 2025-02-23, 0, 5, 0, 0, 0, 0, add deal flow
 2025-02-23, 0, 0, 0, 0, 4, 0, Design of Restaurant Details + Deals Details
 2025-02-24, 0, 0, 0, 0, 0, 2, refactoring ui components
@@ -62,6 +61,8 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-14, 0, 0, 3, 0, 0, 0, updating backend endpoints
 2025-03-15, 0, 0, 6, 0, 0, 0, updating SQL function and adding backend endpoints
 2025-03-15, 0, 6, 0, 0, 0, 0, working on add deals flow
+2025-03-15, 0, 6, 0, 2, 0, 0, research LLM, figure out LLM workflow
+2025-03-16, 0, 0, 3, 0, 0, 0, adding backend endpoints and testing
 2025-03-16, 0, 0, 5, 0, 0, 0, adding backend endpoints and testing
 2025-03-16, 0, 0, 0, 0, 0, 3, restrictions ui
 2025-03-17, 0, 0, 0, 0, 0, 2, restrictions filter
@@ -70,14 +71,20 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-17, 3, 0, 0, 0, 0, 0, misc and debugging image uploading
 2025-03-17, 3, 0, 0, 0, 0, 0, optimistic updates for votes and saves
 2025-03-17, 0, 3, 0, 0, 0, 0, add deal camera
+2025-03-17, 0, 0, 0, 4, 0, 0, slurm and gpu allocation setup
 2025-03-18, 5, 0, 0, 0, 0, 0, misc debugging and signup and testing
+2025-03-18, 0, 0, 0, 5, 0, 0, gpu server with ollama
 2025-03-18, 0, 0, 4, 0, 0, 0, adding deals via phone + adding username + price
+2025-03-18, 0, 0, 0, 2, 0, 0, gpu server office hours
 2025-03-19, 2, 0, 0, 0, 0, 0, signup login debugging
 2025-03-19, 0, 0, 2, 0, 0, 0, login debugging with dan
 2025-03-19, 0, 2, 0, 0, 0, 0, Rework start time/end time input
 2025-03-19, 0, 0, 0, 0, 0, 2, misc ui fixes
+2025-03-20, 0, 0, 0, 1, 0, 0, gpu server office hours 2x
 2025-03-24, 0, 5, 0, 0, 0, 0, Show existing deals page
+2025-03-24, 0, 0, 0, 8, 0, 0, gpu sever with huggingface
 2025-03-24, 0, 0, 0, 0, 5, 0, Setting up About Page
+2025-03-25, 0, 0, 0, 1, 0, 0, gpu server office hours 3x
 2025-03-25, 0, 0, 2, 0, 0, 0, Make restaurant images clearer, change api
 2025-03-26, 0, 6, 0, 0, 0, 0, misc and adding icon and splashscreen
 2025-03-26, 0, 0, 0, 0, 0, 2, full screen image with zoom
@@ -86,7 +93,9 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-26, 0, 0, 0, 0, 6, 0, More About Page Work, Password Hashing, and New Laptop
 2025-03-27, 0, 0, 0, 0, 8, 0, Migrated old text-based passwords, finished hashing, finished about page, started change password
 2025-03-27, 5, 0, 0, 0, 0, 0, Team meeting and making auto populate work
+2025-03-27, 0, 0, 0, 3, 0, 0, Integration testing
 2025-03-27, 0, 0, 0, 0, 0, 2, attempt to allow image downloads
+2025-03-27, 0, 0, 0, 3, 0, 0, gpu testing + prompt improvement
 2025-03-27, 0, 0, 0, 0, 6, 0, New Laptop setup, more change password work and debugging
 2025-03-28, 3, 0, 0, 0, 0, 0, Got hit with a heavy bill from google API and trying to resolve it
 2025-03-28, 2, 0, 0, 0, 0, 0, Setting up new laptop w Van
@@ -96,6 +105,8 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-31, 0, 6, 0, 0, 0, 0, Setting up view profile screen
 2025-03-31, 0, 0, 0, 0, 0, 4, refactor code, delete unused files
 2025-03-31, 0, 0, 3, 0, 0, 0, Helping merge servers together, fix bugs
+2025-04-31, 0, 0, 0, 6, 0, 0, reroute gpu server through proxy + gpu handshake + on campus integration testing
 2025-04-01, 0, 0, 0, 0, 0, 2, ui fixes across screens
 2025-04-01, 0, 0, 1, 0, 0, 0, Add expiry filtering
 2025-04-01, 3, 0, 0, 0, 0, 0, Misc UI polish and persist login between cold app boots
+2025-04-01, 0, 0, 0, 2, 0, 0, test proxy + handshake
