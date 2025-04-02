@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import kotlinx.coroutines.flow.update
+import retrofit2.http.Query
 import java.security.MessageDigest
 
 data class LoginResponse(
@@ -31,6 +32,14 @@ data class LoginResponse(
 data class LoginRequest(
     val username: String,
     val password: String
+)
+
+data class CreateUserRequest(
+    val username: String,
+    val password: String,
+    val firstName: String,
+    val lastName: String,
+    val email: String
 )
 
 data class ChangePasswordRequest(
@@ -154,7 +163,8 @@ class AuthRepositoryImpl(private val applicationContext: Context) : AuthReposito
         email: String
     ): Result<String> {
         // THIS IS SO JANk fix olivia
-        val response = apiService.createNewUserAccount(username, password, firstName, lastName, email)
+        val createUserRequest = CreateUserRequest(username, password, firstName, lastName, email)
+        val response = apiService.createNewUserAccount(createUserRequest)
         if (response.success) {
             val user = User(
                 id = response.message, // SO BAD FIX TODO:

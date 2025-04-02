@@ -3,6 +3,7 @@ package com.example.grub.service
 import com.example.grub.data.DealImageRequestBody
 import com.example.grub.data.HandshakeResponse
 import com.example.grub.data.auth.impl.ChangePasswordRequest
+import com.example.grub.data.auth.impl.CreateUserRequest
 import com.example.grub.data.auth.impl.LoginRequest
 import com.example.grub.data.auth.impl.LoginResponse
 import com.example.grub.data.deals.AddDealResponse
@@ -32,11 +33,7 @@ interface ApiService {
 
     @POST("create_new_user_account")
     suspend fun createNewUserAccount(
-        @Query("username") username: String,
-        @Query("password") password: String,
-        @Query("firstName") firstName: String,
-        @Query("lastName") lastName: String,
-        @Query("email") email: String
+        @Body createUserRequest: CreateUserRequest
     ): ApiResponse
 
     @POST("change_password")

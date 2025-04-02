@@ -562,12 +562,13 @@ def delete_deal():
 def create_new_user_account():
 	"""Creates a new user account in the User table."""
 	try:
+		data = request.get_json()
 		# Get query parameters from the request
-		username = request.args.get("username")
-		password = request.args.get("password")
-		first_name = request.args.get("firstName")
-		last_name = request.args.get("lastName")
-		email = request.args.get("email")
+		username = data.get("username")
+		password = data.get("password")
+		first_name = data.get("firstName")
+		last_name = data.get("lastName")
+		email = data.get("email")
 
 		logger.info(f"Received new user signup request for username: {username}")
 
