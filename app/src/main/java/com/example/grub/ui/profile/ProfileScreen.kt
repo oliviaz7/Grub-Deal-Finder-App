@@ -3,7 +3,6 @@ package com.example.grub.ui.profile
 
 import RestaurantItem
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -80,8 +79,8 @@ fun ProfileScreen(
             contentDescription = "Logo Background",
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = 50.dp)
-                .graphicsLayer(alpha = 0.2f)
+                .offset(y = 80.dp)
+                .graphicsLayer(alpha = 0.1f)
         )
 
 
@@ -181,7 +180,9 @@ fun UserProfile(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             ProfileOption(Icons.Default.Favorite, "Saved Deals", onClickFavDeals)
-            ProfileOption(Icons.Default.Person, "Account Details")
+            ProfileOption(Icons.Default.Person, "Account Details"){
+                navController.navigate(Destinations.ACCOUNT_DETAILS)
+            }
             ProfileOption(Icons.Default.Info, "About Grub") {
                 navController.navigate(Destinations.ABOUT_ROUTE)
             }
@@ -329,27 +330,6 @@ fun FavouriteDeals(
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
-    }
-}
-
-@Composable
-fun AboutPage() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "About Grub",
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Grub is an app that helps you find the best restaurant deals in your area. Save your favorite deals, manage your profile, and more.",
-            textAlign = TextAlign.Center
-        )
     }
 }
 

@@ -32,6 +32,8 @@ import com.example.grub.ui.profile.ProfileRoute
 import com.example.grub.ui.profile.ProfileViewModel
 import com.example.grub.ui.profile.about.AboutPageRoute
 import com.example.grub.ui.profile.about.AboutPageViewModel
+import com.example.grub.ui.profile.account.AccountDetailsViewModel
+import com.example.grub.ui.profile.accountDetails.AccountDetailsRoute
 import com.example.grub.ui.shared.ScreenWithScaffold
 
 object Destinations {
@@ -44,6 +46,7 @@ object Destinations {
     const val LOGIN_ROUTE = "login"
     const val IMAGE_ROUTE = "image"
     const val ABOUT_ROUTE = "about"
+    const val ACCOUNT_DETAILS = "account"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -246,5 +249,22 @@ fun AppNavHost(
                 )
             }
         }
+
+        composable(route = Destinations.ACCOUNT_DETAILS) {
+            val accountDetailsViewModel: AccountDetailsViewModel = viewModel(
+                factory = AccountDetailsViewModel.provideFactory(
+                    appViewModel = appViewModel,
+
+                    )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                AccountDetailsRoute(accountDetailsViewModel, navController)
+            }
+        }
+
     }
 }
