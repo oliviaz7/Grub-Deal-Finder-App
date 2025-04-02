@@ -84,7 +84,7 @@ fun AboutPageScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset(y = 100.dp)
-                    .graphicsLayer(alpha = 0.1f)
+                    .graphicsLayer(alpha = 0.05f)
             )
 
             // Content
@@ -92,6 +92,7 @@ fun AboutPageScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .padding(16.dp)
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -101,41 +102,52 @@ fun AboutPageScreen(
 
                 Text(
                     text = "Grub's Mission and Values",
-                    fontWeight = FontWeight.Bold
-                )
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                )
 
                 Text(
-                    text = "Grub helps you find food deals and discounts in your area! " +
-                            "We believe that everyone should be well informed of deals in their area " +
-                            "and we're here to help you find it :D " +
-                            "We're committed to providing you with the best deals and discounts " +
-                            "so you can enjoy your favorite foods without breaking the bank.",
-                    textAlign = TextAlign.Center
+                    text = "Grub helps you find restaurant deals and discounts in your area! " +
+                            "We believe that everyone should be well informed of deals when you choose to eat out " +
+                            "and we're here to help you find it :D ",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text =  "We're committed to providing you with the best deals and discounts " +
+                            "so you can enjoy your favorite foods without breaking the bank.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "How does Grub Work?",
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "When you spot a deal or discount, you can share it by posting it on Grub." +
-                            "IM TOO TIRED TO WRITE THIS LET ME CODE MONEY FCKKKK I DO LATER",
-                    textAlign = TextAlign.Center
+                    text = "When you spot a deal or discount, you can share it by posting it on Grub! " +
+                            "Simply click on the orange plus button on the map or list view and select the restaurant you wish to add. " +
+                            "Once selected, take a photo of the deal and Grub AI will fill in the deal details for you!! " +
+                            "Fill in any missing information and now you can see your deal among thousands of others in your area :D"
+                             ,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+//                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Version 1.0.0.0",
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
             }
