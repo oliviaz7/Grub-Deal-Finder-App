@@ -662,8 +662,8 @@ def login():
 
 		# Verify password using bcrypt
 		if not verify_password(password, user['password_hash']):
-			print("Password: ", password)
-			print("password_hash: ", user['password_hash'])
+# 			print("Password: ", password)
+# 			print("password_hash: ", user['password_hash'])
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({
 		        "success": False,
@@ -736,8 +736,8 @@ def change_password():
 
         new_password_hash = hash_password(new_password)
 
-        print("User Data Retrieved:", user_data)
-        print("New Hashed Password:", new_password_hash)
+#         print("User Data Retrieved:", user_data)
+#         print("New Hashed Password:", new_password_hash)
         # Update the password in supabase
         response = (
             supabase.from_('User')
