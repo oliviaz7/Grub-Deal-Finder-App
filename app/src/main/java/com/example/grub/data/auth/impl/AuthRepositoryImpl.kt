@@ -33,6 +33,13 @@ data class LoginRequest(
     val password: String
 )
 
+data class ChangePasswordRequest(
+    val username: String,
+    val oldPassword: String,
+    val newPassword: String,
+    val confirmPassword: String
+)
+
 class AuthRepositoryImpl(private val applicationContext: Context) : AuthRepository {
     private val _loggedInUser = MutableStateFlow<User?>(null)
     override val loggedInUser: StateFlow<User?> = _loggedInUser.asStateFlow()
@@ -180,6 +187,46 @@ class AuthRepositoryImpl(private val applicationContext: Context) : AuthReposito
             } ?: return Result.Error(Exception("User not found"))
         } else {
             return Result.Error(Exception(response.message))
+        }
+    }
+
+    override suspend fun changePassword(
+        username: String,
+        oldPassword: String,
+        newPassword: String,
+        confirmPassword: String
+    ): Result<String> {
+        try {
+            // Create a ChangePasswordRequest object
+            val changePasswordRequest = ChangePasswordRequest(
+                username = username,
+                oldPassword = oldPassword,
+                newPassword = newPassword,
+                confirmPassword = confirmPassword
+            )
+
+            // Make an API call to change the password
+            val response = apiService.changePassword(changePasswordRequest)
+
+            return if (response.success) {
+                // Update logged-in user with new password information
+                _loggedInUser.update { user ->
+                    user?.copy(
+                        username = username)
+                }
+
+                // Update the stored credentials with the new password
+                saveCredentials(username, newPassword)
+
+                // Return success
+                Result.Success(response.message)
+            } else {
+                // Handle error if API response is unsuccessful
+                Result.Error(Exception(response.message))
+            }
+        } catch (e: Exception) {
+            // Handle any exceptions during the process
+            return Result.Error(Exception("Error: Unable to change password", e))
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.grub.service
 
 import com.example.grub.data.DealImageRequestBody
 import com.example.grub.data.HandshakeResponse
+import com.example.grub.data.auth.impl.ChangePasswordRequest
 import com.example.grub.data.auth.impl.LoginRequest
 import com.example.grub.data.auth.impl.LoginResponse
 import com.example.grub.data.deals.AddDealResponse
@@ -36,6 +37,11 @@ interface ApiService {
         @Query("firstName") firstName: String,
         @Query("lastName") lastName: String,
         @Query("email") email: String
+    ): ApiResponse
+
+    @POST("change_password")
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest
     ): ApiResponse
 
     @POST("login")

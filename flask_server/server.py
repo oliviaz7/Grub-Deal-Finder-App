@@ -10,6 +10,7 @@ import logging
 import pytz
 import hashlib
 import requests
+import bcrypt
 
 # Configure logging
 logger = logging.getLogger('werkzeug')
@@ -615,8 +616,9 @@ def create_new_user_account():
 		return jsonify({"success": False, "message": "Error: Invalid fields could not create user"})
 
 
-def hash_password(password):
-	return hashlib.sha256(password.encode()).hexdigest()
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 @app.route('/login', methods=["POST"])
 def login():
@@ -627,6 +629,8 @@ def login():
 
 		username = data.get("username")
 		password = data.get("password")
+
+
 
 		logger.info(f"Received login request for username: {username}")
 
@@ -651,19 +655,25 @@ def login():
 		# Get the user data
 		user = response.data[0]
 
-		# Verify password
-		if user['password_hash'] != hash_password(password):
+		# USE THIS TO UPDATE PASSWORDS OH MY LORD
+# 		print("new hashed password: ", hash_password(password))
+# 		print("password_hash: ", user['password_hash'])
+
+		# Verify password using bcrypt
+		if not verify_password(password, user['password_hash']):
+			print("Password: ", password)
+			print("password_hash: ", user['password_hash'])
 			logger.warning(f"Password mismatch for username: {username}")
 			return jsonify({
-				"success": False,
-				"message": "ERROR: Invalid username or password"
-			})
+		        "success": False,
+                "message": "ERROR: Invalid username or password"
+            })
 
 		# Prepare the full user object to return
 		user_response = {
 			"id": user['id'],
 			"username": user['username'],
-			"password": user['password_hash'],  # Returning plain password for now
+			"password": user['password_hash'],
 			"firstName": user['first_name'],
 			"lastName": user['last_name'],
 			"email": user['email'],
@@ -687,6 +697,63 @@ def login():
 			"success": False,
 			"message": "ERROR: An error occurred during login"
 		})
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+#     print("THIS IS USED TO CHANGE PREVIOUSLY HASHED PASSWORDS")
+#     print("plain password: ", plain_password)
+#     print("THIS IS THE HASHED SALT: ", hash_password(plain_password))
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+@app.route('/change_password', methods=["POST"])
+def change_password():
+    try:
+        data = request.json
+
+        # Validate basic stuff
+        username = data.get("username")
+        old_password = data.get("oldPassword")
+        new_password = data.get("newPassword")
+        new_password_confirm = data.get("confirmPassword")
+
+        if not all([username, old_password, new_password, new_password_confirm]):
+            logger.warning("Missing required fields in change_password request")
+            return jsonify({"success": False, "message": "Error: Missing required fields"})
+
+        # New password and confirmation match
+        if new_password != new_password_confirm:
+            return jsonify({"success": False, "message": "Error: New passwords do not match"})
+
+        # Fetch user from the database
+        user = supabase.from_('User').select('id', 'password_hash').eq('username', username).execute()
+        print("User query result:", user)
+
+        user_data = user.data[0]
+
+        # Check if old password is correct
+        if not verify_password(old_password, user_data['password_hash']):
+            return jsonify({"success": False, "message": "Error: Incorrect current password"})
+
+        new_password_hash = hash_password(new_password)
+
+        print("User Data Retrieved:", user_data)
+        print("New Hashed Password:", new_password_hash)
+        # Update the password in supabase
+        response = (
+            supabase.from_('User')
+            .update({'password_hash': new_password_hash})
+            .eq('id', user_data['id'])
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({"success": False, "message": "Error: Failed to update password"})
+
+        return jsonify({"success": True, "message": "Password updated successfully"})
+
+    except Exception as e:
+        error_message = str(e)
+        logger.error(f"Error occurred in change_password: {error_message}", exc_info=True)
+        return jsonify({"success": False, "message": "Error: Unable to change password"})
 
 @app.route('/get_restaurant', methods=["GET"])
 def get_restaurant():

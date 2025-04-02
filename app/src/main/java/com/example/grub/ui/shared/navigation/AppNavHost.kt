@@ -20,6 +20,8 @@ import com.example.grub.ui.auth.login.LoginRoute
 import com.example.grub.ui.auth.login.LoginViewModel
 import com.example.grub.ui.auth.signup.SignupRoute
 import com.example.grub.ui.auth.signup.SignupViewModel
+import com.example.grub.ui.auth.changePass.ChangePassRoute
+import com.example.grub.ui.auth.changePass.ChangePassViewModel
 import com.example.grub.ui.dealDetail.DealDetailRoute
 import com.example.grub.ui.dealDetail.DealDetailViewModel
 import com.example.grub.ui.dealDetail.dealImage.DealImageViewModel
@@ -46,6 +48,7 @@ object Destinations {
     const val LOGIN_ROUTE = "login"
     const val IMAGE_ROUTE = "image"
     const val ABOUT_ROUTE = "about"
+    const val CHANGE_PASSWORD_ROUTE = "changePassword"
     const val ACCOUNT_DETAILS = "account"
 }
 
@@ -227,6 +230,21 @@ fun AppNavHost(
             }
         }
 
+        composable(Destinations.CHANGE_PASSWORD_ROUTE) {
+            val changePassViewModel: ChangePassViewModel = viewModel(
+                factory = ChangePassViewModel.provideFactory(
+                    appViewModel = appViewModel,
+                    authRepository = appContainer.authRepository,
+                )
+            )
+            ScreenWithScaffold(
+                navController,
+                showBottomNavItem = true,
+                showFloatingActionButton = false
+            ) {
+                ChangePassRoute(changePassViewModel, navController)
+            }
+        }
         composable(
             Destinations.IMAGE_ROUTE
         ) { _ ->

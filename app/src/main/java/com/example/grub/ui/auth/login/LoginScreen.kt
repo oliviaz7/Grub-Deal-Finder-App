@@ -121,6 +121,15 @@ fun LoginScreen(
                 }
             }
 
+            Button(
+                onClick = { navController.navigate("changePassword") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text("Change Password")
+            }
+
             uiState.error?.let {
                 Text(
                     text = it,

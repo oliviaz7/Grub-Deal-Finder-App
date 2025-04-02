@@ -21,6 +21,12 @@ interface AuthRepository {
         email: String
     ): Result<String>
     val loggedInUser: StateFlow<User?>
+    suspend fun changePassword(
+        username: String,
+        oldPassword: String,
+        newPassword: String,
+        confirmPassword: String
+    ): Result<String>
     suspend fun googleSignInButton(context: Context, rawNonce: String)
 
     suspend fun getUserById(userId: String) : Result<User>

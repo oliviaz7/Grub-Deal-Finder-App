@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.grub.data.Result
 import com.example.grub.data.auth.AuthRepository
 import com.example.grub.model.User
+import com.example.grub.service.RetrofitClient.apiService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,6 +81,39 @@ class FakeAuthRepositoryImpl : AuthRepository {
             Result.Success(fakeUserProfile)
         } else {
             Result.Error(Exception("User not logged in"))
+        }
+    }
+
+    override suspend fun changePassword(
+        username: String,
+        oldPassword: String,
+        newPassword: String,
+        confirmPassword: String,
+    ): Result<String> {
+        try {
+            val changePasswordRequest = ChangePasswordRequest(
+                username = username,
+                oldPassword = oldPassword,
+                newPassword = newPassword,
+                confirmPassword = confirmPassword
+            )
+
+            // Make an API call to change the password
+            val response = apiService.changePassword(changePasswordRequest)
+
+            // Check if the password change was successful
+            return if (response.success) {
+                // IDK WHAT TO DO HERE
+
+                // Return success result
+                Result.Success(response.message)
+            } else {
+                // Handle failure (error response from API)
+                Result.Error(Exception(response.message))
+            }
+        } catch (e: Exception) {
+            // Handle any exceptions that occur during the process
+            return Result.Error(Exception("Error: Unable to change password", e))
         }
     }
 
