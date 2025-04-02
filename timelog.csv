@@ -90,3 +90,4 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-03-31, 0, 0, 3, 0, 0, 0, Helping merge servers together, fix bugs
 2025-04-01, 0, 0, 0, 0, 0, 2, ui fixes across screens
 2025-04-01, 0, 0, 1, 0, 0, 0, Add expiry filtering
+2025-04-01, 3, 0, 0, 0, 0, 0, Misc UI polish and persist login between cold app boots
