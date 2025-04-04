@@ -16,7 +16,7 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-02-11, 2, 0, 0, 0, 0, 0, location permissions
 2025-02-11, 0, 0, 3, 0, 0, 0, python server setup
 2025-02-11, 4, 0, 0, 0, 0, 0, set up firebase and integrate
-2025-02-20, 0, 0, 0, 0, 0, 3, icons, ui changes
+2025-02-20, 0, 0, 0, 0, 0, 3, icons and ui changes
 2025-02-20, 0, 0, 3, 0, 0, 0, More Supabase and Flask integrations
 2025-02-20, 1, 0, 0, 0, 0, 0, actually load the images
 2025-02-21, 2, 0, 0, 0, 0, 0, questions and PR reviews
@@ -113,3 +113,4 @@ date, Olivia, Angela, Joyce, Grace, Daniel, Olina, task
 2025-04-01, 0, 0, 0, 0, 2, 0, On call for auth issues
 2025-04-01, 0, 0, 0, 0, 3, 0, Finished about page and Account Details page
 2025-04-02, 0, 0, 0, 0, 8, 0, Change password fix + complete
+2025-04-04, 0, 5, 0, 0, 0, 0, camera + see other profiles
